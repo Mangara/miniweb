@@ -1,0 +1,13 @@
+X Remove superfluous whitespace from HTML
+- Remove superfluous whitespace from embedded CSS
+- Remove superfluous whitespace from external CSS
+- Remove superfluous whitespace from embedded JS
+- Remove superfluous whitespace from external JS
+
+- Remove unused id and class
+- Compress remaining id and class, using Huffman encoding
+
+- Compress JavaScript variables and function names
+
+o Parse CSS with jStyleParser
+o Parse JS with Rhino
