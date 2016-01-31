@@ -7,19 +7,30 @@ package miniweb;
 
 import cz.vutbr.web.css.CSSException;
 import cz.vutbr.web.css.CSSFactory;
+import cz.vutbr.web.css.CombinedSelector;
 import cz.vutbr.web.css.MediaSpecNone;
 import cz.vutbr.web.css.NetworkProcessor;
+import cz.vutbr.web.css.RuleBlock;
+import cz.vutbr.web.css.RuleMedia;
+import cz.vutbr.web.css.RuleSet;
+import cz.vutbr.web.css.Selector;
+import cz.vutbr.web.css.Selector.ElementClass;
+import cz.vutbr.web.css.Selector.ElementID;
 import cz.vutbr.web.css.StyleSheet;
+import cz.vutbr.web.domassign.Analyzer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javafx.util.Pair;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -47,7 +58,9 @@ public class MiniWeb {
 
         List<StyleSheet> stylesheets = getStylesheets(doc);
 
-        Set<Element> referencedByClassFromCSS = getElementsReferencedByClass(doc, stylesheets);
+        Pair<Set<Element>,Set<Element>> referencedElements = getReferencedElements(doc, stylesheets);
+        Set<Element> referencedByClassFromCSS = referencedElements.getKey();
+        Set<Element> referencedByIdFromCSS = referencedElements.getValue();
     }
 
     private static List<StyleSheet> getStylesheets(Document doc) throws CSSException, IOException {
@@ -117,7 +130,49 @@ public class MiniWeb {
         return minified.toString();
     }
 
-    private static Set<Element> getElementsReferencedByClass(Document doc, List<StyleSheet> stylesheets) {
+    private static Pair<Set<Element>, Set<Element>> getReferencedElements(Document doc, List<StyleSheet> stylesheets) {
+        Set<Element> referencedByClass = new HashSet<>();
+        Set<Element> referencedById = new HashSet<>();
+        
+        for (StyleSheet stylesheet : stylesheets) {
+            for (RuleBlock<?> rules : stylesheet) {
+                if (rules instanceof RuleSet) {
+                    RuleSet set = (RuleSet) rules;
+                    CombinedSelector[] selectors = set.getSelectors();
+                    
+                    System.out.println("Selectors: " + Arrays.toString(selectors));
+                    for (CombinedSelector selectorList : selectors) {
+                        StringBuilder select = new StringBuilder();
+                        
+                        for (Selector selector : selectorList) {
+                            select.append(selector.getCombinator() == null ? "" : selector.getCombinator().value());
+                            
+                            for (Selector.SelectorPart part : selector) {
+                                select.append(part);
+                                
+                                if (part instanceof ElementClass) {
+                                    referencedByClass.addAll(doc.select(select.toString()));
+                                } else if (part instanceof ElementID) {
+                                    System.out.println(" Id: " + part);
+                                    System.out.println(" Element: " + doc.select(part.toString()).toString().substring(0, doc.select(part.toString()).toString().indexOf('\n')));
+                                    referencedById.addAll(doc.select(part.toString()));
+                                }
+                            }
+                        }
+                    }
+                } else if (rules instanceof RuleMedia) {
+                    RuleMedia rm = (RuleMedia) rules;
+                    
+                    System.out.println("Rule media:");
+                    //System.out.println(rm);
+                } else {
+                    System.err.println("Unexpected RuleBlock type: " + rules);
+                }
+            }
+        }
+        
+        Analyzer x;
+        
         return null;
     }
 }
