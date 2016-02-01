@@ -8,3 +8,7 @@ http://perfectionkills.com/html-minifier-revisited/          (2014)
 - Steal test cases:
 
 https://github.com/kangax/html-minifier/blob/gh-pages/tests/minifier.js
+
+- A good reference for when omitting quotes on attributes is okay:
+
+https://mathiasbynens.be/notes/unquoted-attribute-values
