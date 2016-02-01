@@ -68,7 +68,7 @@ public class MinifyVisitor implements NodeVisitor {
 
             Entities.escape(sb, ((TextNode) node).getWholeText(), out, false, normaliseWhite, stripLeadingWhite);
 
-            if (stripTrailingWhite && sb.charAt(sb.length() - 1) == ' ') {
+            while (stripTrailingWhite && sb.charAt(sb.length() - 1) == ' ') {
                 sb.deleteCharAt(sb.length() - 1);
             }
         } else if (node instanceof XmlDeclaration) {
