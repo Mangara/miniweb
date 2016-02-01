@@ -1,6 +1,7 @@
 package org.jsoup.nodes;
 
 import java.util.regex.Pattern;
+import org.jsoup.select.NodeTraversor;
 import org.jsoup.select.NodeVisitor;
 
 /**
@@ -12,7 +13,18 @@ public class MinifyVisitor implements NodeVisitor {
     private final StringBuilder sb;
     private final Document.OutputSettings out;
 
-    public MinifyVisitor(StringBuilder sb) {
+    public static String minify(Document doc) {
+        StringBuilder minified = new StringBuilder();
+        NodeTraversor minifyTraversor = new NodeTraversor(new MinifyVisitor(minified));
+
+        for (Node childNode : doc.childNodes()) {
+            minifyTraversor.traverse(childNode);
+        }
+
+        return minified.toString();
+    }
+
+    private MinifyVisitor(StringBuilder sb) {
         this.sb = sb;
         out = new Document.OutputSettings();
         out.prettyPrint(false);

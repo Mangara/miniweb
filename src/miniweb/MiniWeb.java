@@ -14,8 +14,6 @@ import java.util.stream.Collectors;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.MinifyVisitor;
-import org.jsoup.nodes.Node;
-import org.jsoup.select.NodeTraversor;
 
 /**
  *
@@ -30,7 +28,7 @@ public class MiniWeb {
         File test = new File("testInputs/CG-Publy/CG-Lab.html");
         Document doc = Jsoup.parse(test, "UTF-8");
 
-        System.out.println(minify(doc));
+        System.out.println(MinifyVisitor.minify(doc));
     }
 
     private static List<Path> getExternalStyleSheets(Document doc) {
@@ -44,16 +42,5 @@ public class MiniWeb {
                 .filter(e -> !e.attr("src").startsWith("http")) // Only keep local JS files
                 .map(e -> Paths.get(e.attr("src")))
                 .collect(Collectors.toList());
-    }
-
-    private static String minify(Document doc) {
-        StringBuilder minified = new StringBuilder();
-        NodeTraversor minifyTraversor = new NodeTraversor(new MinifyVisitor(minified));
-
-        for (Node childNode : doc.childNodes()) {
-            minifyTraversor.traverse(childNode);
-        }
-
-        return minified.toString();
     }
 }
