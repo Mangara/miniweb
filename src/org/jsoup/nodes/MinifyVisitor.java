@@ -100,7 +100,7 @@ public class MinifyVisitor implements NodeVisitor {
 
             sb.append(" ").append(a.getKey());
 
-            if (!a.shouldCollapseAttribute(out)) {
+            if (!(a.getValue().trim().isEmpty() || a.isBooleanAttribute())) {
                 StringBuilder value = new StringBuilder();
                 Entities.escape(value, a.getValue(), out, true, false, false);
 
