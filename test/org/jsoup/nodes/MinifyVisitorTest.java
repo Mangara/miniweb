@@ -451,22 +451,22 @@ public class MinifyVisitorTest {
     @Test
     public void testCollapsingBooleanAttributes() {
         String input = "<input disabled=\"disabled\">";
-        testBodySnippet(input, "<input disabled>"); // { collapseBooleanAttributes: true }
+        testBodySnippet(input, "<input disabled>");
 
         input = "<input CHECKED = \"checked\" readonly=\"readonly\">";
-        testBodySnippet(input, "<input checked readonly>"); // { collapseBooleanAttributes: true }
+        testBodySnippet(input, "<input checked readonly>");
 
         input = "<option name=\"blah\" selected=\"selected\">moo</option>";
-        testBodySnippet(input, "<option name=\"blah\" selected>moo</option>"); // { collapseBooleanAttributes: true }
+        testBodySnippet(input, "<option name=blah selected>moo</option>");
 
         input = "<input autofocus=\"autofocus\">";
-        testBodySnippet(input, "<input autofocus>"); // { collapseBooleanAttributes: true }
+        testBodySnippet(input, "<input autofocus>");
 
         input = "<input required=\"required\">";
-        testBodySnippet(input, "<input required>"); // { collapseBooleanAttributes: true }
+        testBodySnippet(input, "<input required>");
 
         input = "<input multiple=\"multiple\">";
-        testBodySnippet(input, "<input multiple>"); // { collapseBooleanAttributes: true }
+        testBodySnippet(input, "<input multiple>");
 
         input = "<div Allowfullscreen=foo Async=foo Autofocus=foo Autoplay=foo Checked=foo Compact=foo Controls=foo "
                 + "Declare=foo Default=foo Defaultchecked=foo Defaultmuted=foo Defaultselected=foo Defer=foo Disabled=foo "
@@ -474,11 +474,11 @@ public class MinifyVisitorTest {
                 + "Loop=foo Multiple=foo Muted=foo Nohref=foo Noresize=foo Noshade=foo Novalidate=foo Nowrap=foo Open=foo "
                 + "Pauseonexit=foo Readonly=foo Required=foo Reversed=foo Scoped=foo Seamless=foo Selected=foo Sortable=foo "
                 + "Spellcheck=foo Truespeed=foo Typemustmatch=foo Visible=foo></div>";
-        String output = "<div Allowfullscreen Async Autofocus Autoplay Checked Compact Controls Declare Default Defaultchecked "
-                + "Defaultmuted Defaultselected Defer Disabled Enabled Formnovalidate Hidden Indeterminate Inert "
-                + "Ismap Itemscope Loop Multiple Muted Nohref Noresize Noshade Novalidate Nowrap Open Pauseonexit Readonly "
-                + "Required Reversed Scoped Seamless Selected Sortable Spellcheck Truespeed Typemustmatch Visible></div>";
-        testBodySnippet(input, output); // { collapseBooleanAttributes: true, caseSensitive: true }
+        String output = "<div allowfullscreen async autofocus autoplay checked compact controls declare default defaultchecked "
+                + "defaultmuted defaultselected defer disabled enabled formnovalidate hidden indeterminate inert "
+                + "ismap itemscope loop multiple muted nohref noresize noshade novalidate nowrap open pauseonexit readonly "
+                + "required reversed scoped seamless selected sortable spellcheck truespeed typemustmatch visible></div>";
+        testBodySnippet(input, output);
     }
 
     @Test
