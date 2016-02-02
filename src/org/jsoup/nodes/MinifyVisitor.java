@@ -49,16 +49,12 @@ public class MinifyVisitor implements NodeVisitor {
 
             minifyAttributes(e.attributes());
 
-            // selfclosing includes unknown tags, isEmpty defines tags that are always empty
-            if (e.childNodes().isEmpty() && e.tag().isSelfClosing()) {
-                if (e.tag().isEmpty()) {
-                    sb.append('>');
-                } else {
-                    sb.append(" />"); // <img> in html, <img /> in xml
-                }
-            } else {
-                sb.append(">");
+            // If the last attribute was unquoted and ended with '/', we need a space before the end '>'
+            if (sb.charAt(sb.length() - 1) == '/') {
+                sb.append(' ');
             }
+
+            sb.append(">");
         } else if (node instanceof TextNode) {
             boolean normaliseWhite = node.parent() instanceof Element && !Element.preserveWhitespace(node.parent());
 
@@ -98,19 +94,30 @@ public class MinifyVisitor implements NodeVisitor {
         }
 
         for (Attribute a : attr) {
+            if (omitAttribute(a)) {
+                continue;
+            }
+
             sb.append(" ").append(a.getKey());
 
             if (!a.shouldCollapseAttribute(out)) {
                 StringBuilder value = new StringBuilder();
                 Entities.escape(value, a.getValue(), out, true, false, false);
 
-                if (noQuotesRequired.matcher(value.toString()).matches()) {
+                if (noQuotesRequired.matcher(value).matches()) {
                     sb.append("=").append(value);
                 } else {
                     sb.append("=\"").append(value).append('"');
                 }
             }
         }
+    }
+
+    private boolean omitAttribute(Attribute a) {
+        // <link type="text/css">
+        // <style type="text/css">
+        // <script type="text/javascript">
+        return false;
     }
 
     private boolean inHead(Node node) {
@@ -136,6 +143,7 @@ public class MinifyVisitor implements NodeVisitor {
      *
      * The HTML 5 spec is more liberal.
      */
-    private static final Pattern noQuotesRequired = Pattern.compile("[a-zA-Z0-9-._:]+");
-    
+    private static final Pattern noQuotesRequired = Pattern.compile("[^ \t\n\r\f\"'`=<>]+");
+    //Pattern.compile("[a-zA-Z0-9-._:]+");
+
 }
