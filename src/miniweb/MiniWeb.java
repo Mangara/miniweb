@@ -34,7 +34,6 @@ import javafx.util.Pair;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.MinifyVisitor;
 
 /**
  *
@@ -116,7 +115,6 @@ public class MiniWeb {
                 .map(e -> Paths.get(e.attr("src")))
                 .collect(Collectors.toList());
     }
-    }
 
     private static Pair<Set<Element>, Set<Element>> getReferencedElements(Document doc, List<StyleSheet> stylesheets) {
         Set<Element> referencedByClass = new HashSet<>();
@@ -162,4 +160,5 @@ public class MiniWeb {
         Analyzer x;
         
         return null;
+    }
 }
