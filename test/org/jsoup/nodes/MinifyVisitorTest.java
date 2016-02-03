@@ -507,9 +507,9 @@ public class MinifyVisitorTest {
     @Test
     public void testAnchorWithBlockElement() {
         String input = "<a href=\"#\"><div>Well, look at me! I\"m a div!</div></a>";
-        String output = "<a href=\"#\"><div>Well, look at me! I\"m a div!</div></a>";
+        String output = "<a href=#><div>Well, look at me! I\"m a div!</div></a>";
 
-        testBodySnippet(input, output); // { html5: true }
+        testBodySnippet(input, output);
     }
 
     @Test
@@ -522,7 +522,7 @@ public class MinifyVisitorTest {
 
         String output = "<span class=input-group-btn><button class=\"btn btn-default\" type=button><span class=\"glyphicon glyphicon-search\"></span></button></span>";
 
-        testBodySnippet(input, output); // { collapseWhitespace: true, removeAttributeQuotes: true }
+        testBodySnippet(input, output);
     }
 
     @Test
