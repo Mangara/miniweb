@@ -25,6 +25,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -51,13 +53,13 @@ public class MiniWeb {
     public static void main(String[] args) throws IOException, CSSException {
         Document doc = Jsoup.parse(input.toFile(), "UTF-8");
 
-        Map<String, Integer> htmlClassOccurrences = ClassCounter.countClasses(doc);
-
         List<StyleSheet> stylesheets = getStylesheets(doc);
 
-        Pair<Set<Element>,Set<Element>> referencedElements = getReferencedElements(doc, stylesheets);
-        Set<Element> referencedByClassFromCSS = referencedElements.getKey();
-        Set<Element> referencedByIdFromCSS = referencedElements.getValue();
+        Map<Element, Set<String>> referencedByClassFromCSS = getReferencedElements(doc, stylesheets);
+        
+        ClassCleaner.removeUnreferencedClasses(doc, referencedByClassFromCSS);
+        
+        Map<String, Integer> htmlClassOccurrences = ClassCounter.countClasses(doc);
     }
 
     private static List<StyleSheet> getStylesheets(Document doc) throws CSSException, IOException {
@@ -116,9 +118,8 @@ public class MiniWeb {
                 .collect(Collectors.toList());
     }
 
-    private static Pair<Set<Element>, Set<Element>> getReferencedElements(Document doc, List<StyleSheet> stylesheets) {
-        Set<Element> referencedByClass = new HashSet<>();
-        Set<Element> referencedById = new HashSet<>();
+    private static Map<Element, Set<String>> getReferencedElements(Document doc, List<StyleSheet> stylesheets) {
+        Map<Element, Set<String>> referencedByClass = new HashMap<>();
         
         for (StyleSheet stylesheet : stylesheets) {
             for (RuleBlock<?> rules : stylesheet) {
@@ -126,7 +127,6 @@ public class MiniWeb {
                     RuleSet set = (RuleSet) rules;
                     CombinedSelector[] selectors = set.getSelectors();
                     
-                    System.out.println("Selectors: " + Arrays.toString(selectors));
                     for (CombinedSelector selectorList : selectors) {
                         StringBuilder select = new StringBuilder();
                         
@@ -137,11 +137,17 @@ public class MiniWeb {
                                 select.append(part);
                                 
                                 if (part instanceof ElementClass) {
-                                    referencedByClass.addAll(doc.select(select.toString()));
-                                } else if (part instanceof ElementID) {
-                                    System.out.println(" Id: " + part);
-                                    System.out.println(" Element: " + doc.select(part.toString()).toString().substring(0, doc.select(part.toString()).toString().indexOf('\n')));
-                                    referencedById.addAll(doc.select(part.toString()));
+                                    String className = ((ElementClass) part).getClassName();
+                                    
+                                    for (Element e : doc.select(select.toString())) {
+                                        Set<String> classes = referencedByClass.get(e);
+                                        
+                                        if (classes == null) {
+                                            referencedByClass.put(e, new HashSet<>(Collections.singleton(className)));
+                                        } else {
+                                            classes.add(className);
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -157,8 +163,6 @@ public class MiniWeb {
             }
         }
         
-        Analyzer x;
-        
-        return null;
+        return referencedByClass;
     }
 }
