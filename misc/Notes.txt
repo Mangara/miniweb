@@ -21,14 +21,4 @@ Regex (mine): [^ \t\n\r\f"'`=<>]+
 
 Syntax: [a-z][a-z0-9_-]
 
-If there are fewer than 26, we can use a single letter for each. Otherwise, to make the tree optimal, the number of nodes left at the last stage needs to be 26. Thus, the total number of nodes should be (26 mod 37). In other words, we need to add dummy elements until we have this many.
-
-if n > 26 then
-  x = n mod 37
-
-  if x > 26 then
-    add 26 + (37 - x) dummy elements
-  else
-    add 26 - x dummy elements
-  fi
-fi
+Huffman makes an optimal *prefix-free* encoding. We don't care about that, so we can just assign the shortest code to the most frequent class, and so on.
