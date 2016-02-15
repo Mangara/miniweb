@@ -61,7 +61,7 @@ public class MiniWeb {
 
         Map<String, String> compressedClassNames = compressClassNames(htmlClassOccurrences);*/
         
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 1016; i++) {
             System.out.println(getCompressedName(i));
         }
     }
@@ -200,41 +200,31 @@ public class MiniWeb {
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '_', '-'
     };
 
-    private static String getNextCompressedName(String name) {
-        StringBuilder newName = new StringBuilder();
+    private static String getCompressedName(int index) {
+        int i = index;
+        StringBuilder name = new StringBuilder();
         
-        int i = name.length() - 1;
+        // First character may only be a-z
+        name.append(classNameCharacters[i % 26]);
+        i /= 26;
         
-        while (name.charAt(i) == '-' && i >= 0) {
-            i--;
-        }
+        // Find out how long the remainng part is
+        int length = 0;
+        int numWords = 1; // number of words with <length> characters
         
-        if (i == 0 && name.charAt(i) == 'z') {
-            // Increase length
-        } else {
-            // Increase char i and reset later ones
-            newName.append(name.substring(0, i - 1));
-            newName.append(getNextChar(name.charAt(i)));
+        while (i >= numWords) {
+            i -= numWords;
             
-            while (newName.length() < name.length()) {
-                newName.append('a');
-            }
+            length++;
+            numWords *= classNameCharacters.length;
+        }
+        
+        // Find the i-th word of this length
+        for (int j = 0; j < length; j++) {
+            name.append(classNameCharacters[i % classNameCharacters.length]);
+            i /= classNameCharacters.length;
         }
 
-        return newName.toString();
-    }
-
-    private static char getNextChar(char c) {
-        if ('a' <= c && c < 'z' || '0' <= c && c < '9') {
-            return (char) (c + 1);
-        } else { // 'z', '9', or '_'
-            switch (c) {
-                case 'z': return '0';
-                case '9': return '_';
-                case '_': return '-';
-                default:
-                    throw new IllegalArgumentException("Unexpected input character: " + c);
-            }
-        }
+        return name.toString();
     }
 }
