@@ -5,7 +5,6 @@
  */
 package miniweb;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import org.jsoup.nodes.Document;
@@ -35,8 +34,6 @@ public class ClassCleaner implements NodeVisitor {
         if (node instanceof Element) {
             Element e = (Element) node;
 
-            String before = printElement(e);
-
             // Fix classes
             Set<String> classes = referencedByClass.get(e);
 
@@ -45,28 +42,10 @@ public class ClassCleaner implements NodeVisitor {
             } else {
                 e.classNames(classes);
             }
-
-            String after = printElement(e);
-
-            if (!before.equals(after)) {
-                System.out.println("Before: " + before);
-                System.out.println("After:  " + after);
-            }
         }
     }
 
     @Override
     public void tail(Node node, int depth) {
-    }
-
-    private String printElement(Element e) {
-        String text = e.toString();
-        int eol = text.indexOf('\n');
-
-        if (eol >= 0) {
-            return text.substring(0, eol);
-        } else {
-            return text;
-        }
     }
 }

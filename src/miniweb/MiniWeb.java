@@ -39,17 +39,15 @@ import org.jsoup.nodes.Element;
  */
 public class MiniWeb {
 
-    private static final Path inputDir = Paths.get("testInputs/CG-Publy");
-    private static final Path outputDir = Paths.get("testOutputs/CG-Publy");
-    private static final Path input = inputDir.resolve("CG-Lab.html");
-
-    private static final String exclusionPrefix = "nc-";
+    private static final Path inputDir = Paths.get("testInputs/ColorZebra");
+    private static final Path outputDir = Paths.get("testOutputs/ColorZebra");
+    private static final Path input = inputDir.resolve("index.html");
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) throws IOException, CSSException {
-        /*Document doc = Jsoup.parse(input.toFile(), "UTF-8");
+        Document doc = Jsoup.parse(input.toFile(), "UTF-8");
 
         List<StyleSheet> stylesheets = getStylesheets(doc);
 
@@ -59,11 +57,11 @@ public class MiniWeb {
 
         Map<String, Integer> htmlClassOccurrences = ClassCounter.countClasses(doc);
 
-        Map<String, String> compressedClassNames = compressClassNames(htmlClassOccurrences);*/
+        Map<String, String> compressedClassNames = compressClassNames(htmlClassOccurrences);
         
-        for (int i = 0; i < 1016; i++) {
-            System.out.println(getCompressedName(i));
-        }
+        ClassRenamer.renameClasses(doc, compressedClassNames);
+        
+        System.out.println(doc);
     }
 
     private static List<StyleSheet> getStylesheets(Document doc) throws CSSException, IOException {
@@ -182,10 +180,11 @@ public class MiniWeb {
         for (int i = 0; i < classes.size(); i++) {
             String className = classes.get(i);
 
-            if (className.startsWith(exclusionPrefix)) {
+            if (className.charAt(0) == classNameCharacters[25]) {
+                // Don't compress names starting with x
                 compressed.put(className, className);
             } else {
-                compressed.put(className, getCompressedName(i + 1));
+                compressed.put(className, getCompressedName(i));
             }
         }
 
@@ -196,7 +195,8 @@ public class MiniWeb {
     }
 
     private static final char[] classNameCharacters = new char[]{
-        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'y', 'z',
+        'x', // Generated names won't start with x
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '_', '-'
     };
 
@@ -204,9 +204,9 @@ public class MiniWeb {
         int i = index;
         StringBuilder name = new StringBuilder();
         
-        // First character may only be a-z
-        name.append(classNameCharacters[i % 26]);
-        i /= 26;
+        // First character may only be a-z, excluding x
+        name.append(classNameCharacters[i % 25]);
+        i /= 25;
         
         // Find out how long the remainng part is
         int length = 0;
