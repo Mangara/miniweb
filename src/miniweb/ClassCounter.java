@@ -44,6 +44,7 @@ public class ClassCounter implements NodeVisitor {
     public void head(Node node, int depth) {
         if (node instanceof Element) {
             Element e = (Element) node;
+            
             for (String className : e.classNames()) {
                 classCount.merge(className, 1, Integer::sum);
             }
