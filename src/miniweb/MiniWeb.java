@@ -5,6 +5,9 @@
  */
 package miniweb;
 
+import miniweb.html.ClassRenamer;
+import miniweb.html.ClassCounter;
+import miniweb.html.ClassCleaner;
 import cz.vutbr.web.css.CSSException;
 import cz.vutbr.web.css.CSSFactory;
 import cz.vutbr.web.css.CombinedSelector;
@@ -29,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import miniweb.css.CssClassRenamer;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -58,10 +62,12 @@ public class MiniWeb {
         Map<String, Integer> htmlClassOccurrences = ClassCounter.countClasses(doc);
 
         Map<String, String> compressedClassNames = compressClassNames(htmlClassOccurrences);
-        
-        ClassRenamer.renameClasses(doc, compressedClassNames);
-        
+
+        ClassRenamer.renameHtmlClasses(doc, compressedClassNames);
+        (new CssClassRenamer(compressedClassNames)).processStyleSheets(stylesheets);
+
         System.out.println(doc);
+        System.out.println(stylesheets);
     }
 
     private static List<StyleSheet> getStylesheets(Document doc) throws CSSException, IOException {
@@ -126,39 +132,11 @@ public class MiniWeb {
         for (StyleSheet stylesheet : stylesheets) {
             for (RuleBlock<?> rules : stylesheet) {
                 if (rules instanceof RuleSet) {
-                    RuleSet set = (RuleSet) rules;
-                    CombinedSelector[] selectors = set.getSelectors();
-
-                    for (CombinedSelector selectorList : selectors) {
-                        StringBuilder select = new StringBuilder();
-
-                        for (Selector selector : selectorList) {
-                            select.append(selector.getCombinator() == null ? "" : selector.getCombinator().value());
-
-                            for (Selector.SelectorPart part : selector) {
-                                select.append(part);
-
-                                if (part instanceof ElementClass) {
-                                    String className = ((ElementClass) part).getClassName();
-
-                                    for (Element e : doc.select(select.toString())) {
-                                        Set<String> classes = referencedByClass.get(e);
-
-                                        if (classes == null) {
-                                            referencedByClass.put(e, new HashSet<>(Collections.singleton(className)));
-                                        } else {
-                                            classes.add(className);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    processRuleSet((RuleSet) rules, referencedByClass, doc);
                 } else if (rules instanceof RuleMedia) {
-                    RuleMedia rm = (RuleMedia) rules;
-
-                    System.out.println("Rule media:");
-                    //System.out.println(rm);
+                    for (RuleSet set : (RuleMedia) rules) {
+                        processRuleSet(set, referencedByClass, doc);
+                    }
                 } else {
                     System.err.println("Unexpected RuleBlock type: " + rules);
                 }
@@ -166,6 +144,34 @@ public class MiniWeb {
         }
 
         return referencedByClass;
+    }
+
+    private static void processRuleSet(RuleSet set, Map<Element, Set<String>> referencedByClass, Document doc) {
+        for (CombinedSelector selectorList : set.getSelectors()) {
+            StringBuilder select = new StringBuilder();
+
+            for (Selector selector : selectorList) {
+                select.append(selector.getCombinator() == null ? "" : selector.getCombinator().value());
+
+                for (Selector.SelectorPart part : selector) {
+                    select.append(part);
+
+                    if (part instanceof ElementClass) {
+                        String className = ((ElementClass) part).getClassName();
+
+                        for (Element e : doc.select(select.toString())) {
+                            Set<String> classes = referencedByClass.get(e);
+
+                            if (classes == null) {
+                                referencedByClass.put(e, new HashSet<>(Collections.singleton(className)));
+                            } else {
+                                classes.add(className);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private static Map<String, String> compressClassNames(Map<String, Integer> count) {
@@ -200,25 +206,27 @@ public class MiniWeb {
         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '_', '-'
     };
 
+    public static final String exclusionPrefix = Character.toString(classNameCharacters[25]);
+
     private static String getCompressedName(int index) {
         int i = index;
         StringBuilder name = new StringBuilder();
-        
+
         // First character may only be a-z, excluding x
         name.append(classNameCharacters[i % 25]);
         i /= 25;
-        
+
         // Find out how long the remainng part is
         int length = 0;
         int numWords = 1; // number of words with <length> characters
-        
+
         while (i >= numWords) {
             i -= numWords;
-            
+
             length++;
             numWords *= classNameCharacters.length;
         }
-        
+
         // Find the i-th word of this length
         for (int j = 0; j < length; j++) {
             name.append(classNameCharacters[i % classNameCharacters.length]);
