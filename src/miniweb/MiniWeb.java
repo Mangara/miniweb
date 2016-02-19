@@ -61,10 +61,10 @@ public class MiniWeb {
 
         Map<String, Integer> htmlClassOccurrences = ClassCounter.countClasses(doc);
 
-        Map<String, String> compressedClassNames = compressClassNames(htmlClassOccurrences);
+        Map<String, String> compressedClassNames = ClassnameCompressor.compressClassNames(htmlClassOccurrences);
 
         ClassRenamer.renameHtmlClasses(doc, compressedClassNames);
-        (new CssClassRenamer(compressedClassNames)).processStyleSheets(stylesheets);
+        CssClassRenamer.renameCssClasses(compressedClassNames, stylesheets);
 
         System.out.println(doc);
         System.out.println(stylesheets);
@@ -73,6 +73,11 @@ public class MiniWeb {
     private static List<StyleSheet> getStylesheets(Document doc) throws CSSException, IOException {
         List<StyleSheet> stylesheets = new ArrayList<>();
 
+        // Don't resolve @import statements
+        // NOTE: This is bugged in the current release, but fixed in the latest build.
+        CSSFactory.setAutoImportMedia(new MediaSpecNone());
+        
+        // Work-around that essentially removes non-local @import statements
         NetworkProcessor local = new NetworkProcessor() {
 
             @Override
@@ -98,8 +103,6 @@ public class MiniWeb {
         }
 
         // Process external stylesheets
-        CSSFactory.setAutoImportMedia(new MediaSpecNone());
-
         for (Path cssFile : getExternalStyleSheets(doc)) {
             stylesheets.add(CSSFactory.parse(inputDir.resolve(cssFile).toUri().toURL(), local, "UTF-8"));
         }
@@ -172,67 +175,5 @@ public class MiniWeb {
                 }
             }
         }
-    }
-
-    private static Map<String, String> compressClassNames(Map<String, Integer> count) {
-        // Sort classes by count
-        List<String> classes = new ArrayList<>(count.keySet());
-
-        Collections.sort(classes, (c1, c2) -> -Integer.compare(count.get(c1), count.get(c2)));
-
-        // Assign codes to classes in order
-        Map<String, String> compressed = new HashMap<>(2 * classes.size());
-
-        for (int i = 0; i < classes.size(); i++) {
-            String className = classes.get(i);
-
-            if (className.charAt(0) == classNameCharacters[25]) {
-                // Don't compress names starting with x
-                compressed.put(className, className);
-            } else {
-                compressed.put(className, getCompressedName(i));
-            }
-        }
-
-        for (String classe : classes) {
-            System.out.println(classe + ": " + count.get(classe) + " -> " + compressed.get(classe));
-        }
-        return compressed;
-    }
-
-    private static final char[] classNameCharacters = new char[]{
-        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'y', 'z',
-        'x', // Generated names won't start with x
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '_', '-'
-    };
-
-    public static final String exclusionPrefix = Character.toString(classNameCharacters[25]);
-
-    private static String getCompressedName(int index) {
-        int i = index;
-        StringBuilder name = new StringBuilder();
-
-        // First character may only be a-z, excluding x
-        name.append(classNameCharacters[i % 25]);
-        i /= 25;
-
-        // Find out how long the remainng part is
-        int length = 0;
-        int numWords = 1; // number of words with <length> characters
-
-        while (i >= numWords) {
-            i -= numWords;
-
-            length++;
-            numWords *= classNameCharacters.length;
-        }
-
-        // Find the i-th word of this length
-        for (int j = 0; j < length; j++) {
-            name.append(classNameCharacters[i % classNameCharacters.length]);
-            i /= classNameCharacters.length;
-        }
-
-        return name.toString();
     }
 }
