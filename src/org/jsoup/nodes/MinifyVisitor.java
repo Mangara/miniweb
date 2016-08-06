@@ -103,6 +103,10 @@ public class MinifyVisitor implements NodeVisitor {
             if (!(a.getValue().trim().isEmpty() || a.isBooleanAttribute())) {
                 StringBuilder value = new StringBuilder();
                 Entities.escape(value, a.getValue(), out, true, false, false);
+                
+                if (trimAttribute(a)) {
+                    value = new StringBuilder(value.toString().trim());
+                }
 
                 if (noQuotesRequired.matcher(value).matches()) {
                     sb.append("=").append(value);
@@ -118,6 +122,22 @@ public class MinifyVisitor implements NodeVisitor {
         // <style type="text/css">
         // <script type="text/javascript">
         return false;
+    }
+    
+    private boolean trimAttribute(Attribute a) {
+        switch (a.getKey()) {
+            case "tabindex":
+            case "maxlength":
+            case "size":
+            case "rows":
+            case "cols":
+            case "span":
+            case "rowspan":
+            case "colspan":
+                return a.getValue().trim().matches("\\d+");
+            default:
+                return false;
+        }
     }
 
     private boolean inHead(Node node) {
