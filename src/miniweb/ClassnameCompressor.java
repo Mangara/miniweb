@@ -1,5 +1,3 @@
-/*
- */
 package miniweb;
 
 import java.util.ArrayList;
@@ -8,10 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- *
- * @author Sander Verdonschot <sander.verdonschot at gmail.com>
- */
 public class ClassnameCompressor {
 
     private static final char[] classNameCharacters = new char[]{
