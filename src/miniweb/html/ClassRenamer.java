@@ -1,5 +1,3 @@
-/*
- */
 package miniweb.html;
 
 import cz.vutbr.web.css.CombinedSelector;
@@ -8,12 +6,8 @@ import cz.vutbr.web.css.RuleMedia;
 import cz.vutbr.web.css.RuleSet;
 import cz.vutbr.web.css.Selector;
 import cz.vutbr.web.css.StyleSheet;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -21,10 +15,6 @@ import org.jsoup.nodes.Node;
 import org.jsoup.select.NodeTraversor;
 import org.jsoup.select.NodeVisitor;
 
-/**
- *
- * @author Sander Verdonschot <sander.verdonschot at gmail.com>
- */
 public class ClassRenamer implements NodeVisitor {
 
     private final Map<String, String> newNames;
