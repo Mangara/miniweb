@@ -196,27 +196,27 @@ public class MinifyVisitorTest {
     @Test
     public void testCleanNumberAttributes() {
         String input = "<a href=\"#\" tabindex=\"   1  \">x</a><button tabindex=\"   2  \">y</button>";
-        String output = "<a href=\"#\" tabindex=\"1\">x</a><button tabindex=\"2\">y</button>";
+        String output = "<a href=# tabindex=1>x</a><button tabindex=2>y</button>";
         testBodySnippet(input, output); // { cleanAttributes: true }
 
         input = "<input value=\"\" maxlength=\"     5 \">";
-        output = "<input value=\"\" maxlength=\"5\">";
+        output = "<input value maxlength=5>";
         testBodySnippet(input, output); // { cleanAttributes: true }
 
         input = "<select size=\"  10   \t\t \"><option>x</option></select>";
-        output = "<select size=\"10\"><option>x</option></select>";
+        output = "<select size=10><option>x</option></select>";
         testBodySnippet(input, output); // { cleanAttributes: true }
 
         input = "<textarea rows=\"   20  \" cols=\"  30      \"></textarea>";
-        output = "<textarea rows=\"20\" cols=\"30\"></textarea>";
+        output = "<textarea rows=20 cols=30></textarea>";
         testBodySnippet(input, output); // { cleanAttributes: true }
 
         input = "<COLGROUP span=\"   40  \"><COL span=\"  39 \"></COLGROUP>";
-        output = "<colgroup span=\"40\"><col span=\"39\"></colgroup>";
+        output = "<colgroup span=40><col span=39></colgroup>";
         testBodySnippet(input, output); // { cleanAttributes: true }
 
         input = "<tr><td colspan=\"    2   \">x</td><td rowspan=\"   3 \"></td></tr>";
-        output = "<tr><td colspan=\"2\">x</td><td rowspan=\"3\"></td></tr>";
+        output = "<tr><td colspan=2>x</td><td rowspan=3></td></tr>";
         testBodySnippet(input, output); // { cleanAttributes: true }
     }
 
