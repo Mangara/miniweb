@@ -15,6 +15,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import javafx.util.Pair;
 import org.jsoup.nodes.Document;
 
 /**
@@ -23,8 +24,8 @@ import org.jsoup.nodes.Document;
  */
 public class StylesheetExtractor {
 
-    public static List<StyleSheet> getStylesheets(Document doc, Path inputDir, Path input) throws CSSException, IOException {
-        List<StyleSheet> stylesheets = new ArrayList<>();
+    public static List<Pair<Path,StyleSheet>> getStylesheets(Document doc, Path inputDir, Path input) throws CSSException, IOException {
+        List<Pair<Path,StyleSheet>> stylesheets = new ArrayList<>();
 
         // Don't resolve @import statements
         // NOTE: This is bugged in the current release, but fixed in the latest build.
@@ -52,12 +53,12 @@ public class StylesheetExtractor {
 
         // Process inline style blocks
         for (String css : getInlineStyleBlocks(doc)) {
-            stylesheets.add(CSSFactory.parseString(css, input.toUri().toURL(), local));
+            stylesheets.add(new Pair<>(null, CSSFactory.parseString(css, input.toUri().toURL(), local)));
         }
 
         // Process external stylesheets
         for (Path cssFile : getExternalStyleSheets(doc)) {
-            stylesheets.add(CSSFactory.parse(inputDir.resolve(cssFile).toUri().toURL(), local, "UTF-8"));
+            stylesheets.add(new Pair<>(cssFile, CSSFactory.parse(inputDir.resolve(cssFile).toUri().toURL(), local, "UTF-8")));
         }
 
         return stylesheets;

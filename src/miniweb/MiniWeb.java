@@ -13,6 +13,8 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import javafx.util.Pair;
 import miniweb.css.CssClassRenamer;
 import miniweb.css.ReferencedElementsFinder;
 import miniweb.css.StylesheetExtractor;
@@ -33,32 +35,43 @@ public class MiniWeb {
     public static void main(String[] args) throws IOException, CSSException {
         // Parse the HTML and all inline and local external stylesheets
         Document doc = Jsoup.parse(input.toFile(), "UTF-8");
-        List<StyleSheet> stylesheets = StylesheetExtractor.getStylesheets(doc, inputDir, input);
+        List<Pair<Path, StyleSheet>> stylesheets = StylesheetExtractor.getStylesheets(doc, inputDir, input);
+        List<StyleSheet> styles = stylesheets.stream().map(p -> p.getValue()).collect(Collectors.toList());
 
         // Remove unnecessary classes from elements
-        Map<Element, Set<String>> referencedByClassFromCSS = ReferencedElementsFinder.getReferencedElements(doc, stylesheets);
+        Map<Element, Set<String>> referencedByClassFromCSS = ReferencedElementsFinder.getReferencedElements(doc, styles);
         ClassCleaner.removeUnreferencedClasses(doc, referencedByClassFromCSS);
 
         // Optimally compress the classnames, based on their frequencies in the HTML
         Map<String, Integer> htmlClassOccurrences = ClassCounter.countClasses(doc);
         Map<String, String> compressedClassNames = ClassnameCompressor.compressClassNames(htmlClassOccurrences);
         ClassRenamer.renameHtmlClasses(doc, compressedClassNames);
-        CssClassRenamer.renameCssClasses(compressedClassNames, stylesheets);
+        CssClassRenamer.renameCssClasses(compressedClassNames, styles);
 
         // Compress the HTML
         String html = MinifyVisitor.minify(doc);
 
         // Write the HTML
-        try (BufferedWriter out = Files.newBufferedWriter(outputDir.resolve(input.getFileName()))) {
+        Path outputFile = outputDir.resolve(inputDir.relativize(input));
+        Files.createDirectories(outputFile.getParent());
+
+        try (BufferedWriter out = Files.newBufferedWriter(outputFile)) {
             out.write(html);
         }
 
         // Write the stylesheets
-        try (BufferedWriter out = Files.newBufferedWriter(outputDir.resolve("stylesheet"))) {
-            for (StyleSheet stylesheet : stylesheets) {
-                out.write(stylesheet.toString());
+        for (Pair<Path, StyleSheet> stylesheet : stylesheets) {
+            if (stylesheet.getKey() != null) {
+                Path file = outputDir.resolve(stylesheet.getKey());
+
+                try (BufferedWriter out = Files.newBufferedWriter(file)) {
+                    StyleSheet css = stylesheet.getValue();
+                    
+                    // TODO: good printing
+                    
+                    out.write(stylesheet.getValue().toString());
+                }
             }
         }
-
     }
 }
