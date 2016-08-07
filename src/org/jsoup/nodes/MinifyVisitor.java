@@ -1,6 +1,9 @@
 package org.jsoup.nodes;
 
+import java.util.Arrays;
+import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.jsoup.select.NodeTraversor;
 import org.jsoup.select.NodeVisitor;
 
@@ -28,6 +31,7 @@ public class MinifyVisitor implements NodeVisitor {
         this.sb = sb;
         out = new Document.OutputSettings();
         out.prettyPrint(false);
+        out.charset("UTF-8");
     }
 
     @Override
@@ -87,6 +91,10 @@ public class MinifyVisitor implements NodeVisitor {
         // Otherwise nothing to print (unexpected node types are handled at the head)
     }
 
+    private static final Set<String> untrimmable = Arrays.asList(
+            "value", "title"
+    ).stream().collect(Collectors.toSet());
+
     private void minifyAttributes(Attributes attr) {
         if (attr == null) {
             System.err.println("Null");
@@ -94,50 +102,54 @@ public class MinifyVisitor implements NodeVisitor {
         }
 
         for (Attribute a : attr) {
-            if (omitAttribute(a)) {
+            String val = (untrimmable.contains(a.getKey()) ? a.getValue() : a.getValue().trim());
+            
+            if (omitAttribute(a, val)) {
                 continue;
             }
 
             sb.append(" ").append(a.getKey());
 
-            if (!(a.getValue().trim().isEmpty() || a.isBooleanAttribute())) {
+            if (!val.isEmpty() && !a.isBooleanAttribute()) {
                 StringBuilder value = new StringBuilder();
-                Entities.escape(value, a.getValue(), out, true, false, false);
-                
-                if (trimAttribute(a)) {
-                    value = new StringBuilder(value.toString().trim());
-                }
+                Entities.escape(value, val, out, true, false, false);
 
-                if (noQuotesRequired.matcher(value).matches()) {
-                    sb.append("=").append(value);
+                val = cleanAttributeValue(a, value.toString());
+
+                if (!val.contains("'") && val.contains("&quot;")) {
+                    sb.append("=\'").append(val.replaceAll("&quot;", "\"")).append('\'');
+                } else if (noQuotesRequired.matcher(val).matches()) {
+                    sb.append("=").append(val);
                 } else {
-                    sb.append("=\"").append(value).append('"');
+                    sb.append("=\"").append(val).append('"');
                 }
             }
         }
     }
 
-    private boolean omitAttribute(Attribute a) {
+    private static final Set<String> removeIfEmpty = Arrays.asList(
+            "id", "class", "style", "lang", "dir", "value"
+    ).stream().collect(Collectors.toSet());
+
+    private boolean omitAttribute(Attribute a, String value) {
+        if (value.isEmpty() && (a.getKey().startsWith("on") || removeIfEmpty.contains(a.getKey()))) {
+            return true;
+        }
+
         // <link type="text/css">
         // <style type="text/css">
         // <script type="text/javascript">
         return false;
     }
-    
-    private boolean trimAttribute(Attribute a) {
-        switch (a.getKey()) {
-            case "tabindex":
-            case "maxlength":
-            case "size":
-            case "rows":
-            case "cols":
-            case "span":
-            case "rowspan":
-            case "colspan":
-                return a.getValue().trim().matches("\\d+");
-            default:
-                return false;
+
+    private String cleanAttributeValue(Attribute a, String value) {
+        String val = value;
+
+        if (a.getKey().startsWith("on") && val.endsWith(";")) {
+            val = val.substring(0, val.length() - 1).trim();
         }
+
+        return val;
     }
 
     private boolean inHead(Node node) {
