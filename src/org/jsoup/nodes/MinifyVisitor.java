@@ -192,6 +192,26 @@ public class MinifyVisitor implements NodeVisitor {
             return true;
         }
 
+        // Replace <meta http-equiv=Content-Type content="text/html;charset=utf-8">
+        // With <meta charset=UTF-8>
+        // As per https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Obsolete_things_to_avoid
+        String charsetRegex = "text/html;charset=[0-9a-zA-Z-_]+";
+        
+        if ("meta".equals(e.nodeName()) && "http-equiv".equals(a.getKey()) && "Content-Type".equalsIgnoreCase(value)
+                && e.attributes().size() == 2 && e.attributes().hasKey("content")) {
+            String content = e.attributes().get("content").replaceAll("\\s+", "");
+            
+            if (content.toLowerCase().matches(charsetRegex)) {
+                sb.append(' ').append(content.substring("text/html;".length()));
+                return true;
+            }
+        }
+        
+        if ("meta".equals(e.nodeName()) && "content".equals(a.getKey()) && value.replaceAll("\\s+", "").toLowerCase().matches(charsetRegex)
+                && e.attributes().size() == 2 && e.attributes().hasKey("http-equiv")) {
+            return true;
+        }
+
         return false;
     }
 
@@ -229,7 +249,7 @@ public class MinifyVisitor implements NodeVisitor {
                 val = val.substring(0, val.length() - 1).trim();
             }
         }
-        
+
         // Clean javascript attributes
         if (a.getKey().startsWith("on")) {
             if (val.toLowerCase().startsWith("javascript:")) {
