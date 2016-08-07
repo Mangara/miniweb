@@ -5,7 +5,9 @@ import miniweb.html.ClassCounter;
 import miniweb.html.ClassCleaner;
 import cz.vutbr.web.css.CSSException;
 import cz.vutbr.web.css.StyleSheet;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -17,6 +19,7 @@ import miniweb.css.StylesheetExtractor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.MinifyVisitor;
 
 public class MiniWeb {
 
@@ -42,7 +45,20 @@ public class MiniWeb {
         ClassRenamer.renameHtmlClasses(doc, compressedClassNames);
         CssClassRenamer.renameCssClasses(compressedClassNames, stylesheets);
 
-        System.out.println(doc);
-        System.out.println(stylesheets);
+        // Compress the HTML
+        String html = MinifyVisitor.minify(doc);
+
+        // Write the HTML
+        try (BufferedWriter out = Files.newBufferedWriter(outputDir.resolve(input.getFileName()))) {
+            out.write(html);
+        }
+
+        // Write the stylesheets
+        try (BufferedWriter out = Files.newBufferedWriter(outputDir.resolve("stylesheet"))) {
+            for (StyleSheet stylesheet : stylesheets) {
+                out.write(stylesheet.toString());
+            }
+        }
+
     }
 }
