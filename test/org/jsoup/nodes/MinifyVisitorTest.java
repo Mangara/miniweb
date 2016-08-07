@@ -629,6 +629,21 @@ public class MinifyVisitorTest {
         output = "<meta name=viewport content=\"width=500,initial-scale=1\">";
         testBodySnippet(input, output);
     }
+    
+    @Test
+    public void testMetaHttpEquiv() {
+        String input = "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">";
+        String output = "<meta charset=utf-8>";
+        testBodySnippet(input, output);
+        
+        input = "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=ISO-8859-1\">";
+        output = "<meta charset=ISO-8859-1>";
+        testBodySnippet(input, output);
+        
+        input = "<meta http-equiv=\"Content-Type\" content=\"text/html; \t charset=Shift_JIS \">";
+        output = "<meta charset=Shift_JIS>";
+        testBodySnippet(input, output);
+    }
 
     @Test
     public void testNoscript() {
