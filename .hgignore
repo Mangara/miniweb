@@ -5,4 +5,5 @@ nbproject/genfiles.properties
 nbproject/private/
 build/
 dist/
+testOutputs/
 .nfs*
