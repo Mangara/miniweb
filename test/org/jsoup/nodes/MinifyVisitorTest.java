@@ -126,8 +126,8 @@ public class MinifyVisitorTest {
         testBodySnippet("<div data-foo class id style title lang dir onfocus onblur onchange onclick ondblclick onmousedown onmouseup onmouseover onmousemove onmouseout onkeypress onkeydown onkeyup></div>", "<div data-foo title></div>");
     }
 
-    //@Test
-    public void testCleanClassStyleAttributes() {
+    @Test
+    public void testCleanClassAttributes() {
         String input = "<p class=\" foo bar  \">foo bar baz</p>";
         testBodySnippet(input, "<p class=\"foo bar\">foo bar baz</p>");
 
@@ -141,9 +141,12 @@ public class MinifyVisitorTest {
         input = "<p class=\"\n  \n foo   \n\n\t  \t\n  class1 class-23 \">foo bar baz</p>";
         output = "<p class=\"foo class1 class-23\">foo bar baz</p>";
         testBodySnippet(input, output);
-
-        input = "<p style=\"    color: red; background-color: rgb(100, 75, 200);  \"></p>";
-        output = "<p style=\"color: red; background-color: rgb(100, 75, 200)\"></p>";
+    }
+    
+    @Test
+    public void testCleanStyleAttributes() {
+        String input = "<p style=\"    color: red; background-color: rgb(100, 75, 200);  \"></p>";
+        String output = "<p style=\"color: red; background-color: rgb(100, 75, 200)\"></p>";
         testBodySnippet(input, output);
 
         input = "<p style=\"font-weight: bold  ; \"></p>";
@@ -411,6 +414,26 @@ public class MinifyVisitorTest {
         input = "<p>foo\nbar</p>";
         output = "<p>foo bar</p>";
         testBodySnippet(input, output);
+        
+        input = "<p> <a href=\"#\"> x </a> </p>";
+        output = "<p><a href=#>x</a></p>";
+        testBodySnippet(input, output);
+        
+        input = "<p> <!-- comment --> <a href=\"#\"> x </a> </p>";
+        output = "<p><a href=#>x</a></p>";
+        testBodySnippet(input, output);
+        
+        input = "<p>x <!-- comment --> <a href=\"#\"> x </a> </p>";
+        output = "<p>x <a href=#>x</a></p>";
+        testBodySnippet(input, output);
+        
+        input = "<p>x<!-- comment --> <a href=\"#\"> x </a> </p>";
+        output = "<p>x <a href=#>x</a></p>";
+        testBodySnippet(input, output);
+        
+        input = "<p>x<!-- comment --><a href=\"#\"> x </a> </p>";
+        output = "<p>x<a href=#>x</a></p>";
+        testBodySnippet(input, output);
 
         input = "<p> foo    <span>  blah     <i>   22</i>    </span> bar <img src=\"\"></p>";
         output = "<p>foo <span>blah <i>22</i></span> bar <img src></p>";
@@ -456,18 +479,18 @@ public class MinifyVisitorTest {
                 + "</div>\r\n        </div>\r\n      </div>\r\n    </div>\r\n  </div>\r\n</div>"
                 + "<pre>       \r\nxxxx</pre><span>x</span> <span>Hello</span> <b>billy</b>     \r\n"
                 + "<input type=\"text\">\r\n<textarea></textarea>\r\n<pre></pre>";
-        output = "<script type=\"text/javascript\">var = \"hello\";</script>"
-                + "<style type=\"text/css\">#foo { color: red;        }</style>"
+        output = "<script>var = \"hello\";</script> "
+                + "<style>#foo { color: red;        }</style> "
                 + "<div><div><div>"
-                + "<!-- hello --><div><!--! hello --><div><div class=\"\">"
-                + "<textarea disabled=\"disabled\">     this is a textarea </textarea>"
+                + "<div><div><div>"
+                + "<textarea disabled>     this is a textarea </textarea>"
                 + "</div></div></div></div></div></div>"
                 + "<pre>       \r\nxxxx</pre><span>x</span> <span>Hello</span> <b>billy</b> "
-                + "<input type=\"text\"><textarea></textarea><pre></pre>";
+                + "<input> <textarea></textarea> <pre></pre>";
         testBodySnippet(input, output); // { collapseWhitespace: true }
     }
 
-    //@Test
+    @Test
     public void testCollapsingBooleanAttributes() {
         String input = "<input disabled=\"disabled\">";
         testBodySnippet(input, "<input disabled>");
@@ -500,19 +523,19 @@ public class MinifyVisitorTest {
         testBodySnippet(input, output);
     }
 
-    //@Test
+    @Test
     public void testCollapsingEnumeratedAttributes() {
-        testBodySnippet("<div draggable=\"auto\"></div>", "<div draggable></div>"); // { collapseBooleanAttributes: true }
-        testBodySnippet("<div draggable=\"true\"></div>", "<div draggable=\"true\"></div>"); // { collapseBooleanAttributes: true }
-        testBodySnippet("<div draggable=\"false\"></div>", "<div draggable=\"false\"></div>"); // { collapseBooleanAttributes: true }
-        testBodySnippet("<div draggable=\"foo\"></div>", "<div draggable></div>"); // { collapseBooleanAttributes: true }
-        testBodySnippet("<div draggable></div>", "<div draggable></div>"); // { collapseBooleanAttributes: true }
-        testBodySnippet("<div Draggable=\"auto\"></div>", "<div draggable></div>"); // { collapseBooleanAttributes: true }
-        testBodySnippet("<div Draggable=\"true\"></div>", "<div draggable=\"true\"></div>"); // { collapseBooleanAttributes: true }
-        testBodySnippet("<div Draggable=\"false\"></div>", "<div draggable=\"false\"></div>"); // { collapseBooleanAttributes: true }
-        testBodySnippet("<div Draggable=\"foo\"></div>", "<div draggable></div>"); // { collapseBooleanAttributes: true }
-        testBodySnippet("<div Draggable></div>", "<div draggable></div>"); // { collapseBooleanAttributes: true }
-        testBodySnippet("<div draggable=\"Auto\"></div>", "<div draggable></div>"); // { collapseBooleanAttributes: true }
+        testBodySnippet("<div draggable=\"auto\"></div>", "<div></div>"); // { collapseBooleanAttributes: true }
+        testBodySnippet("<div draggable=\"true\"></div>", "<div draggable=true></div>"); // { collapseBooleanAttributes: true }
+        testBodySnippet("<div draggable=\"false\"></div>", "<div draggable=false></div>"); // { collapseBooleanAttributes: true }
+        testBodySnippet("<div draggable=\"foo\"></div>", "<div></div>"); // { collapseBooleanAttributes: true }
+        testBodySnippet("<div draggable></div>", "<div></div>"); // { collapseBooleanAttributes: true }
+        testBodySnippet("<div Draggable=\"auto\"></div>", "<div></div>"); // { collapseBooleanAttributes: true }
+        testBodySnippet("<div Draggable=\"true\"></div>", "<div draggable=true></div>"); // { collapseBooleanAttributes: true }
+        testBodySnippet("<div Draggable=\"false\"></div>", "<div draggable=false></div>"); // { collapseBooleanAttributes: true }
+        testBodySnippet("<div Draggable=\"foo\"></div>", "<div></div>"); // { collapseBooleanAttributes: true }
+        testBodySnippet("<div Draggable></div>", "<div></div>"); // { collapseBooleanAttributes: true }
+        testBodySnippet("<div draggable=\"Auto\"></div>", "<div></div>"); // { collapseBooleanAttributes: true }
     }
 
     @Test
@@ -552,7 +575,7 @@ public class MinifyVisitorTest {
                 + "<source src=\"foobar.wav\">"
                 + "<track kind=\"captions\" src=\"sampleCaptions.vtt\" srclang=\"en\">"
                 + "</audio>";
-        String output = "<audio controls=controls>"
+        String output = "<audio controls>"
                 + "<source src=foo.wav>"
                 + "<source src=far.wav>"
                 + "<source src=foobar.wav>"
@@ -560,30 +583,6 @@ public class MinifyVisitorTest {
                 + "</audio>";
 
         testBodySnippet(input, output); // { removeOptionalTags: true }
-    }
-
-    //@Test
-    public void testMixedHTMLAndSVG() { // mixed html and svg
-        String input = "  <svg version=\"1.1\" id=\"Layer_1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" x=\"0px\" y=\"0px\"\n"
-                + "     width=\"612px\" height=\"502.174px\" viewBox=\"0 65.326 612 502.174\" enable-background=\"new 0 65.326 612 502.174\"\n"
-                + "     xml:space=\"preserve\" class=\"logo\">"
-                + ""
-                + "    <ellipse class=\"ground\" cx=\"283.5\" cy=\"487.5\" rx=\"259\" ry=\"80\"/>"
-                + "    <polygon points=\"100,10 40,198 190,78 10,78 160,198\"\n"
-                + "      style=\"fill:lime;stroke:purple;stroke-width:5;fill-rule:evenodd;\" />\n"
-                + "    <filter id=\"pictureFilter\">\n"
-                + "      <feGaussianBlur stdDeviation=\"15\" />\n"
-                + "    </filter>\n"
-                + "  </svg>";
-
-        String output = "<svg version=\"1.1\" id=\"Layer_1\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" x=\"0px\" y=\"0px\" width=\"612px\" height=\"502.174px\" viewBox=\"0 65.326 612 502.174\" enable-background=\"new 0 65.326 612 502.174\" xml:space=\"preserve\" class=\"logo\">"
-                + "<ellipse class=\"ground\" cx=\"283.5\" cy=\"487.5\" rx=\"259\" ry=\"80\"/>"
-                + "<polygon points=\"100,10 40,198 190,78 10,78 160,198\" style=\"fill:lime;stroke:purple;stroke-width:5;fill-rule:evenodd\"/>"
-                + "<filter id=\"pictureFilter\"><feGaussianBlur stdDeviation=\"15\"/></filter>"
-                + "</svg>";
-
-        // Should preserve case-sensitivity and closing slashes within svg tags
-        testBodySnippet(input, output); // { collapseWhitespace: true }
     }
 
     @Test
@@ -608,28 +607,36 @@ public class MinifyVisitorTest {
         testBodySnippet(input, output);
     }
 
-    //@Test
+    @Test
     public void testMetaViewport() {
         String input = "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">";
-        String output = "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">";
+        String output = "<meta name=viewport content=\"width=device-width,initial-scale=1\">";
         testBodySnippet(input, output);
 
-        input = "<meta name=\"viewport\" content=\"initial-scale=1, maximum-scale=1.0\">";
-        output = "<meta name=\"viewport\" content=\"initial-scale=1,maximum-scale=1\">";
+        input = "<meta name=\"viewport\" content=\"initial-scale=1.01, maximum-scale=1.0\">";
+        output = "<meta name=viewport content=\"initial-scale=1.01,maximum-scale=1\">";
+        testBodySnippet(input, output);
+        
+        input = "<meta name=\"viewport\" content=\"initial-scale=1.1, maximum-scale=1.0000\">";
+        output = "<meta name=viewport content=\"initial-scale=1.1,maximum-scale=1\">";
+        testBodySnippet(input, output);
+        
+        input = "<meta name=\"viewport\" content=\"initial-scale=1.00, maximum-scale=1.04\">";
+        output = "<meta name=viewport content=\"initial-scale=1,maximum-scale=1.04\">";
         testBodySnippet(input, output);
 
         input = "<meta name=\"viewport\" content=\"width= 500 ,  initial-scale=1\">";
-        output = "<meta name=\"viewport\" content=\"width=500,initial-scale=1\">";
+        output = "<meta name=viewport content=\"width=500,initial-scale=1\">";
         testBodySnippet(input, output);
     }
 
-    //@Test
+    @Test
     public void testNoscript() {
         String input = "<SCRIPT SRC=\"x\"></SCRIPT><NOSCRIPT>x</NOSCRIPT>";
         testBodySnippet(input, "<script src=x></script><noscript>x</noscript>");
 
         input = "<noscript>\n<!-- anchor linking to external file -->\n"
                 + "<a href=\"#\" onclick=\"javascript:\">External Link</a>\n</noscript>";
-        testBodySnippet(input, "<noscript><a href=\"#\">External Link</a></noscript>");
+        testBodySnippet(input, "<noscript><a href=#>External Link</a></noscript>");
     }
 }
