@@ -286,21 +286,22 @@ public class MinifyVisitorTest {
         testBodySnippet(input, output); // { removeRedundantAttributes: true }
     }
 
-    //@Test
+    @Test
     public void testRemovingRedundantScriptCharset() {
         String input = "<script type=\"text/javascript\" charset=\"UTF-8\">alert(222);</script>";
-        String output = "<script type=\"text/javascript\">alert(222);</script>";
+        String output = "<script>alert(222);</script>";
         testBodySnippet(input, output); // { removeRedundantAttributes: true }
 
         input = "<script type=\"text/javascript\" src=\"http://example.com\" charset=\"UTF-8\">alert(222);</script>";
-        testBodySnippet(input, input); // { removeRedundantAttributes: true }
+        output = "<script src=http://example.com charset=UTF-8>alert(222);</script>";
+        testBodySnippet(input, output); // { removeRedundantAttributes: true }
 
         input = "<script CHARSET=\" ... \">alert(222);</script>";
         output = "<script>alert(222);</script>";
         testBodySnippet(input, output); // { removeRedundantAttributes: true }
     }
 
-    //@Test
+    @Test
     public void testRemovingRedundantScriptLanguage() {
         String input = "<script language=\"Javascript\">x=2,y=4</script>";
         testBodySnippet(input, "<script>x=2,y=4</script>"); // { removeRedundantAttributes: true }
@@ -309,34 +310,33 @@ public class MinifyVisitorTest {
         testBodySnippet(input, "<script>x=2,y=4</script>"); // { removeRedundantAttributes: true }
     }
 
-    //@Test
+    @Test
     public void testRemovingRedundantAreaShape() {
         String input = "<area shape=\"rect\" coords=\"696,25,958,47\" href=\"#\" title=\"foo\">";
-        String output = "<area coords=\"696,25,958,47\" href=\"#\" title=\"foo\">";
+        String output = "<area coords=696,25,958,47 href=# title=foo>";
         testBodySnippet(input, output); // { removeRedundantAttributes: true }
     }
 
-    //@Test
+    @Test
     public void testRemovingRedundantJavascript() {
         String input = "<p onclick=\"javascript:alert(1)\">x</p>";
-        testBodySnippet(input, "<p onclick=\"alert(1)\">x</p>"); // { cleanAttributes: true }
+        testBodySnippet(input, "<p onclick=alert(1)>x</p>"); // { cleanAttributes: true }
 
         input = "<p onclick=\"javascript:x\">x</p>";
         testBodySnippet(input, "<p onclick=x>x</p>"); // { cleanAttributes: true, removeAttributeQuotes: true }
 
         input = "<p onclick=\" JavaScript: x\">x</p>";
-        testBodySnippet(input, "<p onclick=\"x\">x</p>"); // { cleanAttributes: true }
+        testBodySnippet(input, "<p onclick=x>x</p>"); // { cleanAttributes: true }
 
         input = "<p title=\"javascript:(function() { /* some stuff here */ })()\">x</p>";
         testBodySnippet(input, input); // { cleanAttributes: true }
     }
 
-    //@Test
+    @Test
     public void testRemovingRedundantJavascriptType() {
         String input = "<script type=\"text/javascript\">alert(1)</script>";
         String output = "<script>alert(1)</script>";
         testBodySnippet(input, output); // { removeScriptTypeAttributes: true }
-        testBodySnippet(input, input); // { removeScriptTypeAttributes: false }
 
         input = "<SCRIPT TYPE=\"  text/javascript \">alert(1)</script>";
         output = "<script>alert(1)</script>";
@@ -347,11 +347,11 @@ public class MinifyVisitorTest {
         testBodySnippet(input, output); // { removeScriptTypeAttributes: true }
 
         input = "<script type=\"text/vbscript\">MsgBox(\"foo bar\")</script>";
-        output = "<script type=\"text/vbscript\">MsgBox(\"foo bar\")</script>";
+        output = "<script type=text/vbscript>MsgBox(\"foo bar\")</script>";
         testBodySnippet(input, output); // { removeScriptTypeAttributes: true }
     }
 
-    //@Test
+    @Test
     public void testRemovingRedundantCssType() {
         String input = "<style type=\"text/css\">.foo { color: red }</style>";
         String output = "<style>.foo { color: red }</style>";
@@ -362,15 +362,16 @@ public class MinifyVisitorTest {
         testBodySnippet(input, output); // { removeStyleLinkTypeAttributes: true }
 
         input = "<style type=\"text/plain\">.foo { background: green }</style>";
-        output = "<style type=\"text/plain\">.foo { background: green }</style>";
+        output = "<style type=text/plain>.foo { background: green }</style>";
         testBodySnippet(input, output); // { removeStyleLinkTypeAttributes: true }
 
         input = "<link rel=\"stylesheet\" type=\"text/css\" href=\"http://example.com\">";
-        output = "<link rel=\"stylesheet\" href=\"http://example.com\">";
+        output = "<link rel=stylesheet href=http://example.com>";
         testBodySnippet(input, output); // { removeStyleLinkTypeAttributes: true }
 
         input = "<link rel=\"alternate\" type=\"application/atom+xml\" href=\"data.xml\">";
-        testBodySnippet(input, input); // { removeStyleLinkTypeAttributes: true }
+        output = "<link rel=alternate type=application/atom+xml href=data.xml>";
+        testBodySnippet(input, output); // { removeStyleLinkTypeAttributes: true }
     }
 
     @Test
@@ -397,7 +398,7 @@ public class MinifyVisitorTest {
         testBodySnippet(input, "<a href=http://example.com/ title>foo</a>");
     }
 
-    //@Test
+    @Test
     public void testCollapsingWhitespace() {
         String input = "<p>foo</p>    <p> bar</p>\n\n   \n\t\t  <div title=\"quz\">baz  </div>";
         String output = "<p>foo</p> <p>bar</p> <div title=quz>baz</div>";
@@ -436,7 +437,7 @@ public class MinifyVisitorTest {
         testBodySnippet(input, output);
 
         input = "<script type=\"text/javascript\">  \n\t   alert(1) \n\n\n  \t </script>";
-        output = "<script type=\"text/javascript\">alert(1)</script>";
+        output = "<script>alert(1)</script>";
         testBodySnippet(input, output); // { collapseWhitespace: true }
 
         input = "<script>alert(\"foo     bar\")    </script>";

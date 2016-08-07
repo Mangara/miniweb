@@ -104,7 +104,7 @@ public class MinifyVisitor implements NodeVisitor {
 
         for (Attribute a : attr) {
             String val = (untrimmable.contains(a.getKey()) ? a.getValue() : a.getValue().trim());
-            
+
             if (omitAttribute(e, a, val)) {
                 continue;
             }
@@ -136,22 +136,46 @@ public class MinifyVisitor implements NodeVisitor {
         if (value.isEmpty() && (a.getKey().startsWith("on") || removeIfEmpty.contains(a.getKey()))) {
             return true;
         }
-        
+
         if ("form".equals(e.nodeName()) && "method".equals(a.getKey()) && "get".equalsIgnoreCase(value)) {
             return true;
         }
-        
+
         if ("input".equals(e.nodeName()) && "type".equals(a.getKey()) && "text".equalsIgnoreCase(value)) {
             return true;
         }
-        
-        if ("a".equals(e.nodeName()) && "name".equals(a.getKey())) { //  && e.attributes().hasKey("id")
-            System.out.println("In name case");
+
+        if ("a".equals(e.nodeName()) && "name".equals(a.getKey()) && e.attributes().hasKey("id")) {
             String id = e.attributes().get("id");
-            
+
             if (id.trim().equalsIgnoreCase(value)) {
                 return true;
             }
+        }
+
+        if ("script".equals(e.nodeName()) && "charset".equals(a.getKey()) && !e.attributes().hasKey("src")) {
+            return true;
+        }
+
+        if ("script".equals(e.nodeName()) && "language".equals(a.getKey())) {
+            return true;
+        }
+        
+        if ("script".equals(e.nodeName()) && "type".equals(a.getKey()) && "text/javascript".equalsIgnoreCase(value)) {
+            return true;
+        }
+        
+        if ("style".equals(e.nodeName()) && "type".equals(a.getKey()) && "text/css".equalsIgnoreCase(value)) {
+            return true;
+        }
+        
+        if ("link".equals(e.nodeName()) && "type".equals(a.getKey()) && "text/css".equalsIgnoreCase(value)) {
+            return true;
+        }
+
+        if ("area".equals(e.nodeName()) && "shape".equals(a.getKey())
+                && ("rect".equalsIgnoreCase(value) || "rectangle".equalsIgnoreCase(value) || "default".equalsIgnoreCase(value))) {
+            return true;
         }
 
         // <link type="text/css">
@@ -161,21 +185,29 @@ public class MinifyVisitor implements NodeVisitor {
     }
 
     private static final Pattern unambiguousAmpersand = Pattern.compile("&amp;([0-9a-zA-Z]*[^0-9a-zA-Z;])");
-    
+
     private String cleanAttributeValue(Attribute a, String value) {
         String val = value;
 
-        if (a.getKey().startsWith("on") && val.endsWith(";")) {
-            val = val.substring(0, val.length() - 1).trim();
+        if (a.getKey().startsWith("on")) {
+            // Remove trailing semicolon
+            if (val.endsWith(";")) {
+                val = val.substring(0, val.length() - 1).trim();
+            }
+            
+            // Remove preceding "javascript:"
+            if (val.toLowerCase().startsWith("javascript:")) {
+                val = val.substring("javascript:".length()).trim();
+            }
         }
-        
+
         StringBuffer newVal = new StringBuffer();
         Matcher matcher = unambiguousAmpersand.matcher(val);
-        
+
         while (matcher.find()) {
             matcher.appendReplacement(newVal, "&$1");
         }
-        
+
         matcher.appendTail(newVal);
 
         return newVal.toString();
