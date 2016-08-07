@@ -43,7 +43,7 @@ public class MinifyVisitor implements NodeVisitor {
             // This could be inline CSS or JavaScript
             // We should use other minifiers for this
             // For now, just print the contents as is
-            sb.append(((DataNode) node).getWholeData());
+            sb.append(((DataNode) node).getWholeData().trim());
         } else if (node instanceof DocumentType) {
             // No special printing necessary
             node.outerHtmlHead(sb, 0, out);
@@ -64,12 +64,18 @@ public class MinifyVisitor implements NodeVisitor {
             boolean normaliseWhite = node.parent() instanceof Element && !Element.preserveWhitespace(node.parent());
 
             boolean inHead = inHead(node);
-            boolean stripLeadingWhite = normaliseWhite && (inHead || node.previousSibling() == null);
-            boolean stripTrailingWhite = normaliseWhite && (inHead || node.nextSibling() == null);
+            boolean stripLeadingWhite = normaliseWhite && (inHead || previousNonCommentSibling(node) == null);
+            boolean stripTrailingWhite = normaliseWhite && (inHead || nextNonCommentSibling(node) == null);
 
-            Entities.escape(sb, ((TextNode) node).getWholeText(), out, false, normaliseWhite, stripLeadingWhite);
+            String text = ((TextNode) node).getWholeText();
 
-            while (stripTrailingWhite && sb.charAt(sb.length() - 1) == ' ') {
+            if (normaliseWhite && text.matches("\\s+") && Character.isWhitespace(sb.charAt(sb.length() - 1))) {
+                return; // Don't add more whitespace
+            }
+
+            Entities.escape(sb, text, out, false, normaliseWhite, stripLeadingWhite);
+
+            while (stripTrailingWhite && Character.isWhitespace(sb.charAt(sb.length() - 1))) {
                 sb.deleteCharAt(sb.length() - 1);
             }
         } else if (node instanceof XmlDeclaration) {
@@ -111,11 +117,11 @@ public class MinifyVisitor implements NodeVisitor {
 
             sb.append(" ").append(a.getKey());
 
-            if (!val.isEmpty() && !a.isBooleanAttribute()) {
+            if (!omitValue(e, a, val)) {
                 StringBuilder value = new StringBuilder();
                 Entities.escape(value, val, out, true, false, false);
 
-                val = cleanAttributeValue(a, value.toString());
+                val = cleanAttributeValue(e, a, value.toString());
 
                 if (!val.contains("'") && val.contains("&quot;")) {
                     sb.append("=\'").append(val.replaceAll("&quot;", "\"")).append('\'');
@@ -134,6 +140,14 @@ public class MinifyVisitor implements NodeVisitor {
 
     private boolean omitAttribute(Element e, Attribute a, String value) {
         if (value.isEmpty() && (a.getKey().startsWith("on") || removeIfEmpty.contains(a.getKey()))) {
+            return true;
+        }
+
+        if (a.getKey().startsWith("on") && value.equalsIgnoreCase("javascript:")) {
+            return true;
+        }
+
+        if ("draggable".equals(a.getKey()) && !("true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value))) {
             return true;
         }
 
@@ -160,15 +174,15 @@ public class MinifyVisitor implements NodeVisitor {
         if ("script".equals(e.nodeName()) && "language".equals(a.getKey())) {
             return true;
         }
-        
+
         if ("script".equals(e.nodeName()) && "type".equals(a.getKey()) && "text/javascript".equalsIgnoreCase(value)) {
             return true;
         }
-        
+
         if ("style".equals(e.nodeName()) && "type".equals(a.getKey()) && "text/css".equalsIgnoreCase(value)) {
             return true;
         }
-        
+
         if ("link".equals(e.nodeName()) && "type".equals(a.getKey()) && "text/css".equalsIgnoreCase(value)) {
             return true;
         }
@@ -178,29 +192,52 @@ public class MinifyVisitor implements NodeVisitor {
             return true;
         }
 
-        // <link type="text/css">
-        // <style type="text/css">
-        // <script type="text/javascript">
+        return false;
+    }
+
+    private static final Set<String> booleanAttributes = Arrays.asList(
+            // JSoup boolean attributes
+            "allowfullscreen", "async", "autofocus", "checked", "compact", "declare", "default", "defer", "disabled",
+            "formnovalidate", "hidden", "inert", "ismap", "itemscope", "multiple", "muted", "nohref", "noresize",
+            "noshade", "novalidate", "nowrap", "open", "readonly", "required", "reversed", "seamless", "selected",
+            "sortable", "truespeed", "typemustmatch",
+            // Extra ones
+            "autoplay", "controls", "loop", "muted", "defaultchecked", "defaultselected", "defaultmuted", "enabled",
+            "indeterminate", "pauseonexit", "scoped", "spellcheck", "visible"
+    ).stream().collect(Collectors.toSet());
+
+    private boolean omitValue(Element e, Attribute a, String val) {
+        if (val.isEmpty()) {
+            return true;
+        }
+
+        if (booleanAttributes.contains(a.getKey())) {
+            return true;
+        }
+
         return false;
     }
 
     private static final Pattern unambiguousAmpersand = Pattern.compile("&amp;([0-9a-zA-Z]*[^0-9a-zA-Z;])");
 
-    private String cleanAttributeValue(Attribute a, String value) {
+    private String cleanAttributeValue(Element e, Attribute a, String value) {
         String val = value;
 
-        if (a.getKey().startsWith("on")) {
-            // Remove trailing semicolon
+        // Remove trailing semicolons in certain cases
+        if (a.getKey().startsWith("on") || "style".equals(a.getKey())) {
             if (val.endsWith(";")) {
                 val = val.substring(0, val.length() - 1).trim();
             }
-            
-            // Remove preceding "javascript:"
+        }
+        
+        // Clean javascript attributes
+        if (a.getKey().startsWith("on")) {
             if (val.toLowerCase().startsWith("javascript:")) {
                 val = val.substring("javascript:".length()).trim();
             }
         }
 
+        // Re-expand unambiguous ampersands
         StringBuffer newVal = new StringBuffer();
         Matcher matcher = unambiguousAmpersand.matcher(val);
 
@@ -209,8 +246,18 @@ public class MinifyVisitor implements NodeVisitor {
         }
 
         matcher.appendTail(newVal);
+        val = newVal.toString();
 
-        return newVal.toString();
+        // Specific cases
+        if ("class".equals(a.getKey())) {
+            val = val.replaceAll("\\s+", " ");
+        } else if ("meta".equals(e.nodeName()) && "content".equals(a.getKey()) && "viewport".equals(e.attributes().get("name"))) {
+            val = val.replaceAll("\\s", "");
+            val = val.replaceAll("\\.0+(\\D)", "$1"); // Remove needless zeroes (1.0 => 1)
+            val = val.replaceAll("\\.0+$", "");
+        }
+
+        return val;
     }
 
     private boolean inHead(Node node) {
@@ -237,6 +284,41 @@ public class MinifyVisitor implements NodeVisitor {
      * The HTML 5 spec is more liberal.
      */
     private static final Pattern noQuotesRequired = Pattern.compile("[^ \t\n\r\f\"'`=<>]+");
-    //Pattern.compile("[a-zA-Z0-9-._:]+");
+
+    private Object previousNonCommentSibling(Node node) {
+        Node sibling = node.previousSibling();
+
+        while (sibling != null) {
+            if (sibling instanceof TextNode) {
+                if (!((TextNode) sibling).getWholeText().matches("\\s+")) {
+                    break;
+                }
+            } else if (!(sibling instanceof Comment)) {
+                break;
+            }
+
+            sibling = sibling.previousSibling();
+        }
+
+        return sibling;
+    }
+
+    private Object nextNonCommentSibling(Node node) {
+        Node sibling = node.nextSibling();
+
+        while (sibling != null) {
+            if (sibling instanceof TextNode) {
+                if (!((TextNode) sibling).getWholeText().matches("\\s+")) {
+                    break;
+                }
+            } else if (!(sibling instanceof Comment)) {
+                break;
+            }
+
+            sibling = sibling.nextSibling();
+        }
+
+        return sibling;
+    }
 
 }
