@@ -1,0 +1,160 @@
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,700);
+@import url(http://fonts.googleapis.com/css?family=Nunito:400);
+
+html {
+    /* Always display a vertical scroll bar, so centered content doesn't move when one appears */
+	overflow-y: scroll; 
+}
+
+body {
+    background: #f3f3f3;
+    margin-top: 0;
+    margin-bottom: 1em;
+    margin-left: auto;
+    margin-right: auto;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 112.5%; /* 18px if the browser default is 16px */
+    line-height: 140%;
+    width: 50em;
+}
+
+/* Background */
+.container {
+    background: white;
+    padding: 2em;
+    margin: 0;
+    border: 1px solid #cccccc;
+    border-radius: 8px;
+}
+
+#content-wrapper {
+    border-top: 0;
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
+}
+
+/* Make links unobtrusive in general */
+a:link          { color: black; text-decoration: none; } /* unvisited link */
+a:visited    { color: black; text-decoration: none; } /* visited link */
+a:hover        { color: blue;  text-decoration: underline; } /* mouse over link */
+a:active      { color: red;   text-decoration: underline; } /* selected link */
+
+/* Allow links to be visible */
+a.link:link          { color: blue; text-decoration: none; } /* unvisited link */
+a.link:visited    { color: purple; text-decoration: none; } /* visited link */
+a.link:hover        { text-decoration: underline; } /* mouse over link */
+a.link:active      { color: red;   text-decoration: underline; } /* selected link */
+
+noscript {
+    color: darkgrey;
+}
+
+#site-header {
+    padding: 1em 0 1em 1em; /* Turn off right padding to fix overflow in Ubuntu Firefox */
+    background: #3366cc;
+    border: 1px solid #cccccc;
+    border-top: 0;
+}
+
+#site-header h1 {
+    display: inline-block;
+    margin: 0 0 0 0.5em;
+    width: 45%;
+    color: white;
+    font-size: 1.4em;
+    font-family: 'Nunito', Verdana, sans-serif;
+    text-shadow: 0px 1px 1px rgba(0,0,0,0.5);
+}
+
+#site-header h1>a {
+    color: white;
+}
+
+#site-header a:hover {
+    text-decoration: none;
+}
+
+#site-navigation {
+    display: inline-block;
+    width: 50%;
+    text-align: right;
+}
+
+#site-navigation a {
+    display: inline-block;
+    padding: 0.2em 0.6em;
+    text-align: center;
+    font-weight: bold;
+    color: white;
+    text-shadow: 0px 1px 1px rgba(0,0,0,0.3);    
+    border-style: none;
+    border-radius: 8px;
+    transition: all 0.15s ease 0s;
+}
+
+#site-navigation a+a {
+    margin-left: 0.5em;
+}
+
+#site-navigation a:hover, #site-navigation [href="#"] {
+    background-color: #1f3d7a;
+}
+
+@media all and (max-width: 56em) {
+    body {
+        width: 100%; 
+        font-size: 100%;
+    }
+
+    .container {
+        padding: 2em 0.5em;
+    }
+  
+    #site-header {
+        padding: 0.3em;
+    }
+
+    #site-header h1 {
+        display: block;
+        width: 21.43em; /* 30 / 1.4 */
+        margin: auto;
+        margin-top: 0.2em;
+        padding-left: 0.5em;
+    }
+  
+    #site-navigation {
+        display: block;
+        width: 30em;
+        margin: auto;
+        margin-top: 0.3em;
+        text-align: center;
+    }
+
+    #site-navigation a+a {
+        margin-left: 1em;
+    }
+}
+
+@media all and (max-width: 31em) {
+    .container {
+        padding: 0.5em; /* Setting the padding to 0 makes the margins collapse and the background show through */
+    }
+
+    body {
+        font-size: 90%;
+    }
+
+    #site-navigation {
+        width: 18em;
+        margin-top: 0.2em;
+    }
+    
+    #site-navigation a {
+        margin: 0;
+        padding: 0.15em 0.5em;
+    }
+
+    #site-navigation a+a {
+        margin-left: 0.5em;
+    }
+}
