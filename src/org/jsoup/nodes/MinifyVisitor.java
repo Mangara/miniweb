@@ -2,6 +2,7 @@ package org.jsoup.nodes;
 
 import java.util.Arrays;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.jsoup.select.NodeTraversor;
@@ -51,7 +52,7 @@ public class MinifyVisitor implements NodeVisitor {
 
             sb.append("<").append(e.tagName());
 
-            minifyAttributes(e.attributes());
+            minifyAttributes(e, e.attributes());
 
             // If the last attribute was unquoted and ended with '/', we need a space before the end '>'
             if (sb.charAt(sb.length() - 1) == '/') {
@@ -95,7 +96,7 @@ public class MinifyVisitor implements NodeVisitor {
             "value", "title"
     ).stream().collect(Collectors.toSet());
 
-    private void minifyAttributes(Attributes attr) {
+    private void minifyAttributes(Element e, Attributes attr) {
         if (attr == null) {
             System.err.println("Null");
             return;
@@ -104,7 +105,7 @@ public class MinifyVisitor implements NodeVisitor {
         for (Attribute a : attr) {
             String val = (untrimmable.contains(a.getKey()) ? a.getValue() : a.getValue().trim());
             
-            if (omitAttribute(a, val)) {
+            if (omitAttribute(e, a, val)) {
                 continue;
             }
 
@@ -131,9 +132,26 @@ public class MinifyVisitor implements NodeVisitor {
             "id", "class", "style", "lang", "dir", "value"
     ).stream().collect(Collectors.toSet());
 
-    private boolean omitAttribute(Attribute a, String value) {
+    private boolean omitAttribute(Element e, Attribute a, String value) {
         if (value.isEmpty() && (a.getKey().startsWith("on") || removeIfEmpty.contains(a.getKey()))) {
             return true;
+        }
+        
+        if ("form".equals(e.nodeName()) && "method".equals(a.getKey()) && "get".equalsIgnoreCase(value)) {
+            return true;
+        }
+        
+        if ("input".equals(e.nodeName()) && "type".equals(a.getKey()) && "text".equalsIgnoreCase(value)) {
+            return true;
+        }
+        
+        if ("a".equals(e.nodeName()) && "name".equals(a.getKey())) { //  && e.attributes().hasKey("id")
+            System.out.println("In name case");
+            String id = e.attributes().get("id");
+            
+            if (id.trim().equalsIgnoreCase(value)) {
+                return true;
+            }
         }
 
         // <link type="text/css">
@@ -142,14 +160,25 @@ public class MinifyVisitor implements NodeVisitor {
         return false;
     }
 
+    private static final Pattern unambiguousAmpersand = Pattern.compile("&amp;([0-9a-zA-Z]*[^0-9a-zA-Z;])");
+    
     private String cleanAttributeValue(Attribute a, String value) {
         String val = value;
 
         if (a.getKey().startsWith("on") && val.endsWith(";")) {
             val = val.substring(0, val.length() - 1).trim();
         }
+        
+        StringBuffer newVal = new StringBuffer();
+        Matcher matcher = unambiguousAmpersand.matcher(val);
+        
+        while (matcher.find()) {
+            matcher.appendReplacement(newVal, "&$1");
+        }
+        
+        matcher.appendTail(newVal);
 
-        return val;
+        return newVal.toString();
     }
 
     private boolean inHead(Node node) {
