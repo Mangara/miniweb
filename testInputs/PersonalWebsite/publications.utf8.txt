@@ -1,0 +1,176 @@
+Journal papers.
+
+10. Flips in edge-labelled pseudo-triangulations.
+    With P. Bose.
+    Accepted to Computational Geometry: Theory and Applications.
+
+9. Flipping edge-labelled triangulations.
+   With P. Bose, A. Lubiw, and V. Pathak.
+   Accepted to Computational Geometry: Theory and Applications.
+   Special Issue in Memoriam: Ferran Hurtado.
+
+8. On the average number of edges in Theta graphs.
+   With P. Morin.
+   Accepted to Online Journal of Analytic Combinatorics.
+
+7. Towards tight bounds on theta-graphs: More is not always better.
+   With P. Bose, J.-L. De Carufel, P. Morin, and A. van Renssen.
+   Theoretical Computer Science, 616:70-93, 2016.
+
+6. Optimal local routing on Delaunay triangulations defined by empty equilateral triangles.
+   With P. Bose, R. Fagerberg, and A. van Renssen.
+   SIAM Journal on Computing, 44(6):1626-1649, 2015.
+
+5. New and improved spanning ratios for Yao graphs.
+   With L. Barba, P. Bose, M. Damian, R. Fagerberg, W. L. Keng, J. O’Rourke, A. van Renssen, P. Taslakian, and G. Xia.
+   Journal of Computational Geometry, 6(2):19-53, 2015.
+   Special issue for SoCG 2014.
+
+4. On the number of regular edge labelings.
+   With K. Buchin and B. Speckmann.
+   Discrete Mathematics & Theoretical Computer Science, 16(3):215-228, 2014.
+
+3. The $\theta_5$-graph is a spanner.
+   With P. Bose, P. Morin, and A. van Renssen.
+   Computational Geometry: Theory and Applications, 48(2):108-119, 2015.
+
+2. Theta-3 is connected.
+   With O. Aichholzer, S. W. Bae, L. Barba, P. Bose, M. Korman, A. van Renssen, and P. Taslakian.
+   Computational Geometry: Theory and Applications, 47(9):910-917, 2014.
+   Special issue for CCCG 2013.
+
+1. Making triangulations 4-connected using flips.
+   With P. Bose, D. Jansens, A. van Renssen, and M. Saumell.
+   Computational Geometry: Theory and Applications, 47(2A):187-197, 2014.
+   Special issue for CCCG 2011.
+
+
+Conference papers.
+
+21. Gabriel triangulations and angle-monotone graphs: local routing and recognition.
+    With N. Bonichon, P. Bose, P. Carmi, I. Kostitsyna, and A. Lubiw.
+    Accepted to the 24th International Symposium on Graph drawing (GD 2016).
+
+20. Realizing farthest-point Voronoi diagrams.
+    With T. Biedl, C. Grimm, L. Palios, and J. Shewchuk.
+    Accepted to the 28th Canadian Conference on Computational Geometry (CCCG 2016).
+
+19. Rectangle-of-influence triangulations.
+    With T. Biedl, A. Lubiw, and S. Mehrabi.
+    Accepted to the 28th Canadian Conference on Computational Geometry (CCCG 2016).
+
+18. Competitive local routing with constraints.
+    With P. Bose, R. Fagerberg, and A. van Renssen.
+    In Proceedings of the 26th International Symposium on Algorithms and Computation (ISAAC 2015), pages 23-34, 2015.
+
+17. Flips in edge-labelled pseudo-triangulations.
+    With P. Bose.
+    In Proceedings of the 27th Canadian Conference on Computational Geometry (CCCG 2015), pages 63-69, 2015.
+
+16. Continuous Yao graphs.
+    With L. Barba, P. Bose, J.-L. De Carufel, M. Damian, R. Fagerberg, A. van Renssen, and P. Taslakian.
+    In Proceedings of the 26th Canadian Conference on Computational Geometry (CCCG 2014), pages 100-106, 2014.
+
+15. Weight balancing on boundaries and skeletons.
+    With L. Barba, O. Cheong, J.-L. De Carufel, M. Dobbins, R. Fleischer, A. Kawamura, M. Korman, Y. Okamoto, J. Pach, Y. Tang, T. Tokuyama, and T. Wang.
+    In Proceedings of the 30th Annual Symposium on Computational Geometry (SoCG 2014), pages 436-443, 2014.
+
+14. New and improved spanning ratios for Yao graphs.
+    With L. Barba, P. Bose, M. Damian, R. Fagerberg, W. L. Keng, J. O’Rourke, A. van Renssen, P. Taslakian, and G. Xia.
+    In Proceedings of the 30th Annual Symposium on Computational Geometry (SoCG 2014), pages 30-39, 2014.
+
+13. On the average number of edges in Theta graphs.
+    With P. Morin.
+    In Proceedings of the 11th Meeting on Analytic Algorithmics and Combinatorics (ANALCO14), pages 121-132, 2014.
+
+12. On the spanning ratio of Theta-graphs.
+    With P. Bose and A. van Renssen.
+    In Proceedings of the 13th Algorithms and Data Structures Symposium (WADS 2013), pages 182-194, 2013.
+
+11. On the stretch factor of the Theta-4 graph.
+    With L. Barba, P. Bose, J.-L. De Carufel, and A. van Renssen.
+    In Proceedings of the 13th Algorithms and Data Structures Symposium (WADS 2013), pages 109-120, 2013.
+
+10. Theta-3 is connected.
+    With O. Aichholzer, S. W. Bae, L. Barba, P. Bose, M. Korman, A. van Renssen, and P. Taslakian.
+    In Proceedings of the 25th Canadian Conference on Computational Geometry (CCCG 2013), pages 205-210, 2013.
+
+9. The $\theta_5$-graph is a spanner.
+   With P. Bose, P. Morin, and A. van Renssen.
+   In Proceedings of the 39th International Workshop on Graph-Theoretic Concepts in Computer Science (WG 2013), pages 100-114, 2013.
+
+8. Competitive routing on a bounded-degree plane spanner.
+   With P. Bose, R. Fagerberg, and A. van Renssen.
+   In Proceedings of the 24th Canadian Conference on Computational Geometry (CCCG 2012), pages 299-304, 2012.
+
+7. Optimal bounds on Theta-graphs: more is not always better.
+   With P. Bose, J.-L. De Carufel, P. Morin, and A. van Renssen.
+   In Proceedings of the 24th Canadian Conference on Computational Geometry (CCCG 2012), pages 305-310, 2012.
+
+6. Evolution strategies for optimizing rectangular cartograms.
+   With K. Buchin and B. Speckmann.
+   In Proceedings of the 7th International Conference on Geographic Information Science (GIScience 2012), pages 29-42, 2012.
+
+5. On plane constrained bounded-degree spanners.
+   With P. Bose, R. Fagerberg, and A. van Renssen.
+   In Proceedings of the 10th Latin American Symposium on Theoretical Informatics (LATIN 2012), pages 85-96, 2012.
+
+4. Competitive routing in the half-$\theta_6$-graph.
+   With P. Bose, R. Fagerberg, and A. van Renssen.
+   In Proceedings of the 23rd ACM-SIAM Symposium on Discrete Algorithms (SODA 2012), pages 1319-1328, 2012.
+
+3. On rectilinear partitions with minimum stabbing number.
+   With M. de Berg, A. Khosravi, and V. van der Weele.
+   In Proceedings of the 12th Algorithms and Data Structures Symposium (WADS 2011), pages 302-313, 2011.
+
+2. Making triangulations 4-connected using flips.
+   With P. Bose, D. Jansens, A. van Renssen, and M. Saumell.
+   In Proceedings of the 23rd Canadian Conference on Computational Geometry (CCCG 2011), pages 241-247, 2011.
+
+1. Optimizing regular edge labelings.
+   With K. Buchin and B. Speckmann.
+   In Proceedings of the 18th International Symposium on Graph drawing (GD 2010), pages 117-128, 2011.
+
+
+Chapters in Books.
+
+1. A history of flips in combinatorial triangulations.
+   With P. Bose.
+   In A. Márquez, P. Ramos, and J. Urrutia, editors, Proceedings of the XIV Spanish Meeting on Computational Geometry (EGC 2011), volume 7579 of Lecture Notes in Computer Science, pages 29-44. Springer Berlin Heidelberg, 2012.
+
+
+Theses.
+
+2. Flips and spanners.
+   PhD thesis, Carleton University, 2015.
+
+1. Optimizing regular edge labelings.
+   Master’s thesis, Eindhoven University of Technology, 2010.
+
+
+Unpublished manuscripts.
+
+1. Dynamic graph coloring.
+   With L. Barba, J. Cardinal, M. Korman, S. Langerman, A. van Renssen, and M. Roeloffzen.
+   2016.
+
+
+Invited Talks.
+
+5. Flips in edge-labelled triangulations.
+   University of Waterloo, February 2016.
+
+4. Optimizing rectangular cartograms.
+   Tohoku University, January 2016.
+
+3. Flips in edge-labelled triangulations.
+   Eindhoven University of Technology, June 2015.
+
+2. Flips in edge-labelled triangulations.
+   Université libre de Bruxelles, May 2015.
+
+1. Making triangulations 4-connected using flips.
+   Eindhoven University of Technology, December 2011.
+
+
+Generated by Publy 1.0.  Last modified on 26 July 2016.

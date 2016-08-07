@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sander Verdonschot - Misc</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="style.css" type="text/css">
+    
+    <style type="text/css">
+        #first {
+            margin: 0;
+        }
+
+        li + li {
+            margin-top: 0.5em;
+        }
+
+        ul {
+            margin-bottom: 0;
+        }
+        
+        li .right {
+            float: right;
+        }
+        
+        #publy-logo {
+            border: 1px solid #bbb;
+            border-radius: 50%;
+            padding: 3px;
+            width: 5em;
+            max-width: 25%;
+        }
+        
+        a:link    { color: blue; } /* unvisited link */
+        a:visited { color: purple; } /* visited link */
+        a:active  { color: red; } /* selected link */
+    </style>
+    
+    <!-- jQuery framework - necessary for all included JavaScript -->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    
+    <!-- Google Analytics JavaScript file -->
+    <script src="ga.js"></script>
+</head>
+<body>
+    <div id="site-header">
+        <h1><a href="index.html" class="title">Sander Verdonschot</a></h1>
+        <div id="site-navigation">
+            <a href="publications.html">Publications</a>
+            <a href="teaching.html">Teaching</a>
+            <a href="#">Misc</a>
+        </div>
+    </div>
+ 
+    <div id="content-wrapper" class="container">
+        <p id="first">These are some other things I did:</p>
+        <ul>
+            <li><a href="https://bitbucket.org/Mangara/publy/overview"><img id="publy-logo" class="right" src="misc/publy-logo-100.png" alt="Publy logo"></a>I am the creator and maintainer of <a href="https://bitbucket.org/Mangara/publy/overview">Publy</a>: an open-source tool that generates a website with a list of publications from a BibTeX file.
+            <li>I developed a tool for drawing theta-graphs: [<a href="misc/FullTheta.jar">jar</a>]
+            <li>I wrote a short <a href="misc/NetBeansTutorial/nbtutorial.html">tutorial</a> on how to create a NetBeans project from existing source files. It is aimed at students who are taking COMP 2402 (Data Structures).
+        </ul>
+    </div>
+</body>
+</html>

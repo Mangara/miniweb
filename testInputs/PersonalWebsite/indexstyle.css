@@ -1,0 +1,245 @@
+img.face {
+    border-radius: 8px;
+    border: 1px solid #1f3d7a;
+}
+
+img.logo {
+    float: right;
+    margin-top: 1em;
+    margin-right: 1em;
+    height: 8em;
+}
+
+img.logo-bottom {
+    display: none;
+}
+
+.address-info {
+    display: inline-block;
+    margin: 0;
+    vertical-align: top;
+}
+
+.address-info-bottom {
+    display: none;
+}
+
+.apestaartje {
+    margin-bottom: -0.1em;
+    width: 0.89em;
+}
+
+.data h2 {
+    font-size: 1em;
+    display: inline-block;
+    width: 5em;
+    margin: 0;
+    margin-left: 1.3em;
+    margin-bottom: 1em;
+    vertical-align: top;
+}
+
+.data p {
+    display: inline-block;
+    margin: 0;
+}
+
+p {
+    margin-bottom: 0;
+}
+
+#selected-publications {
+    margin-top: 2em;
+    padding: 1em;
+    padding-top: 2em;
+}
+
+#selected-publications .publink {
+    display: block;
+    border: 1px solid #fff;
+    padding: 1em;
+}
+#selected-publications .publink:hover {
+    color: #36c;
+    background: #eee;
+    border: 1px solid #fff;
+    border-radius: 10px;
+}
+#selected-publications .publink:hover img {
+    background: white;
+    border: 1px solid #fff;
+    border-radius: 8px;
+}
+
+#selected-publications h2 {
+    text-align: center;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #1f3d7a;
+    margin-top: -0.5em;
+    margin-bottom: 1em;
+}
+
+#selected-publications h3 {
+    font-size: 1em; /* Regular text height */
+    font-weight: bold;
+    margin-top: 1px; /* Subtly draw attention with white-space */
+    margin-bottom: 1px;
+}
+
+#selected-publications span {
+    color: black;
+    text-shadow: none;
+}
+
+#selected-publications img {
+    width: 8em;
+    margin-top: 0em;
+    padding: 0.25em;
+    vertical-align: middle;
+    border: 1px solid #fff;
+}
+
+#selected-publications .wide-image img {
+    width: 10em;
+}
+
+#selected-publications .pubdata {
+    display: inline-block;
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 0em;
+    width: 35.8em;
+    vertical-align: middle;
+}
+
+#selected-publications .wide-image .pubdata {
+    width: 33.8em;
+}
+
+#selected-publications img+.pubdata,
+#selected-publications .pubdata+img {
+    margin-left: 1em;
+}
+
+#selected-publications a {
+    color: black;
+    text-decoration: none;
+}
+
+@media all and (max-width: 56em) {
+    #content {
+        width: 30em;
+        margin: 0 auto;
+    }
+
+    img.face {
+        height: 8em;
+    }
+
+    img.logo {
+        display: none;
+    }
+    
+    img.logo-bottom {
+        display: block;
+        width: 15em;
+        margin-top: 1em;
+        margin-left: 6.5em;
+    }
+
+    .data h2 {
+        margin-left: 0.7em;
+        width: 4.4em;
+    }
+    
+    #selected-publications img {
+        width: 19%;
+    }
+
+    #selected-publications .wide-image img {
+        width: 28%;
+    }
+
+    #selected-publications .pubdata {
+        width: 76%;
+    }
+
+    #selected-publications .wide-image .pubdata {
+        width: 67%;
+    }
+    
+    #selected-publications img+.pubdata,
+    #selected-publications .pubdata+img {
+        margin-left: 0.5em;
+    }
+    
+    #selected-publications .author-line {
+        display: none;
+    }
+}
+
+@media all and (max-width: 31em) {
+    #content {
+        width: 100%;
+    }
+    
+    img.face {
+        height: 8em;
+        width: auto;
+        float: left;
+        margin-right: 0.5em;
+    }
+
+    .address-info {
+        display: none;
+    }
+    
+    p {
+        margin-top: 0.5em;
+    }
+
+    p + p {
+        margin-top: 1em;
+    }
+
+    .address-info-bottom {
+        display: block;
+        width: 22em;
+        margin-top: 1.2em;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .data h2 {
+        margin-left: 0em;
+    }
+    
+    img.logo-bottom {
+        width: 12em;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    
+    #selected-publications h2 {
+        margin-top: 0.5em;
+        margin-bottom: 0.5em;
+    }
+    
+    #selected-publications .pubdata {
+        width: 72%;
+    }
+
+    #selected-publications .wide-image .pubdata {
+        width: 62%;
+    }
+    
+    #selected-publications img+.pubdata,
+    #selected-publications .pubdata+img {
+        margin-left: 0.2em;
+    }
+    
+    #selected-publications .pubinfo-line {
+        display: none;
+    }
+}
