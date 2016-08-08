@@ -8,10 +8,6 @@ import java.util.stream.Collectors;
 import org.jsoup.select.NodeTraversor;
 import org.jsoup.select.NodeVisitor;
 
-/**
- *
- * @author Sander Verdonschot <sander.verdonschot at gmail.com>
- */
 public class MinifyVisitor implements NodeVisitor {
 
     private final StringBuilder sb;

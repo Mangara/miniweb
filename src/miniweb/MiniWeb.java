@@ -4,6 +4,7 @@ import miniweb.html.ClassRenamer;
 import miniweb.html.ClassCounter;
 import miniweb.html.ClassCleaner;
 import cz.vutbr.web.css.CSSException;
+import cz.vutbr.web.css.RuleBlock;
 import cz.vutbr.web.css.StyleSheet;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -25,9 +26,17 @@ import org.jsoup.nodes.MinifyVisitor;
 
 public class MiniWeb {
 
-    private static final Path inputDir = Paths.get("testInputs/ColorZebra");
-    private static final Path outputDir = Paths.get("testOutputs/ColorZebra");
-    private static final Path input = inputDir.resolve("index.html");
+    private static final String testFolder;
+    private static final String testFile;
+    
+    static {
+        //testFolder = "CG-Publy"; testFile = "CG-Lab.html";
+        testFolder = "PersonalWebsite"; testFile = "index.html";
+    }
+    
+    private static final Path inputDir = Paths.get("testInputs/" + testFolder);
+    private static final Path outputDir = Paths.get("testOutputs");
+    private static final Path input = inputDir.resolve(testFile);
 
     /**
      * @param args the command line arguments
@@ -47,6 +56,7 @@ public class MiniWeb {
         Map<String, String> compressedClassNames = ClassnameCompressor.compressClassNames(htmlClassOccurrences);
         ClassRenamer.renameHtmlClasses(doc, compressedClassNames);
         CssClassRenamer.renameCssClasses(compressedClassNames, styles);
+        // TODO: rename CSS classes in the HTML
 
         // Compress the HTML
         String html = MinifyVisitor.minify(doc);
@@ -65,11 +75,9 @@ public class MiniWeb {
                 Path file = outputDir.resolve(stylesheet.getKey());
 
                 try (BufferedWriter out = Files.newBufferedWriter(file)) {
-                    StyleSheet css = stylesheet.getValue();
-                    
-                    // TODO: good printing
-                    
-                    out.write(stylesheet.getValue().toString());
+                    for (RuleBlock<?> rules : stylesheet.getValue()) {
+                        out.write(rules.toString());
+                    }
                 }
             }
         }
