@@ -76,12 +76,10 @@ public class MinifyVisitor implements NodeVisitor {
                 String css = e.data();
 
                 if (css != null && !css.isEmpty()) {
-                    System.out.println("CSS before: " + css);
                     try {
                         CssCompressor compressor = new CssCompressor(new StringReader(css));
                         StringWriter writer = new StringWriter(css.length());
                         compressor.compress(writer, -1);
-                        System.out.println("CSS after:  " + writer.toString());
                         sb.append(writer.getBuffer());
                         dataHandled = css;
                     } catch (IOException ex) {
