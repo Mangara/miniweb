@@ -1,5 +1,9 @@
 package org.jsoup.nodes;
 
+import com.yahoo.platform.yui.compressor.CssCompressor;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -12,6 +16,7 @@ public class MinifyVisitor implements NodeVisitor {
 
     private final StringBuilder sb;
     private final Document.OutputSettings out;
+    private String dataHandled = null; // If the data contained in a node was handled earlier, it is stored here
 
     public static String minify(Document doc) {
         StringBuilder minified = new StringBuilder();
@@ -36,10 +41,17 @@ public class MinifyVisitor implements NodeVisitor {
         if (node instanceof Comment) {
             // Print nothing
         } else if (node instanceof DataNode) {
-            // This could be inline CSS or JavaScript
-            // We should use other minifiers for this
-            // For now, just print the contents as is
-            sb.append(((DataNode) node).getWholeData().trim());
+            // Inline JS and CSS should already be compressed
+            // Anything else we'll print as-is
+            String data = ((DataNode) node).getWholeData();
+            
+            if (data.equals(dataHandled)) {
+                // This was already added to the buffer
+                dataHandled = null;
+                return;
+            }
+
+            sb.append(data.trim());
         } else if (node instanceof DocumentType) {
             // No special printing necessary
             node.outerHtmlHead(sb, 0, out);
@@ -56,6 +68,28 @@ public class MinifyVisitor implements NodeVisitor {
             }
 
             sb.append(">");
+
+            if ("script".equals(e.tagName())) {
+                // TODO: Minify JS
+                System.out.println("Script data: " + e.data());
+            } else if ("style".equals(e.tagName())) {
+                String css = e.data();
+
+                if (css != null && !css.isEmpty()) {
+                    System.out.println("CSS before: " + css);
+                    try {
+                        CssCompressor compressor = new CssCompressor(new StringReader(css));
+                        StringWriter writer = new StringWriter(css.length());
+                        compressor.compress(writer, -1);
+                        System.out.println("CSS after:  " + writer.toString());
+                        sb.append(writer.getBuffer());
+                        dataHandled = css;
+                    } catch (IOException ex) {
+                        // This should never happen - it is from the compressor reading the input, which is a StringReader.
+                        throw new InternalError(ex);
+                    }
+                }
+            }
         } else if (node instanceof TextNode) {
             boolean normaliseWhite = node.parent() instanceof Element && !Element.preserveWhitespace(node.parent());
 
@@ -147,15 +181,15 @@ public class MinifyVisitor implements NodeVisitor {
             return true;
         }
 
-        if ("form".equals(e.nodeName()) && "method".equals(a.getKey()) && "get".equalsIgnoreCase(value)) {
+        if ("form".equals(e.tagName()) && "method".equals(a.getKey()) && "get".equalsIgnoreCase(value)) {
             return true;
         }
 
-        if ("input".equals(e.nodeName()) && "type".equals(a.getKey()) && "text".equalsIgnoreCase(value)) {
+        if ("input".equals(e.tagName()) && "type".equals(a.getKey()) && "text".equalsIgnoreCase(value)) {
             return true;
         }
 
-        if ("a".equals(e.nodeName()) && "name".equals(a.getKey()) && e.attributes().hasKey("id")) {
+        if ("a".equals(e.tagName()) && "name".equals(a.getKey()) && e.attributes().hasKey("id")) {
             String id = e.attributes().get("id");
 
             if (id.trim().equalsIgnoreCase(value)) {
@@ -163,27 +197,27 @@ public class MinifyVisitor implements NodeVisitor {
             }
         }
 
-        if ("script".equals(e.nodeName()) && "charset".equals(a.getKey()) && !e.attributes().hasKey("src")) {
+        if ("script".equals(e.tagName()) && "charset".equals(a.getKey()) && !e.attributes().hasKey("src")) {
             return true;
         }
 
-        if ("script".equals(e.nodeName()) && "language".equals(a.getKey())) {
+        if ("script".equals(e.tagName()) && "language".equals(a.getKey())) {
             return true;
         }
 
-        if ("script".equals(e.nodeName()) && "type".equals(a.getKey()) && "text/javascript".equalsIgnoreCase(value)) {
+        if ("script".equals(e.tagName()) && "type".equals(a.getKey()) && "text/javascript".equalsIgnoreCase(value)) {
             return true;
         }
 
-        if ("style".equals(e.nodeName()) && "type".equals(a.getKey()) && "text/css".equalsIgnoreCase(value)) {
+        if ("style".equals(e.tagName()) && "type".equals(a.getKey()) && "text/css".equalsIgnoreCase(value)) {
             return true;
         }
 
-        if ("link".equals(e.nodeName()) && "type".equals(a.getKey()) && "text/css".equalsIgnoreCase(value)) {
+        if ("link".equals(e.tagName()) && "type".equals(a.getKey()) && "text/css".equalsIgnoreCase(value)) {
             return true;
         }
 
-        if ("area".equals(e.nodeName()) && "shape".equals(a.getKey())
+        if ("area".equals(e.tagName()) && "shape".equals(a.getKey())
                 && ("rect".equalsIgnoreCase(value) || "rectangle".equalsIgnoreCase(value) || "default".equalsIgnoreCase(value))) {
             return true;
         }
@@ -192,18 +226,18 @@ public class MinifyVisitor implements NodeVisitor {
         // With <meta charset=UTF-8>
         // As per https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Obsolete_things_to_avoid
         String charsetRegex = "text/html;charset=[0-9a-zA-Z-_]+";
-        
-        if ("meta".equals(e.nodeName()) && "http-equiv".equals(a.getKey()) && "Content-Type".equalsIgnoreCase(value)
+
+        if ("meta".equals(e.tagName()) && "http-equiv".equals(a.getKey()) && "Content-Type".equalsIgnoreCase(value)
                 && e.attributes().size() == 2 && e.attributes().hasKey("content")) {
             String content = e.attributes().get("content").replaceAll("\\s+", "");
-            
+
             if (content.toLowerCase().matches(charsetRegex)) {
                 sb.append(' ').append(content.substring("text/html;".length()));
                 return true;
             }
         }
-        
-        if ("meta".equals(e.nodeName()) && "content".equals(a.getKey()) && value.replaceAll("\\s+", "").toLowerCase().matches(charsetRegex)
+
+        if ("meta".equals(e.tagName()) && "content".equals(a.getKey()) && value.replaceAll("\\s+", "").toLowerCase().matches(charsetRegex)
                 && e.attributes().size() == 2 && e.attributes().hasKey("http-equiv")) {
             return true;
         }
