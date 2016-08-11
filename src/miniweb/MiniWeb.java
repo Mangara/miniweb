@@ -32,8 +32,9 @@ public class MiniWeb {
     private static final String testFile;
     
     static {
-        //testFolder = "CG-Publy"; testFile = "CG-Lab.html";
-        testFolder = "PersonalWebsite"; testFile = "index.html";
+        testFolder = "CG-Publy"; testFile = "CG-Lab.html";
+        //testFolder = "PersonalWebsite"; testFile = "index.html";
+        //testFolder = "ColorZebra"; testFile = "index.html";
     }
     
     private static final Path inputDir = Paths.get("testInputs/" + testFolder);
@@ -59,6 +60,7 @@ public class MiniWeb {
         Map<String, String> compressedClassNames = ClassnameCompressor.compressClassNames(htmlClassOccurrences);
         ClassRenamer.renameHtmlClasses(doc, compressedClassNames);
         CssClassRenamer.renameCssClasses(compressedClassNames, styles);
+        // TODO: rename classes in inline CSS in the HTML files
 
         // Compress the HTML
         String html = MinifyVisitor.minify(doc);
