@@ -82,7 +82,7 @@ public class MiniWeb {
                 try (BufferedWriter out = Files.newBufferedWriter(file)) {
                     for (RuleBlock<?> rules : stylesheet.getValue()) {
                         String css = rules.toString();
-                        css = css.replaceAll(".0%", "%"); // This is an artifact introduced by the CSS parser
+                        css = css.replaceAll(".0%", "%"); // Work-around for a bug in YUI Compressor
                         CssCompressor compressor = new CssCompressor(new StringReader(css));
                         compressor.compress(out, -1);
                     }
