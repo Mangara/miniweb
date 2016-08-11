@@ -20,7 +20,7 @@ public class MinifyVisitorTest {
         String result = MinifyVisitor.minify(doc);
         assertEquals("<html><head></head><body>" + expected + "</body></html>", result);
     }
-    
+
     private void testHeadSnippet(String input, String expected) {
         Document doc = Jsoup.parse("<html>" + input + "<body></body></html>");
         String result = MinifyVisitor.minify(doc);
@@ -142,7 +142,7 @@ public class MinifyVisitorTest {
         output = "<p class=\"foo class1 class-23\">foo bar baz</p>";
         testBodySnippet(input, output);
     }
-    
+
     @Test
     public void testCleanStyleAttributes() {
         String input = "<p style=\"    color: red; background-color: rgb(100, 75, 200);  \"></p>";
@@ -189,11 +189,11 @@ public class MinifyVisitorTest {
         testBodySnippet(input, output);
 
         /* I don't know why these would be different.        
-        input = "<span profile=\"   1, 2, 3  \">foo</span>";
-        testBodySnippet(input, input);
+         input = "<span profile=\"   1, 2, 3  \">foo</span>";
+         testBodySnippet(input, input);
 
-        input = "<div action=\"  foo-bar-baz \">blah</div>";
-        testBodySnippet(input, input);*/
+         input = "<div action=\"  foo-bar-baz \">blah</div>";
+         testBodySnippet(input, input);*/
     }
 
     @Test
@@ -201,12 +201,12 @@ public class MinifyVisitorTest {
         String input = "<form action=\"  somePath/someSubPath/someAction?foo=bar&baz=qux     \"></form>";
         String output = "<form action=\"somePath/someSubPath/someAction?foo=bar&baz=qux\"></form>";
         testBodySnippet(input, output);
-        
+
         input = "<form action=\"  somePath/someSubPath/someAction?foo=bar&baz;=qux     \"></form>";
         output = "<form action=\"somePath/someSubPath/someAction?foo=bar&amp;baz;=qux\"></form>";
         testBodySnippet(input, output);
     }
-    
+
     @Test
     public void testCleanNumberAttributes() {
         String input = "<a href=\"#\" tabindex=\"   1  \">x</a><button tabindex=\"   2  \">y</button>";
@@ -237,7 +237,7 @@ public class MinifyVisitorTest {
         output = "<table><tbody><tr><td colspan=2>x</td><td rowspan=3></td></tr></tbody></table>";
         testBodySnippet(input, output); // { cleanAttributes: true }
     }
-    
+
     @Test
     public void testCleanOtherAttributes() {
         String input = "<a href=\"#\" onclick=\"  window.prompt(\'boo\'); \" onmouseover=\" \n\n alert(123)  \t \n\t  \">blah</a>";
@@ -357,15 +357,15 @@ public class MinifyVisitorTest {
     @Test
     public void testRemovingRedundantCssType() {
         String input = "<style type=\"text/css\">.foo { color: red }</style>";
-        String output = "<style>.foo { color: red }</style>";
+        String output = "<style>.foo{color:red}</style>";
         testBodySnippet(input, output); // { removeStyleLinkTypeAttributes: true }
 
         input = "<STYLE TYPE = \"  text/CSS \">body { font-size: 1.75em }</style>";
-        output = "<style>body { font-size: 1.75em }</style>";
+        output = "<style>body{font-size:1.75em}</style>";
         testBodySnippet(input, output); // { removeStyleLinkTypeAttributes: true }
 
         input = "<style type=\"text/plain\">.foo { background: green }</style>";
-        output = "<style type=text/plain>.foo { background: green }</style>";
+        output = "<style type=text/plain>.foo{background:green}</style>";
         testBodySnippet(input, output); // { removeStyleLinkTypeAttributes: true }
 
         input = "<link rel=\"stylesheet\" type=\"text/css\" href=\"http://example.com\">";
@@ -414,23 +414,23 @@ public class MinifyVisitorTest {
         input = "<p>foo\nbar</p>";
         output = "<p>foo bar</p>";
         testBodySnippet(input, output);
-        
+
         input = "<p> <a href=\"#\"> x </a> </p>";
         output = "<p><a href=#>x</a></p>";
         testBodySnippet(input, output);
-        
+
         input = "<p> <!-- comment --> <a href=\"#\"> x </a> </p>";
         output = "<p><a href=#>x</a></p>";
         testBodySnippet(input, output);
-        
+
         input = "<p>x <!-- comment --> <a href=\"#\"> x </a> </p>";
         output = "<p>x <a href=#>x</a></p>";
         testBodySnippet(input, output);
-        
+
         input = "<p>x<!-- comment --> <a href=\"#\"> x </a> </p>";
         output = "<p>x <a href=#>x</a></p>";
         testBodySnippet(input, output);
-        
+
         input = "<p>x<!-- comment --><a href=\"#\"> x </a> </p>";
         output = "<p>x<a href=#>x</a></p>";
         testBodySnippet(input, output);
@@ -480,7 +480,7 @@ public class MinifyVisitorTest {
                 + "<pre>       \r\nxxxx</pre><span>x</span> <span>Hello</span> <b>billy</b>     \r\n"
                 + "<input type=\"text\">\r\n<textarea></textarea>\r\n<pre></pre>";
         output = "<script>var = \"hello\";</script> "
-                + "<style>#foo { color: red;        }</style> "
+                + "<style>#foo{color:red}</style> "
                 + "<div><div><div>"
                 + "<div><div><div>"
                 + "<textarea disabled>     this is a textarea </textarea>"
@@ -589,7 +589,7 @@ public class MinifyVisitorTest {
     public void testNestedQuotes() {
         String input = "<div data=\"{'test':'\\\\'test\\\\''}\"></div>";
         testBodySnippet(input, input);
-        
+
         input = "<div data='{\"test\":\"\\\\\"test\\\\\"\"}'></div>";
         testBodySnippet(input, input);
     }
@@ -616,11 +616,11 @@ public class MinifyVisitorTest {
         input = "<meta name=\"viewport\" content=\"initial-scale=1.01, maximum-scale=1.0\">";
         output = "<meta name=viewport content=\"initial-scale=1.01,maximum-scale=1\">";
         testBodySnippet(input, output);
-        
+
         input = "<meta name=\"viewport\" content=\"initial-scale=1.1, maximum-scale=1.0000\">";
         output = "<meta name=viewport content=\"initial-scale=1.1,maximum-scale=1\">";
         testBodySnippet(input, output);
-        
+
         input = "<meta name=\"viewport\" content=\"initial-scale=1.00, maximum-scale=1.04\">";
         output = "<meta name=viewport content=\"initial-scale=1,maximum-scale=1.04\">";
         testBodySnippet(input, output);
@@ -629,17 +629,17 @@ public class MinifyVisitorTest {
         output = "<meta name=viewport content=\"width=500,initial-scale=1\">";
         testBodySnippet(input, output);
     }
-    
+
     @Test
     public void testMetaHttpEquiv() {
         String input = "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">";
         String output = "<meta charset=utf-8>";
         testBodySnippet(input, output);
-        
+
         input = "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=ISO-8859-1\">";
         output = "<meta charset=ISO-8859-1>";
         testBodySnippet(input, output);
-        
+
         input = "<meta http-equiv=\"Content-Type\" content=\"text/html; \t charset=Shift_JIS \">";
         output = "<meta charset=Shift_JIS>";
         testBodySnippet(input, output);
@@ -653,5 +653,39 @@ public class MinifyVisitorTest {
         input = "<noscript>\n<!-- anchor linking to external file -->\n"
                 + "<a href=\"#\" onclick=\"javascript:\">External Link</a>\n</noscript>";
         testBodySnippet(input, "<noscript><a href=#>External Link</a></noscript>");
+    }
+
+    @Test
+    public void testCSS() {
+        String pre = "<head><style>", post = "</style></head>";
+
+        String input = "";
+        String output = "";
+        testHeadSnippet(pre + input + post, pre + output + post);
+
+        input = " \n \t   \r";
+        output = "";
+        testHeadSnippet(pre + input + post, pre + output + post);
+
+        input = "body { font-size: 1.75em }";
+        output = "body{font-size:1.75em}";
+        testHeadSnippet(pre + input + post, pre + output + post);
+
+        input = "body { font-size: 400% }";
+        output = "body{font-size:400%}";
+        testHeadSnippet(pre + input + post, pre + output + post);
+
+        input = "#clicker {\n"
+                + "    text-align:center;\n"
+                + "    letter-spacing:1ex;\n"
+                + "    margin-right:-1ex;\n"
+                + "    font-family:\"Lucida Sans Typewriter\",\"Lucida Console\",Monaco,\"Bitstream Vera Sans Mono\",monospace;\n"
+                + "    font-size:400%;\n"
+                + "    font-weight:700;\n"
+                + "    margin-top:1em;\n"
+                + "    margin-bottom:1em\n"
+                + "}";
+        output = "#clicker{text-align:center;letter-spacing:1ex;margin-right:-1ex;font-family:\"Lucida Sans Typewriter\",\"Lucida Console\",Monaco,\"Bitstream Vera Sans Mono\",monospace;font-size:400%;font-weight:700;margin-top:1em;margin-bottom:1em}";
+        testHeadSnippet(pre + input + post, pre + output + post);
     }
 }
