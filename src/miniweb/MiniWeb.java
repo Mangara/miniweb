@@ -1,5 +1,6 @@
 package miniweb;
 
+import com.yahoo.platform.yui.compressor.CssCompressor;
 import miniweb.html.ClassRenamer;
 import miniweb.html.ClassCounter;
 import miniweb.html.ClassCleaner;
@@ -8,6 +9,7 @@ import cz.vutbr.web.css.RuleBlock;
 import cz.vutbr.web.css.StyleSheet;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -52,11 +54,11 @@ public class MiniWeb {
         ClassCleaner.removeUnreferencedClasses(doc, referencedByClassFromCSS);
 
         // Optimally compress the classnames, based on their frequencies in the HTML
+        // TODO: Add classes in the CSS that aren't used in the HTML with frequency 0
         Map<String, Integer> htmlClassOccurrences = ClassCounter.countClasses(doc);
         Map<String, String> compressedClassNames = ClassnameCompressor.compressClassNames(htmlClassOccurrences);
         ClassRenamer.renameHtmlClasses(doc, compressedClassNames);
         CssClassRenamer.renameCssClasses(compressedClassNames, styles);
-        // TODO: rename CSS classes in the HTML
 
         // Compress the HTML
         String html = MinifyVisitor.minify(doc);
@@ -76,7 +78,9 @@ public class MiniWeb {
 
                 try (BufferedWriter out = Files.newBufferedWriter(file)) {
                     for (RuleBlock<?> rules : stylesheet.getValue()) {
-                        out.write(rules.toString());
+                        String css = rules.toString();
+                        CssCompressor compressor = new CssCompressor(new StringReader(css));
+                        compressor.compress(out, -1);
                     }
                 }
             }
