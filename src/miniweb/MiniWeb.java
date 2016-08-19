@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 import javafx.util.Pair;
 import miniweb.css.CssClassRenamer;
 import miniweb.css.ReferencedElementsFinder;
@@ -110,14 +112,20 @@ public class MiniWeb {
 
     /**
      * Minifies the given HTML files and all referenced local CSS and JS files
-     * and places the resulting files in the given output directory.
+     * and places the resulting files in the the same relative location with
+     * respect to the output directory as they were to the base directory. In
+     * other words, if the files were all in the base directory, the output
+     * files will be in the output directory. If the HTML files were in a
+     * subfolder called "html" of the base directory, they will also be in a
+     * subfolder called "html" from the output directory, etc.
      *
      * @param htmlFiles
+     * @param baseDir
      * @param outputDir
      */
-    public static void minify(Iterable<Path> htmlFiles, Path outputDir) {
+    public static void minify(Iterable<Path> htmlFiles, Path baseDir, Path outputDir) {
         Pair<Set<Path>, Set<Path>> externalFiles = findCssAndJsFiles(htmlFiles);
-        minify(htmlFiles, externalFiles.getKey(), externalFiles.getValue(), outputDir);
+        minify(htmlFiles, externalFiles.getKey(), externalFiles.getValue(), baseDir, outputDir);
     }
 
     /**
@@ -133,22 +141,51 @@ public class MiniWeb {
      */
     public static void minify(Iterable<Path> htmlFiles, Iterable<Path> cssFiles, Iterable<Path> jsFiles, boolean replaceFiles) {
         Map<Path, Path> targets = new HashMap<>();
-        // TODO
+
+        for (Path file : htmlFiles) {
+            targets.put(file, (replaceFiles ? file : addExtension(file)));
+        }
+
+        for (Path file : cssFiles) {
+            targets.put(file, (replaceFiles ? file : addExtension(file)));
+        }
+
+        for (Path file : jsFiles) {
+            targets.put(file, (replaceFiles ? file : addExtension(file)));
+        }
+
         minify(htmlFiles, cssFiles, jsFiles, targets);
     }
 
     /**
-     * Minifies the given files and places the resulting files in the given
-     * output directory.
+     * Minifies the given files and places the resulting files in the the same
+     * relative location with respect to the output directory as they were to
+     * the base directory. In other words, if the files were all in the base
+     * directory, the output files will be in the output directory. If the HTML
+     * files were in a subfolder called "html" of the base directory, they will
+     * also be in a subfolder called "html" from the output directory, etc.
      *
      * @param htmlFiles
      * @param cssFiles
      * @param jsFiles
+     * @param baseDir
      * @param outputDir
      */
-    public static void minify(Iterable<Path> htmlFiles, Iterable<Path> cssFiles, Iterable<Path> jsFiles, Path outputDir) {
+    public static void minify(Iterable<Path> htmlFiles, Iterable<Path> cssFiles, Iterable<Path> jsFiles, Path baseDir, Path outputDir) {
         Map<Path, Path> targets = new HashMap<>();
-        // TODO
+
+        for (Path file : htmlFiles) {
+            targets.put(file, outputDir.resolve(baseDir.relativize(file)));
+        }
+
+        for (Path file : cssFiles) {
+            targets.put(file, outputDir.resolve(baseDir.relativize(file)));
+        }
+
+        for (Path file : jsFiles) {
+            targets.put(file, outputDir.resolve(baseDir.relativize(file)));
+        }
+
         minify(htmlFiles, cssFiles, jsFiles, targets);
     }
 
@@ -168,5 +205,14 @@ public class MiniWeb {
     private static Pair<Set<Path>, Set<Path>> findCssAndJsFiles(Iterable<Path> htmlFiles) {
         // TODO
         return null;
+    }
+
+    private static Path addExtension(Path file) {
+        String fileName = file.getFileName().toString();
+        int lastPeriodIndex = fileName.lastIndexOf('.');
+        String newName = (lastPeriodIndex < 0 
+                ? fileName + ".min" 
+                : fileName.substring(0, lastPeriodIndex) + ".min" + fileName.substring(lastPeriodIndex));
+        return file.resolveSibling(newName);
     }
 }
