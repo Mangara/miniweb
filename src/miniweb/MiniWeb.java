@@ -13,6 +13,8 @@ import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,13 +32,14 @@ public class MiniWeb {
 
     private static final String testFolder;
     private static final String testFile;
-    
+
     static {
-        testFolder = "CG-Publy"; testFile = "CG-Lab.html";
+        testFolder = "CG-Publy";
+        testFile = "CG-Lab.html";
         //testFolder = "PersonalWebsite"; testFile = "index.html";
         //testFolder = "ColorZebra"; testFile = "index.html";
     }
-    
+
     private static final Path inputDir = Paths.get("testInputs/" + testFolder);
     private static final Path outputDir = Paths.get("testOutputs");
     private static final Path input = inputDir.resolve(testFile);
@@ -89,5 +92,81 @@ public class MiniWeb {
                 }
             }
         }
+    }
+
+    /**
+     * Minifies the given HTML files and all referenced local CSS and JS files,
+     * then replaces the input files with the minified versions (if replaceFiles
+     * is true), or writes the minified files to the same location, adding
+     * ".min" before the file extension (if replaceFiles is false).
+     *
+     * @param htmlFiles
+     * @param replaceFiles
+     */
+    public static void minify(Iterable<Path> htmlFiles, boolean replaceFiles) {
+        Pair<Set<Path>, Set<Path>> externalFiles = findCssAndJsFiles(htmlFiles);
+        minify(htmlFiles, externalFiles.getKey(), externalFiles.getValue(), replaceFiles);
+    }
+
+    /**
+     * Minifies the given HTML files and all referenced local CSS and JS files
+     * and places the resulting files in the given output directory.
+     *
+     * @param htmlFiles
+     * @param outputDir
+     */
+    public static void minify(Iterable<Path> htmlFiles, Path outputDir) {
+        Pair<Set<Path>, Set<Path>> externalFiles = findCssAndJsFiles(htmlFiles);
+        minify(htmlFiles, externalFiles.getKey(), externalFiles.getValue(), outputDir);
+    }
+
+    /**
+     * Minifies the given files, then replaces the input files with the minified
+     * versions (if replaceFiles is true), or writes the minified files to the
+     * same location, adding ".min" before the file extension (if replaceFiles
+     * is false).
+     *
+     * @param htmlFiles
+     * @param cssFiles
+     * @param jsFiles
+     * @param replaceFiles
+     */
+    public static void minify(Iterable<Path> htmlFiles, Iterable<Path> cssFiles, Iterable<Path> jsFiles, boolean replaceFiles) {
+        Map<Path, Path> targets = new HashMap<>();
+        // TODO
+        minify(htmlFiles, cssFiles, jsFiles, targets);
+    }
+
+    /**
+     * Minifies the given files and places the resulting files in the given
+     * output directory.
+     *
+     * @param htmlFiles
+     * @param cssFiles
+     * @param jsFiles
+     * @param outputDir
+     */
+    public static void minify(Iterable<Path> htmlFiles, Iterable<Path> cssFiles, Iterable<Path> jsFiles, Path outputDir) {
+        Map<Path, Path> targets = new HashMap<>();
+        // TODO
+        minify(htmlFiles, cssFiles, jsFiles, targets);
+    }
+
+    /**
+     * Minifies the given files and places the resulting files at the specified
+     * target locations.
+     *
+     * @param htmlFiles
+     * @param cssFiles
+     * @param jsFiles
+     * @param targets
+     */
+    public static void minify(Iterable<Path> htmlFiles, Iterable<Path> cssFiles, Iterable<Path> jsFiles, Map<Path, Path> targets) {
+        // TODO: real work
+    }
+
+    private static Pair<Set<Path>, Set<Path>> findCssAndJsFiles(Iterable<Path> htmlFiles) {
+        // TODO
+        return null;
     }
 }
