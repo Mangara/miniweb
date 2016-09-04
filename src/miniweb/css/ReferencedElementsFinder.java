@@ -1,5 +1,3 @@
-/*
- */
 package miniweb.css;
 
 import cz.vutbr.web.css.CombinedSelector;
@@ -15,10 +13,6 @@ import java.util.Set;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-/**
- *
- * @author Sander Verdonschot <sander.verdonschot at gmail.com>
- */
 public class ReferencedElementsFinder extends RuleSetVisitor {
 
     private final Map<Element, Set<String>> elementsReferencedByClass;

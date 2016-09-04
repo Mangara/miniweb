@@ -1,11 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package miniweb.html;
 
-import java.util.HashMap;
 import java.util.Map;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -13,31 +7,23 @@ import org.jsoup.nodes.Node;
 import org.jsoup.select.NodeTraversor;
 import org.jsoup.select.NodeVisitor;
 
-/**
- *
- * @author Sander Verdonschot <sander.verdonschot at gmail.com>
- */
 public class ClassCounter implements NodeVisitor {
 
     private final Map<String, Integer> classCount;
 
-    public static Map<String, Integer> countClasses(Document doc) {
-        ClassCounter classCount = new ClassCounter();
-        NodeTraversor countTraversor = new NodeTraversor(classCount);
+    public static Map<String, Integer> countClasses(Map<String, Integer> classCount, Document doc) {
+        ClassCounter counter = new ClassCounter(classCount);
+        NodeTraversor countTraversor = new NodeTraversor(counter);
 
         for (Node childNode : doc.childNodes()) {
             countTraversor.traverse(childNode);
         }
 
-        return classCount.getClassCount();
+        return counter.classCount;
     }
     
-    private ClassCounter() {
-        classCount = new HashMap<>();
-    }
-
-    public Map<String, Integer> getClassCount() {
-        return classCount;
+    private ClassCounter(Map<String, Integer> classCount) {
+        this.classCount = classCount;
     }
 
     @Override

@@ -29,6 +29,7 @@ public class ClassRenamer implements NodeVisitor {
 
     @Override
     public void head(Node node, int depth) {
+        // TODO: fix classes in inline CSS
         if (node instanceof Element) {
             Element e = (Element) node;
 
