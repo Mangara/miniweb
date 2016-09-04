@@ -16,7 +16,6 @@ public class MinifyVisitor implements NodeVisitor {
 
     private final StringBuilder sb;
     private final Document.OutputSettings out;
-    private String dataHandled = null; // If the data contained in a node was handled earlier, it is stored here
 
     public static String minify(Document doc) {
         StringBuilder minified = new StringBuilder();
@@ -41,17 +40,34 @@ public class MinifyVisitor implements NodeVisitor {
         if (node instanceof Comment) {
             // Print nothing
         } else if (node instanceof DataNode) {
-            // Inline JS and CSS should already be compressed
-            // Anything else we'll print as-is
             String data = ((DataNode) node).getWholeData();
-            
-            if (data.equals(dataHandled)) {
-                // This was already added to the buffer
-                dataHandled = null;
-                return;
+            boolean handled = false;
+
+            // Compress inline CSS or JS
+            if (node.parent() instanceof Element) {
+                Element parent = (Element) node.parent();
+
+                if (parent.tagName().equals("style")) { // CSS
+                    try {
+                        CssCompressor compressor = new CssCompressor(new StringReader(data));
+                        StringWriter writer = new StringWriter(data.length());
+                        compressor.compress(writer, -1);
+                        sb.append(writer.getBuffer());
+                        handled = true;
+                    } catch (IOException ex) {
+                        // This should never happen - it is from the compressor reading the input, which is a StringReader.
+                        throw new InternalError(ex);
+                    }
+                } else if (parent.tagName().equals("script") && (parent.attr("type").isEmpty() || parent.attr("type").contains("javascript") || parent.attr("type").contains("ecmascript"))) { // JS
+                    // TODO: Compress
+                    sb.append(data.trim());
+                    handled = true;
+                }
             }
 
-            sb.append(data.trim());
+            if (!handled) {
+                sb.append(data.trim());
+            }
         } else if (node instanceof DocumentType) {
             // No special printing necessary
             node.outerHtmlHead(sb, 0, out);
@@ -68,26 +84,6 @@ public class MinifyVisitor implements NodeVisitor {
             }
 
             sb.append(">");
-
-            if ("script".equals(e.tagName())) {
-                // TODO: Minify JS
-                System.out.println("Script data: " + e.data());
-            } else if ("style".equals(e.tagName())) {
-                String css = e.data();
-
-                if (css != null && !css.isEmpty()) {
-                    try {
-                        CssCompressor compressor = new CssCompressor(new StringReader(css));
-                        StringWriter writer = new StringWriter(css.length());
-                        compressor.compress(writer, -1);
-                        sb.append(writer.getBuffer());
-                        dataHandled = css;
-                    } catch (IOException ex) {
-                        // This should never happen - it is from the compressor reading the input, which is a StringReader.
-                        throw new InternalError(ex);
-                    }
-                }
-            }
         } else if (node instanceof TextNode) {
             boolean normaliseWhite = node.parent() instanceof Element && !Element.preserveWhitespace(node.parent());
 

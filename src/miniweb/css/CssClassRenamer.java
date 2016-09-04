@@ -1,5 +1,3 @@
-/*
- */
 package miniweb.css;
 
 import cz.vutbr.web.css.CombinedSelector;
@@ -9,10 +7,6 @@ import cz.vutbr.web.css.StyleSheet;
 import java.util.List;
 import java.util.Map;
 
-/**
- *
- * @author Sander Verdonschot <sander.verdonschot at gmail.com>
- */
 public class CssClassRenamer extends RuleSetVisitor {
 
     private final Map<String, String> newNames;
