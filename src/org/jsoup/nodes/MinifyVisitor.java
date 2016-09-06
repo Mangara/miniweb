@@ -49,9 +49,6 @@ public class MinifyVisitor implements NodeVisitor {
             if (node.parent() instanceof Element) {
                 Element parent = (Element) node.parent();
                 
-                System.out.println("Data node with element parent:");
-                System.out.println(node.parent());
-                
                 if (parent.tagName().equals("style")) { // CSS
                     try {
                         CssCompressor compressor = new CssCompressor(new StringReader(data));

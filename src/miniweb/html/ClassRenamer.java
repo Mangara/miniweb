@@ -1,10 +1,8 @@
 package miniweb.html;
 
 import cz.vutbr.web.css.CSSException;
-import cz.vutbr.web.css.CSSFactory;
 import cz.vutbr.web.css.StyleSheet;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Collectors;
 import miniweb.css.CssClassRenamer;
@@ -46,8 +44,8 @@ public class ClassRenamer implements NodeVisitor {
                 && "style".equals(((Element) node.parent()).tagName())) { // Inline CSS
             try {
                 DataNode dataNode = (DataNode) node;
-                StyleSheet style = CSSFactory.parseString(dataNode.getWholeData(), null, StylesheetExtractor.localNetworkProcessor);
-                CssClassRenamer.renameCssClasses(newNames, Collections.singletonList(style));
+                StyleSheet style = StylesheetExtractor.parseString(dataNode.getWholeData());
+                CssClassRenamer.renameCssClasses(newNames, style);
                 dataNode.setWholeData(style.toString());
             } catch (IOException | CSSException ex) {
                 throw new InternalError(ex);
