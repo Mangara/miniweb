@@ -22,10 +22,10 @@ public class StylesheetExtractor {
         // Don't resolve @import statements
         // NOTE: This is bugged in the current release, but fixed in the latest build.
         CSSFactory.setAutoImportMedia(new MediaSpecNone());
-        
+
         // Using the localNetworkProcessor is a work-around that essentially removes non-local @import statements
     }
-    
+
     public static final NetworkProcessor localNetworkProcessor = new NetworkProcessor() {
 
         @Override
@@ -44,6 +44,28 @@ public class StylesheetExtractor {
             }
         }
     };
+
+    public static final NetworkProcessor emptyNetworkProcessor = new NetworkProcessor() {
+
+        @Override
+        public InputStream fetch(URL url) throws IOException {
+            return new InputStream() {
+
+                @Override
+                public int read() throws IOException {
+                    return -1;
+                }
+            };
+        }
+    };
+    
+    public static StyleSheet parseString(String css) throws IOException, CSSException {
+        return CSSFactory.parseString(css, null, emptyNetworkProcessor);
+    }
+    
+    public static StyleSheet parseFile(Path cssFile) throws IOException, CSSException {
+        return CSSFactory.parse(cssFile.toUri().toURL(), emptyNetworkProcessor, "UTF-8");
+    }
 
     public static List<Pair<Path, StyleSheet>> getStylesheets(Document doc, Path inputDir, Path input) throws CSSException, IOException {
         List<Pair<Path, StyleSheet>> stylesheets = new ArrayList<>();

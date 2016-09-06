@@ -4,15 +4,15 @@ import cz.vutbr.web.css.CombinedSelector;
 import cz.vutbr.web.css.RuleSet;
 import cz.vutbr.web.css.Selector;
 import cz.vutbr.web.css.StyleSheet;
-import java.util.List;
+import java.util.Collections;
 import java.util.Map;
 
 public class CssClassRenamer extends RuleSetVisitor {
 
     private final Map<String, String> newNames;
 
-    public static void renameCssClasses(Map<String, String> newNames, List<StyleSheet> stylesheets) {
-        (new CssClassRenamer(newNames)).processStyleSheets(stylesheets);
+    public static void renameCssClasses(Map<String, String> newNames, StyleSheet stylesheet) {
+        (new CssClassRenamer(newNames)).processStyleSheets(Collections.singletonList(stylesheet));
     }
     
     private CssClassRenamer(Map<String, String> newNames) {

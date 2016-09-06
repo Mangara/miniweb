@@ -7,6 +7,7 @@ import miniweb.html.ClassCleaner;
 import cz.vutbr.web.css.CSSException;
 import cz.vutbr.web.css.RuleBlock;
 import cz.vutbr.web.css.StyleSheet;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.StringReader;
@@ -14,12 +15,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javafx.util.Pair;
 import miniweb.css.ClassFinder;
@@ -37,8 +41,8 @@ public class MiniWeb {
     private static final String testFile;
 
     static {
-        testFolder = "CG-Publy"; testFile = "CG-Lab.html";
-        //testFolder = "PersonalWebsite"; testFile = "index.html";
+        //testFolder = "CG-Publy"; testFile = "CG-Lab.html";
+        testFolder = "PersonalWebsite"; testFile = "index.html";
         //testFolder = "ColorZebra"; testFile = "index.html";
     }
 
@@ -50,51 +54,54 @@ public class MiniWeb {
      * @param args the command line arguments
      */
     public static void main(String[] args) throws IOException, CSSException {
-        // Parse the HTML and all inline and local external stylesheets
-        Document doc = Jsoup.parse(input.toFile(), "UTF-8");
-        List<Pair<Path, StyleSheet>> stylesheets = StylesheetExtractor.getStylesheets(doc, inputDir, input);
-        List<StyleSheet> styles = stylesheets.stream().map(p -> p.getValue()).collect(Collectors.toList());
+        minify(Collections.singleton(input), inputDir, outputDir);
 
-        // Remove unnecessary classes from elements
-        Map<Element, Set<String>> referencedByClassFromCSS = ReferencedElementsFinder.getReferencedElements(doc, styles);
-        ClassCleaner.removeUnreferencedClasses(doc, referencedByClassFromCSS);
+        /* Old driver code
+         // Parse the HTML and all inline and local external stylesheets
+         Document doc = Jsoup.parse(input.toFile(), "UTF-8");
+         List<Pair<Path, StyleSheet>> stylesheets = StylesheetExtractor.getStylesheets(doc, inputDir, input);
+         List<StyleSheet> styles = stylesheets.stream().map(p -> p.getValue()).collect(Collectors.toList());
 
-        // Optimally compress the classnames, based on their frequencies in the HTML
-        // TODO: Add classes in the CSS that aren't used in the HTML with frequency 0
-        Map<String, Integer> htmlClassOccurrences = new HashMap<>();
-        ClassCounter.countClasses(htmlClassOccurrences, doc);
-        Map<String, String> compressedClassNames = ClassnameCompressor.compressClassNames(htmlClassOccurrences);
-        ClassRenamer.renameHtmlClasses(doc, compressedClassNames);
-        CssClassRenamer.renameCssClasses(compressedClassNames, styles);
-        // TODO: rename classes in inline CSS in the HTML files
+         // Remove unnecessary classes from elements
+         Map<Element, Set<String>> referencedByClassFromCSS = ReferencedElementsFinder.getReferencedElements(doc, styles);
+         ClassCleaner.removeUnreferencedClasses(doc, referencedByClassFromCSS);
 
-        // Compress the HTML
-        String html = MinifyVisitor.minify(doc);
+         // Optimally compress the classnames, based on their frequencies in the HTML
+         // TODO: Add classes in the CSS that aren't used in the HTML with frequency 0
+         Map<String, Integer> htmlClassOccurrences = new HashMap<>();
+         ClassCounter.countClasses(htmlClassOccurrences, doc);
+         Map<String, String> compressedClassNames = ClassnameCompressor.compressClassNames(htmlClassOccurrences);
+         ClassRenamer.renameHtmlClasses(doc, compressedClassNames);
+         CssClassRenamer.renameCssClasses(compressedClassNames, styles);
+         // TODO: rename classes in inline CSS in the HTML files
 
-        // Write the HTML
-        Path outputFile = outputDir.resolve(inputDir.relativize(input));
-        Files.createDirectories(outputFile.getParent());
+         // Compress the HTML
+         String html = MinifyVisitor.minify(doc);
 
-        try (BufferedWriter out = Files.newBufferedWriter(outputFile)) {
-            out.write(html);
-        }
+         // Write the HTML
+         Path outputFile = outputDir.resolve(inputDir.relativize(input));
+         Files.createDirectories(outputFile.getParent());
 
-        // Write the stylesheets
-        // TODO: Preserve @import statements
-        for (Pair<Path, StyleSheet> stylesheet : stylesheets) {
-            if (stylesheet.getKey() != null) {
-                Path file = outputDir.resolve(stylesheet.getKey());
+         try (BufferedWriter out = Files.newBufferedWriter(outputFile)) {
+         out.write(html);
+         }
 
-                try (BufferedWriter out = Files.newBufferedWriter(file)) {
-                    for (RuleBlock<?> rules : stylesheet.getValue()) {
-                        String css = rules.toString();
-                        css = css.replaceAll(".0%", "%"); // Work-around for a bug in YUI Compressor
-                        CssCompressor compressor = new CssCompressor(new StringReader(css));
-                        compressor.compress(out, -1);
-                    }
-                }
-            }
-        }
+         // Write the stylesheets
+         // TODO: Preserve @import statements
+         for (Pair<Path, StyleSheet> stylesheet : stylesheets) {
+         if (stylesheet.getKey() != null) {
+         Path file = outputDir.resolve(stylesheet.getKey());
+
+         try (BufferedWriter out = Files.newBufferedWriter(file)) {
+         for (RuleBlock<?> rules : stylesheet.getValue()) {
+         String css = rules.toString();
+         css = css.replaceAll(".0%", "%"); // Work-around for a bug in YUI Compressor
+         CssCompressor compressor = new CssCompressor(new StringReader(css));
+         compressor.compress(out, -1);
+         }
+         }
+         }
+         }*/
     }
 
     /**
@@ -109,7 +116,7 @@ public class MiniWeb {
      */
     public static void minify(Iterable<Path> htmlFiles, boolean replaceFiles) throws IOException {
         Map<Path, Document> docs = parseAll(htmlFiles);
-        Pair<Set<Path>, Set<Path>> externalFiles = findReferencedLocalCssAndJsFiles(docs.values());
+        Pair<Set<Path>, Set<Path>> externalFiles = findReferencedLocalCssAndJsFiles(docs);
         minify(docs, externalFiles.getKey(), externalFiles.getValue(), getTargets(htmlFiles, externalFiles.getKey(), externalFiles.getValue(), replaceFiles));
     }
 
@@ -129,7 +136,7 @@ public class MiniWeb {
      */
     public static void minify(Iterable<Path> htmlFiles, Path baseDir, Path outputDir) throws IOException {
         Map<Path, Document> docs = parseAll(htmlFiles);
-        Pair<Set<Path>, Set<Path>> externalFiles = findReferencedLocalCssAndJsFiles(docs.values());
+        Pair<Set<Path>, Set<Path>> externalFiles = findReferencedLocalCssAndJsFiles(docs);
         minify(docs, externalFiles.getKey(), externalFiles.getValue(), getTargets(htmlFiles, externalFiles.getKey(), externalFiles.getValue(), baseDir, outputDir));
     }
 
@@ -189,10 +196,8 @@ public class MiniWeb {
         Map<String, String> compressedClassNames = compressClassnames(htmlFiles, cssFiles);
 
         writeCompressedHTMLFiles(htmlFiles, compressedClassNames, targets);
-
-        // Compress the CSS files
-        //CssClassRenamer.renameCssClasses(compressedClassNames, styles);
-        // Compress the JS files
+        writeCompressedCSSFiles(cssFiles, compressedClassNames, targets);
+        writeCompressedJSFiles(jsFiles, targets);
     }
 
     private static void removeUnreferencedClasses(Map<Path, Document> htmlFiles) throws IOException {
@@ -254,7 +259,7 @@ public class MiniWeb {
 
             // Rename classes
             ClassRenamer.renameHtmlClasses(doc, compressedClassNames);
-            
+
             // Compress the HTML
             String html = MinifyVisitor.minify(doc);
 
@@ -267,6 +272,42 @@ public class MiniWeb {
         }
     }
 
+    private static void writeCompressedCSSFiles(Iterable<Path> cssFiles, Map<String, String> compressedClassNames, Map<Path, Path> targets) throws IOException {
+        for (Path cssFile : cssFiles) {
+            // Collect @import statements
+            List<String> imports = collectImportStatements(cssFile);
+
+            // Parse 
+            StyleSheet stylesheet;
+
+            try {
+                stylesheet = StylesheetExtractor.parseFile(cssFile);
+            } catch (CSSException ex) {
+                ex.printStackTrace();
+                continue;
+            }
+
+            CssClassRenamer.renameCssClasses(compressedClassNames, stylesheet);
+
+            try (BufferedWriter out = Files.newBufferedWriter(targets.get(cssFile))) {
+                for (String aImport : imports) {
+
+                }
+
+                for (RuleBlock<?> rules : stylesheet) {
+                    String css = rules.toString();
+                    css = css.replaceAll(".0%", "%"); // Work-around for a bug in YUI Compressor
+                    CssCompressor compressor = new CssCompressor(new StringReader(css));
+                    compressor.compress(out, -1);
+                }
+            }
+        }
+    }
+
+    private static void writeCompressedJSFiles(Iterable<Path> jsFiles, Map<Path, Path> targets) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     private static Map<Path, Document> parseAll(Iterable<Path> htmlFiles) throws IOException {
         Map<Path, Document> parsed = new HashMap<>();
 
@@ -277,19 +318,22 @@ public class MiniWeb {
         return parsed;
     }
 
-    private static Pair<Set<Path>, Set<Path>> findReferencedLocalCssAndJsFiles(Iterable<Document> htmlFiles) {
+    private static Pair<Set<Path>, Set<Path>> findReferencedLocalCssAndJsFiles(Map<Path, Document> htmlFiles) {
         Set<Path> cssFiles = new HashSet<>();
         Set<Path> jsFiles = new HashSet<>();
 
-        for (Document doc : htmlFiles) {
+        for (Entry<Path, Document> entry : htmlFiles.entrySet()) {
+            Path baseDir = entry.getKey().getParent();
+            Document doc = entry.getValue();
+            
             doc.select("link[rel=stylesheet]").stream()
                     .filter(e -> !e.attr("href").startsWith("http"))
-                    .map(e -> Paths.get(e.attr("href")))
+                    .map(e -> baseDir.resolve(Paths.get(e.attr("href"))))
                     .forEach(cssFiles::add);
 
             doc.select("script[src]").stream()
                     .filter(e -> !e.attr("src").startsWith("http"))
-                    .map(e -> Paths.get(e.attr("src")))
+                    .map(e -> baseDir.resolve(Paths.get(e.attr("src"))))
                     .forEach(jsFiles::add);
         }
 
@@ -339,5 +383,28 @@ public class MiniWeb {
                 ? fileName + ".min"
                 : fileName.substring(0, lastPeriodIndex) + ".min" + fileName.substring(lastPeriodIndex));
         return file.resolveSibling(newName);
+    }
+
+    private static final Pattern importPattern = Pattern.compile("@import [^;]+;");
+
+    private static List<String> collectImportStatements(Path cssFile) throws IOException {
+        List<String> imports = new ArrayList<>();
+
+        try (BufferedReader in = Files.newBufferedReader(cssFile)) {
+            for (String line = in.readLine(); line != null; line = in.readLine()) {
+                Matcher match = importPattern.matcher(line);
+
+                while (match.find()) {
+                    System.out.printf("I found the text"
+                            + " \"%s\" starting at "
+                            + "index %d and ending at index %d.%n",
+                            match.group(),
+                            match.start(),
+                            match.end());
+                }
+            }
+        }
+        
+        return imports;
     }
 }
