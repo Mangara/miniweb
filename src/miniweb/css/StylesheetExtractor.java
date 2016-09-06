@@ -1,5 +1,3 @@
-/*
- */
 package miniweb.css;
 
 import cz.vutbr.web.css.CSSException;
@@ -18,47 +16,46 @@ import java.util.stream.Collectors;
 import javafx.util.Pair;
 import org.jsoup.nodes.Document;
 
-/**
- *
- * @author Sander Verdonschot <sander.verdonschot at gmail.com>
- */
 public class StylesheetExtractor {
 
-    public static List<Pair<Path,StyleSheet>> getStylesheets(Document doc, Path inputDir, Path input) throws CSSException, IOException {
-        List<Pair<Path,StyleSheet>> stylesheets = new ArrayList<>();
-
+    static {
         // Don't resolve @import statements
         // NOTE: This is bugged in the current release, but fixed in the latest build.
         CSSFactory.setAutoImportMedia(new MediaSpecNone());
+        
+        // Using the localNetworkProcessor is a work-around that essentially removes non-local @import statements
+    }
+    
+    public static final NetworkProcessor localNetworkProcessor = new NetworkProcessor() {
 
-        // Work-around that essentially removes non-local @import statements
-        NetworkProcessor local = new NetworkProcessor() {
+        @Override
+        public InputStream fetch(URL url) throws IOException {
+            // Only resolve local files for now
+            if (url.toString().startsWith("file")) {
+                return url.openConnection().getInputStream();
+            } else {
+                return new InputStream() {
 
-            @Override
-            public InputStream fetch(URL url) throws IOException {
-                // Only resolve local files for now
-                if (url.toString().startsWith("file")) {
-                    return url.openConnection().getInputStream();
-                } else {
-                    return new InputStream() {
-
-                        @Override
-                        public int read() throws IOException {
-                            return -1;
-                        }
-                    };
-                }
+                    @Override
+                    public int read() throws IOException {
+                        return -1;
+                    }
+                };
             }
-        };
+        }
+    };
+
+    public static List<Pair<Path, StyleSheet>> getStylesheets(Document doc, Path inputDir, Path input) throws CSSException, IOException {
+        List<Pair<Path, StyleSheet>> stylesheets = new ArrayList<>();
 
         // Process inline style blocks
         for (String css : getInlineStyleBlocks(doc)) {
-            stylesheets.add(new Pair<>(null, CSSFactory.parseString(css, input.toUri().toURL(), local)));
+            stylesheets.add(new Pair<>(null, CSSFactory.parseString(css, input.toUri().toURL(), localNetworkProcessor)));
         }
 
         // Process external stylesheets
         for (Path cssFile : getExternalStyleSheets(doc)) {
-            stylesheets.add(new Pair<>(cssFile, CSSFactory.parse(inputDir.resolve(cssFile).toUri().toURL(), local, "UTF-8")));
+            stylesheets.add(new Pair<>(cssFile, CSSFactory.parse(inputDir.resolve(cssFile).toUri().toURL(), localNetworkProcessor, "UTF-8")));
         }
 
         return stylesheets;
