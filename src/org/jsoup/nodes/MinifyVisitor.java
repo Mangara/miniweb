@@ -48,7 +48,10 @@ public class MinifyVisitor implements NodeVisitor {
             // Compress inline CSS or JS
             if (node.parent() instanceof Element) {
                 Element parent = (Element) node.parent();
-
+                
+                System.out.println("Data node with element parent:");
+                System.out.println(node.parent());
+                
                 if (parent.tagName().equals("style")) { // CSS
                     try {
                         CssCompressor compressor = new CssCompressor(new StringReader(data));
@@ -63,13 +66,23 @@ public class MinifyVisitor implements NodeVisitor {
                 } else if (parent.tagName().equals("script") && (parent.attr("type").isEmpty() || parent.attr("type").contains("javascript") || parent.attr("type").contains("ecmascript"))) { // JS
                     try {
                         JavaScriptCompressor compressor = new JavaScriptCompressor(new StringReader(data), null);
-                        // TODO: compress
-                        sb.append(data.trim());
+                        StringWriter writer = new StringWriter(data.length());
+
+                        compressor.compress(writer,
+                                -1, //linebreakpos
+                                true, //munge
+                                false, //verbose
+                                false, //preserveAllSemiColons
+                                false //disableOptimizations
+                                );
+                        
+                        sb.append(writer.getBuffer());
                         handled = true;
                     } catch (IOException ex) {
-                        ex.printStackTrace();
+                        // This should never happen - it is from the compressor reading the input, which is a StringReader.
+                        throw new InternalError(ex);
                     } catch (EvaluatorException ex) {
-                        ex.printStackTrace();
+                        // JS could not be parsed - just keep it as-is
                     }
                 }
             }

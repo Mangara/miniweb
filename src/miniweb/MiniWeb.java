@@ -37,8 +37,7 @@ public class MiniWeb {
     private static final String testFile;
 
     static {
-        testFolder = "CG-Publy";
-        testFile = "CG-Lab.html";
+        testFolder = "CG-Publy"; testFile = "CG-Lab.html";
         //testFolder = "PersonalWebsite"; testFile = "index.html";
         //testFolder = "ColorZebra"; testFile = "index.html";
     }
