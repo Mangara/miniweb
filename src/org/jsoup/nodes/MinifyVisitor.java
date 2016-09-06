@@ -1,6 +1,7 @@
 package org.jsoup.nodes;
 
 import com.yahoo.platform.yui.compressor.CssCompressor;
+import com.yahoo.platform.yui.compressor.JavaScriptCompressor;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -11,6 +12,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import org.jsoup.select.NodeTraversor;
 import org.jsoup.select.NodeVisitor;
+import org.mozilla.javascript.EvaluatorException;
 
 public class MinifyVisitor implements NodeVisitor {
 
@@ -59,9 +61,16 @@ public class MinifyVisitor implements NodeVisitor {
                         throw new InternalError(ex);
                     }
                 } else if (parent.tagName().equals("script") && (parent.attr("type").isEmpty() || parent.attr("type").contains("javascript") || parent.attr("type").contains("ecmascript"))) { // JS
-                    // TODO: Compress
-                    sb.append(data.trim());
-                    handled = true;
+                    try {
+                        JavaScriptCompressor compressor = new JavaScriptCompressor(new StringReader(data), null);
+                        // TODO: compress
+                        sb.append(data.trim());
+                        handled = true;
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    } catch (EvaluatorException ex) {
+                        ex.printStackTrace();
+                    }
                 }
             }
 
