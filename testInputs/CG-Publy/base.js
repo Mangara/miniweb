@@ -19,13 +19,13 @@ function showPaper(paperID) {
 }
 
 // Toggles abstract. Input: .abstract-container
-function toggleAbstract(abstract) {
-    abstract.slideToggle(500);
+function toggleAbstract(abstr) {
+    abstr.slideToggle(500);
 
     // Render the math in here, if necessary
-    if (abstract.hasClass("tex2jax_ignore")) {
-        abstract.removeClass("tex2jax_ignore");
-        MathJax.Hub.Queue(["Typeset", MathJax.Hub, abstract.get(0)]);
+    if (abstr.hasClass("tex2jax_ignore")) {
+        abstr.removeClass("tex2jax_ignore");
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub, abstr.get(0)]);
     }
 }
 

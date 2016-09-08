@@ -64,7 +64,7 @@ public class StylesheetExtractor {
     }
     
     public static StyleSheet parseFile(Path cssFile) throws IOException, CSSException {
-        return CSSFactory.parse(cssFile.toUri().toURL(), emptyNetworkProcessor, "UTF-8");
+        return CSSFactory.parse(cssFile.toUri().toURL(), localNetworkProcessor, "UTF-8");
     }
 
     public static List<Pair<Path, StyleSheet>> getStylesheets(Document doc, Path inputDir, Path input) throws CSSException, IOException {
