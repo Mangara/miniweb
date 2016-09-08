@@ -1,6 +1,7 @@
 package miniweb;
 
 import com.yahoo.platform.yui.compressor.CssCompressor;
+import com.yahoo.platform.yui.compressor.JavaScriptCompressor;
 import miniweb.html.ClassRenamer;
 import miniweb.html.ClassCounter;
 import miniweb.html.ClassCleaner;
@@ -11,10 +12,12 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,27 +37,35 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.MinifyVisitor;
+import org.mozilla.javascript.ErrorReporter;
+import org.mozilla.javascript.EvaluatorException;
 
 public class MiniWeb {
 
     private static final String testFolder;
-    private static final String testFile;
+    private static final List<String> testFiles;
 
     static {
-        //testFolder = "CG-Publy"; testFile = "CG-Lab.html";
-        testFolder = "PersonalWebsite"; testFile = "index.html";
-        //testFolder = "ColorZebra"; testFile = "index.html";
+        testFolder = "CG-Publy";
+        testFiles = Arrays.asList("CG-Lab.html");
+        //testFolder = "PersonalWebsite"; testFiles = Arrays.asList("index.html", "misc.html", "oldaddress.html", "publications.html", "teaching.html");
+        //testFolder = "ColorZebra"; testFiles = Arrays.asList("index.html");
     }
 
     private static final Path inputDir = Paths.get("testInputs/" + testFolder);
     private static final Path outputDir = Paths.get("testOutputs");
-    private static final Path input = inputDir.resolve(testFile);
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) throws IOException, CSSException {
-        minify(Collections.singleton(input), inputDir, outputDir);
+        List<Path> inputs = new ArrayList<>();
+
+        for (String testFile : testFiles) {
+            inputs.add(inputDir.resolve(testFile));
+        }
+
+        minify(inputs, inputDir, outputDir);
 
         /* Old driver code
          // Parse the HTML and all inline and local external stylesheets
@@ -197,7 +208,7 @@ public class MiniWeb {
 
         writeCompressedHTMLFiles(htmlFiles, compressedClassNames, targets);
         writeCompressedCSSFiles(cssFiles, compressedClassNames, targets);
-        writeCompressedJSFiles(jsFiles, targets);
+        writeCompressedJSFiles(jsFiles, compressedClassNames, targets);
     }
 
     private static void removeUnreferencedClasses(Map<Path, Document> htmlFiles) throws IOException {
@@ -283,15 +294,15 @@ public class MiniWeb {
             try {
                 stylesheet = StylesheetExtractor.parseFile(cssFile);
             } catch (CSSException ex) {
-                ex.printStackTrace();
+                System.err.println("Exception while parsing CSS file " + cssFile + ": " + ex.getMessage());
                 continue;
             }
 
             CssClassRenamer.renameCssClasses(compressedClassNames, stylesheet);
-
+            
             try (BufferedWriter out = Files.newBufferedWriter(targets.get(cssFile))) {
                 for (String aImport : imports) {
-
+                    out.write(aImport);
                 }
 
                 for (RuleBlock<?> rules : stylesheet) {
@@ -304,8 +315,63 @@ public class MiniWeb {
         }
     }
 
-    private static void writeCompressedJSFiles(Iterable<Path> jsFiles, Map<Path, Path> targets) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    private static void writeCompressedJSFiles(Iterable<Path> jsFiles, Map<String, String> compressedClassNames, Map<Path, Path> targets) throws IOException {
+        for (Path jsFile : jsFiles) {
+            StringBuilder fileContents = new StringBuilder();
+
+            try (BufferedReader in = Files.newBufferedReader(jsFile)) {
+                for (String line = in.readLine(); line != null; line = in.readLine()) {
+                    fileContents.append(line);
+                    fileContents.append('\n');
+                }
+            }
+
+            try (BufferedWriter out = Files.newBufferedWriter(targets.get(jsFile))) {
+                try {
+                    JavaScriptCompressor compressor = new JavaScriptCompressor(new StringReader(fileContents.toString()), new ErrorReporter() {
+
+                        @Override
+                        public void warning(String message, String sourceName,
+                                int line, String lineSource, int lineOffset) {
+                            // Ignore
+                        }
+
+                        @Override
+                        public void error(String message, String sourceName,
+                                int line, String lineSource, int lineOffset) {
+                            System.err.println("[ERROR] in " + jsFile);
+                            if (line < 0) {
+                                System.err.println("  " + message);
+                            } else {
+                                System.err.println("  " + line + ':' + lineOffset + ':' + message);
+                            }
+                        }
+
+                        @Override
+                        public EvaluatorException runtimeError(String message, String sourceName,
+                                int line, String lineSource, int lineOffset) {
+                            error(message, sourceName, line, lineSource, lineOffset);
+                            return new EvaluatorException(message);
+                        }
+                    });
+
+                    compressor.compress(out,
+                            -1, //linebreakpos
+                            true, //munge
+                            false, //verbose
+                            false, //preserveAllSemiColons
+                            false //disableOptimizations
+                    );
+                    
+                    // TODO: replace class names
+                } catch (EvaluatorException ex) {
+                    System.err.println("Exception trying to parse " + jsFile + ": " + ex.getMessage());
+                    System.err.println("Copying JavaScript uncompressed.");
+                    
+                    out.write(fileContents.toString());
+                }
+            }
+        }
     }
 
     private static Map<Path, Document> parseAll(Iterable<Path> htmlFiles) throws IOException {
@@ -325,7 +391,7 @@ public class MiniWeb {
         for (Entry<Path, Document> entry : htmlFiles.entrySet()) {
             Path baseDir = entry.getKey().getParent();
             Document doc = entry.getValue();
-            
+
             doc.select("link[rel=stylesheet]").stream()
                     .filter(e -> !e.attr("href").startsWith("http"))
                     .map(e -> baseDir.resolve(Paths.get(e.attr("href"))))
@@ -395,16 +461,11 @@ public class MiniWeb {
                 Matcher match = importPattern.matcher(line);
 
                 while (match.find()) {
-                    System.out.printf("I found the text"
-                            + " \"%s\" starting at "
-                            + "index %d and ending at index %d.%n",
-                            match.group(),
-                            match.start(),
-                            match.end());
+                    imports.add(match.group());
                 }
             }
         }
-        
+
         return imports;
     }
 }
