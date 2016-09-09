@@ -148,6 +148,8 @@ button:before, button:after {
     display: none;
 }
 
+.abstract-container {}
+
 .abstract {
     font-size: 0.95em;
     line-height: 145%;

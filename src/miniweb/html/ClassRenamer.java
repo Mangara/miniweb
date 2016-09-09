@@ -5,6 +5,7 @@ import cz.vutbr.web.css.StyleSheet;
 import java.io.IOException;
 import java.util.Map;
 import java.util.stream.Collectors;
+import miniweb.css.CSSPrinter;
 import miniweb.css.CssClassRenamer;
 import miniweb.css.StylesheetExtractor;
 import org.jsoup.nodes.DataNode;
@@ -46,8 +47,8 @@ public class ClassRenamer implements NodeVisitor {
                 DataNode dataNode = (DataNode) node;
                 StyleSheet style = StylesheetExtractor.parseString(dataNode.getWholeData());
                 CssClassRenamer.renameCssClasses(newNames, style);
-                dataNode.setWholeData(style.toString());
-            } catch (IOException | CSSException ex) {
+                dataNode.setWholeData(CSSPrinter.toString(style));
+            } catch (CSSException ex) {
                 throw new InternalError(ex);
             }
         }
