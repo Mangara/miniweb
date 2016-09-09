@@ -2,7 +2,6 @@ package miniweb.html;
 
 import cz.vutbr.web.css.CSSException;
 import cz.vutbr.web.css.StyleSheet;
-import java.io.IOException;
 import java.util.Map;
 import java.util.stream.Collectors;
 import miniweb.css.CSSPrinter;
