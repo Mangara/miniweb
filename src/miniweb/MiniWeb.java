@@ -18,7 +18,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -33,11 +32,12 @@ import miniweb.css.ClassFinder;
 import miniweb.css.CssClassRenamer;
 import miniweb.css.ReferencedElementsFinder;
 import miniweb.css.StylesheetExtractor;
+import miniweb.js.BasicErrorReporter;
+import miniweb.js.JSClassRenamer;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.MinifyVisitor;
-import org.mozilla.javascript.ErrorReporter;
 import org.mozilla.javascript.EvaluatorException;
 
 public class MiniWeb {
@@ -46,9 +46,8 @@ public class MiniWeb {
     private static final List<String> testFiles;
 
     static {
-        testFolder = "CG-Publy";
-        testFiles = Arrays.asList("CG-Lab.html");
-        //testFolder = "PersonalWebsite"; testFiles = Arrays.asList("index.html", "misc.html", "oldaddress.html", "publications.html", "teaching.html");
+        //testFolder = "CG-Publy"; testFiles = Arrays.asList("CG-Lab.html");
+        testFolder = "PersonalWebsite"; testFiles = Arrays.asList("index.html", "misc.html", "oldaddress.html", "publications.html", "teaching.html");
         //testFolder = "ColorZebra"; testFiles = Arrays.asList("index.html");
     }
 
@@ -328,34 +327,11 @@ public class MiniWeb {
 
             try (BufferedWriter out = Files.newBufferedWriter(targets.get(jsFile))) {
                 try {
-                    JavaScriptCompressor compressor = new JavaScriptCompressor(new StringReader(fileContents.toString()), new ErrorReporter() {
+                    JavaScriptCompressor compressor = new JavaScriptCompressor(new StringReader(fileContents.toString()), new BasicErrorReporter(jsFile.toString()));
 
-                        @Override
-                        public void warning(String message, String sourceName,
-                                int line, String lineSource, int lineOffset) {
-                            // Ignore
-                        }
-
-                        @Override
-                        public void error(String message, String sourceName,
-                                int line, String lineSource, int lineOffset) {
-                            System.err.println("[ERROR] in " + jsFile);
-                            if (line < 0) {
-                                System.err.println("  " + message);
-                            } else {
-                                System.err.println("  " + line + ':' + lineOffset + ':' + message);
-                            }
-                        }
-
-                        @Override
-                        public EvaluatorException runtimeError(String message, String sourceName,
-                                int line, String lineSource, int lineOffset) {
-                            error(message, sourceName, line, lineSource, lineOffset);
-                            return new EvaluatorException(message);
-                        }
-                    });
-
-                    compressor.compress(out,
+                    StringWriter writer = new StringWriter();
+                    
+                    compressor.compress(writer,
                             -1, //linebreakpos
                             true, //munge
                             false, //verbose
@@ -363,7 +339,7 @@ public class MiniWeb {
                             false //disableOptimizations
                     );
                     
-                    // TODO: replace class names
+                    out.write(JSClassRenamer.renameHTMLClasses(writer.toString(), compressedClassNames, jsFile.toString()));
                 } catch (EvaluatorException ex) {
                     System.err.println("Exception trying to parse " + jsFile + ": " + ex.getMessage());
                     System.err.println("Copying JavaScript uncompressed.");

@@ -58,11 +58,16 @@ public class StylesheetExtractor {
             };
         }
     };
-    
-    public static StyleSheet parseString(String css) throws IOException, CSSException {
-        return CSSFactory.parseString(css, null, emptyNetworkProcessor);
+
+    public static StyleSheet parseString(String css) throws CSSException {
+        try {
+            return CSSFactory.parseString(css, null, emptyNetworkProcessor);
+        } catch (IOException ex) {
+            // Should never happen
+            throw new InternalError(ex);
+        }
     }
-    
+
     public static StyleSheet parseFile(Path cssFile) throws IOException, CSSException {
         return CSSFactory.parse(cssFile.toUri().toURL(), localNetworkProcessor, "UTF-8");
     }
