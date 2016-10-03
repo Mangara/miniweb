@@ -51,7 +51,21 @@ public class ReferencedElementsFinder extends RuleSetVisitor {
                             Set<String> classes = elementsReferencedByClass.get(e);
 
                             if (classes == null) {
-                                elementsReferencedByClass.put(e, new HashSet<>(Collections.singleton(className)));
+                                /**
+                                 * clone() is necessary here, because an
+                                 * Element's hash and equals are based on the
+                                 * content. Two divs with the same text will be
+                                 * equal() and have the same hascode, thus will
+                                 * only be stored once in the map. But when we
+                                 * are changing the classes afterwards, we
+                                 * change the first element first, which means
+                                 * it is no longer equal() to the second
+                                 * element, which will then not be found in the
+                                 * map. By using clone() we do not change the
+                                 * reference element, ensuring that all elements
+                                 * are changed properly.
+                                 */
+                                elementsReferencedByClass.put(e.clone(), new HashSet<>(Collections.singleton(className)));
                             } else {
                                 classes.add(className);
                             }
