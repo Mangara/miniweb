@@ -51,6 +51,7 @@ public class MinifyVisitorTest {
         testBodySnippet("<span>1</span>       <span>2</span>", "<span>1</span> <span>2</span>");
         testBodySnippet("   <span>1</span>\n   <span>2</span>   ", "<span>1</span> <span>2</span>");
         testBodySnippet("<span>1</span><span>2</span>", "<span>1</span><span>2</span>");
+        testBodySnippet("<span>1 </span><span>2</span>", "<span>1 </span><span>2</span>");
 
         // Basic white-space reduction between nested elements
         testBodySnippet("<div><span>1</span></div>", "<div><span>1</span></div>");
@@ -292,7 +293,7 @@ public class MinifyVisitorTest {
     @Test
     public void testRemovingRedundantScriptCharset() {
         String input = "<script type=\"text/javascript\" charset=\"UTF-8\">alert(222);</script>";
-        String output = "<script>alert(222);</script>";
+        String output = "<script>alert(222)</script>";
         testBodySnippet(input, output); // { removeRedundantAttributes: true }
 
         input = "<script type=\"text/javascript\" src=\"http://example.com\" charset=\"UTF-8\">alert(222);</script>";
@@ -300,7 +301,7 @@ public class MinifyVisitorTest {
         testBodySnippet(input, output); // { removeRedundantAttributes: true }
 
         input = "<script CHARSET=\" ... \">alert(222);</script>";
-        output = "<script>alert(222);</script>";
+        output = "<script>alert(222)</script>";
         testBodySnippet(input, output); // { removeRedundantAttributes: true }
     }
 

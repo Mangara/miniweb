@@ -73,7 +73,13 @@ public class MinifyVisitor implements NodeVisitor {
                                 false //disableOptimizations
                                 );
                         
-                        sb.append(writer.getBuffer());
+                        String compressedJS = writer.getBuffer().toString();
+                        
+                        if (compressedJS.endsWith(";")) {
+                            compressedJS = compressedJS.substring(0, compressedJS.length() - 1);
+                        }
+                        
+                        sb.append(compressedJS);
                         handled = true;
                     } catch (IOException ex) {
                         // This should never happen - it is from the compressor reading the input, which is a StringReader.
