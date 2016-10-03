@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package miniweb.html;
 
 import java.util.Map;
@@ -13,10 +8,6 @@ import org.jsoup.nodes.Node;
 import org.jsoup.select.NodeTraversor;
 import org.jsoup.select.NodeVisitor;
 
-/**
- *
- * @author Sander Verdonschot <sander.verdonschot at gmail.com>
- */
 public class ClassCleaner implements NodeVisitor {
 
     private final Map<Element, Set<String>> referencedByClass;
