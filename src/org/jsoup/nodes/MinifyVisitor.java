@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,6 +37,11 @@ public class MinifyVisitor implements NodeVisitor {
     private final Document.OutputSettings out;
     private boolean textEndsWithWhitespace = true;
     private int lastTextWhitespacePos = -1;
+    private final static Set<String> DISPLAYED_INLINE_ELEMENTS
+            = new HashSet<>(Arrays.asList("img", "textarea", "input", "select",
+                            "button", "object", "q", "iframe", "keygen", 
+                            "progress", "meter"
+                    ));
 
     public static String minify(Document doc) {
         StringBuilder minified = new StringBuilder();
@@ -69,6 +75,11 @@ public class MinifyVisitor implements NodeVisitor {
 
                 if (parent.tagName().equals("style")) { // CSS
                     try {
+                        // Remove obsolete HTML comments
+                        if (data.trim().startsWith("<!--") && data.trim().endsWith("-->")) {
+                            data = data.trim().substring("<!--".length(), data.length() - "-->".length());
+                        }
+                        
                         CssCompressor compressor = new CssCompressor(new StringReader(data));
                         StringWriter writer = new StringWriter(data.length());
                         compressor.compress(writer, -1);
@@ -81,10 +92,10 @@ public class MinifyVisitor implements NodeVisitor {
                 } else if (parent.tagName().equals("script") && (parent.attr("type").isEmpty() || parent.attr("type").contains("javascript") || parent.attr("type").contains("ecmascript"))) { // JS
                     try {
                         // Remove obsolete HTML comments
-                        if (data.trim().startsWith("<!--") && data.trim().endsWith("--!>")) {
-                            data = data.trim().substring("<!--".length(), data.length() - "--!>".length());
+                        if (data.trim().startsWith("<!--") && data.trim().endsWith("-->")) {
+                            data = data.trim().substring("<!--".length(), data.length() - "-->".length());
                         }
-
+                        
                         JavaScriptCompressor compressor = new JavaScriptCompressor(new StringReader(data), new BasicErrorReporter("Embedded <script> tag"));
                         StringWriter writer = new StringWriter(data.length());
 
@@ -144,9 +155,9 @@ public class MinifyVisitor implements NodeVisitor {
                         sb.append(' ');
                     }
                 } else {
-                    boolean inHead = inHead(node);
-                    boolean stripLeadingWhite = inHead || textEndsWithWhitespace;
-                    boolean stripTrailingWhite = inHead;
+                    boolean trim = inHead(node) || (node.parent() instanceof Element && DISPLAYED_INLINE_ELEMENTS.contains(((Element) node.parent()).tagName()) && !"q".equals(((Element) node.parent()).tagName()));
+                    boolean stripLeadingWhite = trim || (textEndsWithWhitespace && !(node.parent() instanceof Element && "q".equals(((Element) node.parent()).tagName())));
+                    boolean stripTrailingWhite = trim;
 
                     Entities.escape(sb, text, out, false, normaliseWhite, stripLeadingWhite);
 
@@ -178,11 +189,22 @@ public class MinifyVisitor implements NodeVisitor {
         if (node instanceof Element) {
             Element e = (Element) node;
 
-            if (e.isBlock() && !Element.preserveWhitespace(e) && lastTextWhitespacePos > 0) {
-                sb.deleteCharAt(lastTextWhitespacePos);
-                
+            if (e.tag().isBlock() && !e.tagName().equals("s")) { // <s> is misclassified by JSoup as block
+                if (!Element.preserveWhitespace(e) && lastTextWhitespacePos > 0) {
+                    sb.deleteCharAt(lastTextWhitespacePos);
+                }
+
                 textEndsWithWhitespace = true;
                 lastTextWhitespacePos = -1;
+            } else { // inline
+                if (DISPLAYED_INLINE_ELEMENTS.contains(e.tagName())) {
+                    textEndsWithWhitespace = false;
+                    lastTextWhitespacePos = -1;
+                }
+
+                if (Element.preserveWhitespace(e)) {
+                    lastTextWhitespacePos = -1;
+                }
             }
 
             if (!(e.childNodes().isEmpty() && e.tag().isSelfClosing())) {
