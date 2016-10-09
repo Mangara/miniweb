@@ -62,13 +62,36 @@ public class MinifyVisitorTest {
     @Test
     public void testBasicWhitespaceReduction() {
         // Basic white-space reduction between same-level elements
+        testBodySnippet("<span>1</span><span>2</span>", "<span>1</span><span>2</span>");
+        testBodySnippet("<span>1</span><span> 2</span>", "<span>1</span><span> 2</span>");
         testBodySnippet("<span>1</span> <span>2</span>", "<span>1</span> <span>2</span>");
+        testBodySnippet("<span>1</span> <span> 2</span>", "<span>1</span> <span>2</span>");
+        testBodySnippet("<span>1 </span><span>2</span>", "<span>1 </span><span>2</span>");
+        testBodySnippet("<span>1 </span><span> 2</span>", "<span>1 </span><span>2</span>");
+        testBodySnippet("<span>1 </span> <span>2</span>", "<span>1 </span><span>2</span>");
+        testBodySnippet("<span>1 </span> <span> 2</span>", "<span>1 </span><span>2</span>");
+
         testBodySnippet("<span>1</span>       <span>2</span>", "<span>1</span> <span>2</span>");
         testBodySnippet("   <span>1</span>\n   <span>2</span>   ", "<span>1</span> <span>2</span>");
-        testBodySnippet("<span>1</span><span>2</span>", "<span>1</span><span>2</span>");
-        testBodySnippet("<span>1 </span><span>2</span>", "<span>1 </span><span>2</span>");
 
         // Basic white-space reduction between nested elements
+        testBodySnippet("<div><span>T</span></div>", "<div><span>T</span></div>");
+        testBodySnippet("<div><span>T</span> </div>", "<div><span>T</span></div>");
+        testBodySnippet("<div><span>T </span></div>", "<div><span>T</span></div>");
+        testBodySnippet("<div><span>T </span> </div>", "<div><span>T</span></div>");
+        testBodySnippet("<div><span> T</span></div>", "<div><span>T</span></div>");
+        testBodySnippet("<div><span> T</span> </div>", "<div><span>T</span></div>");
+        testBodySnippet("<div><span> T </span></div>", "<div><span>T</span></div>");
+        testBodySnippet("<div><span> T </span> </div>", "<div><span>T</span></div>");
+        testBodySnippet("<div> <span>T</span></div>", "<div><span>T</span></div>");
+        testBodySnippet("<div> <span>T</span> </div>", "<div><span>T</span></div>");
+        testBodySnippet("<div> <span>T </span></div>", "<div><span>T</span></div>");
+        testBodySnippet("<div> <span>T </span> </div>", "<div><span>T</span></div>");
+        testBodySnippet("<div> <span> T</span></div>", "<div><span>T</span></div>");
+        testBodySnippet("<div> <span> T</span> </div>", "<div><span>T</span></div>");
+        testBodySnippet("<div> <span> T </span></div>", "<div><span>T</span></div>");
+        testBodySnippet("<div> <span> T </span> </div>", "<div><span>T</span></div>");
+
         testBodySnippet("<div><span>1</span></div>", "<div><span>1</span></div>");
         testBodySnippet("<div>\n<span>1</span>\n</div>", "<div><span>1</span></div>");
         testBodySnippet("   <div>\n     <span>1</span>\n   </div>", "<div><span>1</span></div>");
@@ -122,8 +145,8 @@ public class MinifyVisitorTest {
         testBodySnippet("<!-- test -->", "");
         testBodySnippet("<!-- foo --><div>baz</div><!-- bar\n\n moo -->", "<div>baz</div>");
         testBodySnippet("<p title=\"<!-- comment in attribute -->\">foo</p>", "<p title=\"<!-- comment in attribute -->\">foo</p>");
-        testBodySnippet("<script><!-- alert(1) --></script>", "<script><!-- alert(1) --></script>");
-        testBodySnippet("<STYLE><!-- alert(1) --></STYLE>", "<style><!-- alert(1) --></style>");
+        testBodySnippet("<script><!-- alert(1) --></script>", "<script>alert(1)</script>");
+        testBodySnippet("<STYLE><!-- alert(1) --></STYLE>", "<style>alert(1)</style>");
     }
 
     @Test
@@ -309,24 +332,24 @@ public class MinifyVisitorTest {
     public void testRemovingRedundantScriptCharset() {
         String input = "<script type=\"text/javascript\" charset=\"UTF-8\">alert(222);</script>";
         String output = "<script>alert(222)</script>";
-        testBodySnippet(input, output); // { removeRedundantAttributes: true }
+        testBodySnippet(input, output);
 
         input = "<script type=\"text/javascript\" src=\"http://example.com\" charset=\"UTF-8\">alert(222);</script>";
-        output = "<script src=http://example.com charset=UTF-8>alert(222);</script>";
-        testBodySnippet(input, output); // { removeRedundantAttributes: true }
+        output = "<script src=http://example.com charset=UTF-8>alert(222)</script>";
+        testBodySnippet(input, output);
 
         input = "<script CHARSET=\" ... \">alert(222);</script>";
         output = "<script>alert(222)</script>";
-        testBodySnippet(input, output); // { removeRedundantAttributes: true }
+        testBodySnippet(input, output);
     }
 
     @Test
     public void testRemovingRedundantScriptLanguage() {
         String input = "<script language=\"Javascript\">x=2,y=4</script>";
-        testBodySnippet(input, "<script>x=2,y=4</script>"); // { removeRedundantAttributes: true }
+        testBodySnippet(input, "<script>x=2,y=4</script>");
 
         input = "<script LANGUAGE = \"  javaScript  \">x=2,y=4</script>";
-        testBodySnippet(input, "<script>x=2,y=4</script>"); // { removeRedundantAttributes: true }
+        testBodySnippet(input, "<script>x=2,y=4</script>");
     }
 
     @Test
@@ -503,7 +526,7 @@ public class MinifyVisitorTest {
                 + "</div></div></div></div></div></div>"
                 + "<pre>       \r\nxxxx</pre><span>x</span> <span>Hello</span> <b>billy</b> "
                 + "<input> <textarea></textarea> <pre></pre>";
-        testBodySnippet(input, output); // { collapseWhitespace: true }
+        testBodySnippet(input, output);
     }
 
     @Test
