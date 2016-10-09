@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import miniweb.js.BasicErrorReporter;
 import org.jsoup.select.NodeTraversor;
 import org.jsoup.select.NodeVisitor;
 import org.mozilla.javascript.EvaluatorException;
@@ -33,6 +34,8 @@ public class MinifyVisitor implements NodeVisitor {
 
     private final StringBuilder sb;
     private final Document.OutputSettings out;
+    private boolean textEndsWithWhitespace = true;
+    private int lastTextWhitespacePos = -1;
 
     public static String minify(Document doc) {
         StringBuilder minified = new StringBuilder();
@@ -63,7 +66,7 @@ public class MinifyVisitor implements NodeVisitor {
             // Compress inline CSS or JS
             if (node.parent() instanceof Element) {
                 Element parent = (Element) node.parent();
-                
+
                 if (parent.tagName().equals("style")) { // CSS
                     try {
                         CssCompressor compressor = new CssCompressor(new StringReader(data));
@@ -77,7 +80,12 @@ public class MinifyVisitor implements NodeVisitor {
                     }
                 } else if (parent.tagName().equals("script") && (parent.attr("type").isEmpty() || parent.attr("type").contains("javascript") || parent.attr("type").contains("ecmascript"))) { // JS
                     try {
-                        JavaScriptCompressor compressor = new JavaScriptCompressor(new StringReader(data), null);
+                        // Remove obsolete HTML comments
+                        if (data.trim().startsWith("<!--") && data.trim().endsWith("--!>")) {
+                            data = data.trim().substring("<!--".length(), data.length() - "--!>".length());
+                        }
+
+                        JavaScriptCompressor compressor = new JavaScriptCompressor(new StringReader(data), new BasicErrorReporter("Embedded <script> tag"));
                         StringWriter writer = new StringWriter(data.length());
 
                         compressor.compress(writer,
@@ -86,14 +94,14 @@ public class MinifyVisitor implements NodeVisitor {
                                 false, //verbose
                                 false, //preserveAllSemiColons
                                 false //disableOptimizations
-                                );
-                        
+                        );
+
                         String compressedJS = writer.getBuffer().toString();
-                        
+
                         if (compressedJS.endsWith(";")) {
                             compressedJS = compressedJS.substring(0, compressedJS.length() - 1);
                         }
-                        
+
                         sb.append(compressedJS);
                         handled = true;
                     } catch (IOException ex) {
@@ -125,22 +133,37 @@ public class MinifyVisitor implements NodeVisitor {
 
             sb.append(">");
         } else if (node instanceof TextNode) {
+            String text = ((TextNode) node).getWholeText();
             boolean normaliseWhite = node.parent() instanceof Element && !Element.preserveWhitespace(node.parent());
 
-            boolean inHead = inHead(node);
-            boolean stripLeadingWhite = normaliseWhite && (inHead || previousNonCommentSibling(node) == null);
-            boolean stripTrailingWhite = normaliseWhite && (inHead || nextNonCommentSibling(node) == null);
+            if (normaliseWhite) {
+                if (text.matches("\\s+")) {
+                    if (textEndsWithWhitespace) {
+                        return; // Don't add anything and don't change textEndsWithWhitespace
+                    } else {
+                        sb.append(' ');
+                    }
+                } else {
+                    boolean inHead = inHead(node);
+                    boolean stripLeadingWhite = inHead || textEndsWithWhitespace;
+                    boolean stripTrailingWhite = inHead;
 
-            String text = ((TextNode) node).getWholeText();
+                    Entities.escape(sb, text, out, false, normaliseWhite, stripLeadingWhite);
 
-            if (normaliseWhite && text.matches("\\s+") && Character.isWhitespace(sb.charAt(sb.length() - 1))) {
-                return; // Don't add more whitespace
+                    while (stripTrailingWhite && Character.isWhitespace(sb.charAt(sb.length() - 1))) {
+                        sb.deleteCharAt(sb.length() - 1);
+                    }
+                }
+            } else {
+                Entities.escape(sb, text, out, false, false, false);
             }
 
-            Entities.escape(sb, text, out, false, normaliseWhite, stripLeadingWhite);
-
-            while (stripTrailingWhite && Character.isWhitespace(sb.charAt(sb.length() - 1))) {
-                sb.deleteCharAt(sb.length() - 1);
+            if (Character.isWhitespace(sb.charAt(sb.length() - 1))) {
+                textEndsWithWhitespace = true;
+                lastTextWhitespacePos = sb.length() - 1;
+            } else {
+                textEndsWithWhitespace = false;
+                lastTextWhitespacePos = -1;
             }
         } else if (node instanceof XmlDeclaration) {
             // No special printing necessary
@@ -154,6 +177,13 @@ public class MinifyVisitor implements NodeVisitor {
     public void tail(Node node, int depth) {
         if (node instanceof Element) {
             Element e = (Element) node;
+
+            if (e.isBlock() && !Element.preserveWhitespace(e) && lastTextWhitespacePos > 0) {
+                sb.deleteCharAt(lastTextWhitespacePos);
+                
+                textEndsWithWhitespace = true;
+                lastTextWhitespacePos = -1;
+            }
 
             if (!(e.childNodes().isEmpty() && e.tag().isSelfClosing())) {
                 sb.append("</").append(e.tagName()).append(">");
