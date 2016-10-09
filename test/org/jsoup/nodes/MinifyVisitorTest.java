@@ -33,13 +33,13 @@ public class MinifyVisitorTest {
     private void testBodySnippet(String input, String expected) {
         Document doc = Jsoup.parse("<html><head></head><body>" + input + "</body></html>");
         String result = MinifyVisitor.minify(doc);
-        assertEquals("<html><head></head><body>" + expected + "</body></html>", result);
+        assertEquals("Input: " + input, "<html><head></head><body>" + expected + "</body></html>", result);
     }
 
     private void testHeadSnippet(String input, String expected) {
         Document doc = Jsoup.parse("<html>" + input + "<body></body></html>");
         String result = MinifyVisitor.minify(doc);
-        assertEquals("<html>" + expected + "<body></body></html>", result);
+        assertEquals("Input: " + input, "<html>" + expected + "<body></body></html>", result);
     }
 
     @Test
@@ -56,7 +56,7 @@ public class MinifyVisitorTest {
                 + "</body>\n"
                 + "\n"
                 + "</html> ",
-                "<!doctype html><html><head><meta charset=UTF-8><title>Title of the document</title></head> <body>Content of the document......</body></html>");
+                "<!doctype html><html><head><meta charset=UTF-8><title>Title of the document</title></head><body>Content of the document......</body></html>");
     }
 
     @Test
@@ -122,7 +122,19 @@ public class MinifyVisitorTest {
     public void testSpaceNormalizationAroundText() {
         testBodySnippet("   <p>blah</p>\n\n\n   ", "<p>blah</p>");
 
-        Arrays.asList("a", "b", "big", "button", "code", "em", "font", "i", "kbd", "mark", "q", "s", "small", "span", "strike", "strong", "sub", "sup", "time", "tt", "u")
+        Arrays.asList("a", "b", "big", "code", "em", "font", "i", "kbd", "mark", "s", "small", "span", "strike", "strong", "sub", "sup", "time", "tt", "u")
+                .stream().forEach(el -> {
+                    testBodySnippet("<p>foo <" + el + ">baz</" + el + "> bar</p>", "<p>foo <" + el + ">baz</" + el + "> bar</p>");
+                    testBodySnippet("<p>foo<" + el + ">baz</" + el + ">bar</p>", "<p>foo<" + el + ">baz</" + el + ">bar</p>");
+                    testBodySnippet("<p>foo <" + el + ">baz</" + el + ">bar</p>", "<p>foo <" + el + ">baz</" + el + ">bar</p>");
+                    testBodySnippet("<p>foo<" + el + ">baz</" + el + "> bar</p>", "<p>foo<" + el + ">baz</" + el + "> bar</p>");
+                    testBodySnippet("<p>foo <" + el + "> baz </" + el + "> bar</p>", "<p>foo <" + el + ">baz </" + el + ">bar</p>");
+                    testBodySnippet("<p>foo<" + el + "> baz </" + el + ">bar</p>", "<p>foo<" + el + "> baz </" + el + ">bar</p>");
+                    testBodySnippet("<p>foo <" + el + "> baz </" + el + ">bar</p>", "<p>foo <" + el + ">baz </" + el + ">bar</p>");
+                    testBodySnippet("<p>foo<" + el + "> baz </" + el + "> bar</p>", "<p>foo<" + el + "> baz </" + el + ">bar</p>");
+                });
+
+        Arrays.asList("button", "iframe", "select")
                 .stream().forEach(el -> {
                     testBodySnippet("<p>foo <" + el + ">baz</" + el + "> bar</p>", "<p>foo <" + el + ">baz</" + el + "> bar</p>");
                     testBodySnippet("<p>foo<" + el + ">baz</" + el + ">bar</p>", "<p>foo<" + el + ">baz</" + el + ">bar</p>");
@@ -133,7 +145,19 @@ public class MinifyVisitorTest {
                     testBodySnippet("<p>foo <" + el + "> baz </" + el + ">bar</p>", "<p>foo <" + el + ">baz</" + el + ">bar</p>");
                     testBodySnippet("<p>foo<" + el + "> baz </" + el + "> bar</p>", "<p>foo<" + el + ">baz</" + el + "> bar</p>");
                 });
-
+        
+        Arrays.asList("textarea", "q")
+                .stream().forEach(el -> {
+                    testBodySnippet("<p>foo <" + el + ">baz</" + el + "> bar</p>", "<p>foo <" + el + ">baz</" + el + "> bar</p>");
+                    testBodySnippet("<p>foo<" + el + ">baz</" + el + ">bar</p>", "<p>foo<" + el + ">baz</" + el + ">bar</p>");
+                    testBodySnippet("<p>foo <" + el + ">baz</" + el + ">bar</p>", "<p>foo <" + el + ">baz</" + el + ">bar</p>");
+                    testBodySnippet("<p>foo<" + el + ">baz</" + el + "> bar</p>", "<p>foo<" + el + ">baz</" + el + "> bar</p>");
+                    testBodySnippet("<p>foo <" + el + "> baz </" + el + "> bar</p>", "<p>foo <" + el + "> baz </" + el + "> bar</p>");
+                    testBodySnippet("<p>foo<" + el + "> baz </" + el + ">bar</p>", "<p>foo<" + el + "> baz </" + el + ">bar</p>");
+                    testBodySnippet("<p>foo <" + el + "> baz </" + el + ">bar</p>", "<p>foo <" + el + "> baz </" + el + ">bar</p>");
+                    testBodySnippet("<p>foo<" + el + "> baz </" + el + "> bar</p>", "<p>foo<" + el + "> baz </" + el + "> bar</p>");
+                });
+        
         testBodySnippet("<p>foo <img> bar</p>", "<p>foo <img> bar</p>");
         testBodySnippet("<p>foo<img>bar</p>", "<p>foo<img>bar</p>");
         testBodySnippet("<p>foo <img>bar</p>", "<p>foo <img>bar</p>");
@@ -443,7 +467,7 @@ public class MinifyVisitorTest {
     @Test
     public void testCollapsingWhitespace() {
         String input = "<p>foo</p>    <p> bar</p>\n\n   \n\t\t  <div title=\"quz\">baz  </div>";
-        String output = "<p>foo</p> <p>bar</p> <div title=quz>baz</div>";
+        String output = "<p>foo</p><p>bar</p><div title=quz>baz</div>";
         testBodySnippet(input, output);
 
         input = "<p> foo    bar</p>";
@@ -471,11 +495,11 @@ public class MinifyVisitorTest {
         testBodySnippet(input, output);
 
         input = "<p>x<!-- comment --><a href=\"#\"> x </a> </p>";
-        output = "<p>x<a href=#>x</a></p>";
+        output = "<p>x<a href=#> x</a></p>";
         testBodySnippet(input, output);
 
         input = "<p> foo    <span>  blah     <i>   22</i>    </span> bar <img src=\"\"></p>";
-        output = "<p>foo <span>blah <i>22</i></span> bar <img src></p>";
+        output = "<p>foo <span>blah <i>22</i> </span>bar <img src></p>";
         testBodySnippet(input, output);
 
         input = "<textarea> foo bar     baz \n\n   x \t    y </textarea>";
@@ -486,8 +510,8 @@ public class MinifyVisitorTest {
         output = "<div><textarea></textarea></div>";
         testBodySnippet(input, output);
 
-        input = "<div><pre> $foo = \"baz\"; </pre>    </div>";
-        output = "<div><pre> $foo = \"baz\"; </pre></div>";
+        input = "<div><pre>  $foo = \"baz\";  </pre>    </div>";
+        output = "<div><pre>  $foo = \"baz\";  </pre></div>";
         testBodySnippet(input, output);
 
         input = "<pre title=\"some title...\">   hello     world </pre>";
@@ -510,7 +534,7 @@ public class MinifyVisitorTest {
         output = "<style>alert(\"foo     bar\")</style>";
         testBodySnippet(input, output); // { collapseWhitespace: true }
 
-        input = "<script type=\"text/javascript\">var = \"hello\";</script>\r\n\r\n\r\n"
+        input = "<script type=\"text/javascript\">var x = \"hello\";</script>\r\n\r\n\r\n"
                 + "<style type=\"text/css\">#foo { color: red;        }          </style>\r\n\r\n\r\n"
                 + "<div>\r\n  <div>\r\n    <div><!-- hello -->\r\n      <div>"
                 + "<!--! hello -->\r\n        <div>\r\n          <div class=\"\">\r\n\r\n            "
@@ -518,8 +542,8 @@ public class MinifyVisitorTest {
                 + "</div>\r\n        </div>\r\n      </div>\r\n    </div>\r\n  </div>\r\n</div>"
                 + "<pre>       \r\nxxxx</pre><span>x</span> <span>Hello</span> <b>billy</b>     \r\n"
                 + "<input type=\"text\">\r\n<textarea></textarea>\r\n<pre></pre>";
-        output = "<script>var = \"hello\";</script> "
-                + "<style>#foo{color:red}</style> "
+        output = "<script>var x=\"hello\"</script>"
+                + "<style>#foo{color:red}</style>"
                 + "<div><div><div>"
                 + "<div><div><div>"
                 + "<textarea disabled>     this is a textarea </textarea>"
