@@ -241,6 +241,8 @@ public class MiniWeb {
 
             CssClassRenamer.renameCssClasses(compressedClassNames, stylesheet);
 
+            Files.createDirectories(targets.get(cssFile).getParent());
+            
             try (BufferedWriter out = Files.newBufferedWriter(targets.get(cssFile))) {
                 for (String aImport : imports) {
                     out.write(aImport);
@@ -264,6 +266,8 @@ public class MiniWeb {
                 }
             }
 
+            Files.createDirectories(targets.get(jsFile).getParent());
+            
             try (BufferedWriter out = Files.newBufferedWriter(targets.get(jsFile))) {
                 try {
                     JavaScriptCompressor compressor = new JavaScriptCompressor(new StringReader(fileContents.toString()), new BasicErrorReporter(jsFile.toString()));
