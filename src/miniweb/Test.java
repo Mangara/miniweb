@@ -16,21 +16,23 @@
 package miniweb;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Test {
+
     private static final String testFolder;
     private static final List<String> testFiles;
 
     static {
         //testFolder = "CG-Publy"; testFiles = Arrays.asList("CG-Lab.html");
-        testFolder = "PersonalWebsite";
-        testFiles = Arrays.asList("index.html", "misc.html", "oldaddress.html", "publications.html", "teaching.html");
-        //testFolder = "ColorZebra"; testFiles = Arrays.asList("index.html");
+        //testFolder = "PersonalWebsite"; testFiles = Arrays.asList("index.html", "misc.html", "oldaddress.html", "publications.html", "teaching.html");
+        testFolder = "ColorZebra"; testFiles = Arrays.asList("html/index.html");
     }
 
     private static final Path inputDir = Paths.get("testInputs/" + testFolder);
@@ -41,6 +43,8 @@ public class Test {
      * @throws java.io.IOException
      */
     public static void main(String[] args) throws IOException {
+        clearFolder(outputDir);
+
         List<Path> inputs = new ArrayList<>();
 
         for (String testFile : testFiles) {
@@ -48,5 +52,17 @@ public class Test {
         }
 
         MiniWeb.minify(inputs, inputDir, outputDir);
+    }
+
+    private static void clearFolder(Path dir) throws IOException {
+        List<Path> outputFiles = Files.list(dir).collect(Collectors.toList());
+
+        for (Path outputFile : outputFiles) {
+            if (Files.isDirectory(outputFile)) {
+                clearFolder(outputFile);
+            }
+
+            Files.delete(outputFile);
+        }
     }
 }
