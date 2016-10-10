@@ -143,19 +143,24 @@ public class MinifyVisitor implements NodeVisitor {
             }
 
             sb.append(">");
+            
+            if (e.tag().isBlock() && !e.tagName().equals("s")) { // <s> is misclassified by JSoup as block
+                textEndsWithWhitespace = true;
+                lastTextWhitespacePos = -1;
+            }
         } else if (node instanceof TextNode) {
             String text = ((TextNode) node).getWholeText();
             boolean normaliseWhite = node.parent() instanceof Element && !Element.preserveWhitespace(node.parent());
 
             if (normaliseWhite) {
                 if (text.matches("\\s+")) {
-                    if (textEndsWithWhitespace) {
+                    if (textEndsWithWhitespace || !inBody(node)) {
                         return; // Don't add anything and don't change textEndsWithWhitespace
                     } else {
                         sb.append(' ');
                     }
                 } else {
-                    boolean trim = inHead(node) || (node.parent() instanceof Element && DISPLAYED_INLINE_ELEMENTS.contains(((Element) node.parent()).tagName()) && !"q".equals(((Element) node.parent()).tagName()));
+                    boolean trim = !inBody(node) || (node.parent() instanceof Element && DISPLAYED_INLINE_ELEMENTS.contains(((Element) node.parent()).tagName()) && !"q".equals(((Element) node.parent()).tagName()));
                     boolean stripLeadingWhite = trim || (textEndsWithWhitespace && !(node.parent() instanceof Element && "q".equals(((Element) node.parent()).tagName())));
                     boolean stripTrailingWhite = trim;
 
@@ -194,7 +199,7 @@ public class MinifyVisitor implements NodeVisitor {
                     sb.deleteCharAt(lastTextWhitespacePos);
                 }
 
-                textEndsWithWhitespace = true;
+                textEndsWithWhitespace = false;
                 lastTextWhitespacePos = -1;
             } else { // inline
                 if (DISPLAYED_INLINE_ELEMENTS.contains(e.tagName())) {
@@ -396,10 +401,10 @@ public class MinifyVisitor implements NodeVisitor {
         return val;
     }
 
-    private boolean inHead(Node node) {
+    private boolean inBody(Node node) {
         Node n = node;
         while (n != null) {
-            if (n instanceof Element && ((Element) n).tagName().equals("head")) {
+            if (n instanceof Element && ((Element) n).tagName().equals("body")) {
                 return true;
             }
 
@@ -420,41 +425,5 @@ public class MinifyVisitor implements NodeVisitor {
      * The HTML 5 spec is more liberal.
      */
     private static final Pattern noQuotesRequired = Pattern.compile("[^ \t\n\r\f\"'`=<>]+");
-
-    private Object previousNonCommentSibling(Node node) {
-        Node sibling = node.previousSibling();
-
-        while (sibling != null) {
-            if (sibling instanceof TextNode) {
-                if (!((TextNode) sibling).getWholeText().matches("\\s+")) {
-                    break;
-                }
-            } else if (!(sibling instanceof Comment)) {
-                break;
-            }
-
-            sibling = sibling.previousSibling();
-        }
-
-        return sibling;
-    }
-
-    private Object nextNonCommentSibling(Node node) {
-        Node sibling = node.nextSibling();
-
-        while (sibling != null) {
-            if (sibling instanceof TextNode) {
-                if (!((TextNode) sibling).getWholeText().matches("\\s+")) {
-                    break;
-                }
-            } else if (!(sibling instanceof Comment)) {
-                break;
-            }
-
-            sibling = sibling.nextSibling();
-        }
-
-        return sibling;
-    }
 
 }

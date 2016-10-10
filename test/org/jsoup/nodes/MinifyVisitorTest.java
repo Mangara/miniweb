@@ -96,6 +96,8 @@ public class MinifyVisitorTest {
         testBodySnippet("<div>\n<span>1</span>\n</div>", "<div><span>1</span></div>");
         testBodySnippet("   <div>\n     <span>1</span>\n   </div>", "<div><span>1</span></div>");
         testBodySnippet("<div> <span>1</span> </div>", "<div><span>1</span></div>");
+        
+        testBodySnippet("<div> <span>1</span> </div> <button>T</button>", "<div><span>1</span></div> <button>T</button>");
     }
 
     @Test
@@ -467,7 +469,7 @@ public class MinifyVisitorTest {
     @Test
     public void testCollapsingWhitespace() {
         String input = "<p>foo</p>    <p> bar</p>\n\n   \n\t\t  <div title=\"quz\">baz  </div>";
-        String output = "<p>foo</p><p>bar</p><div title=quz>baz</div>";
+        String output = "<p>foo</p> <p>bar</p> <div title=quz>baz</div>";
         testBodySnippet(input, output);
 
         input = "<p> foo    bar</p>";
@@ -542,8 +544,8 @@ public class MinifyVisitorTest {
                 + "</div>\r\n        </div>\r\n      </div>\r\n    </div>\r\n  </div>\r\n</div>"
                 + "<pre>       \r\nxxxx</pre><span>x</span> <span>Hello</span> <b>billy</b>     \r\n"
                 + "<input type=\"text\">\r\n<textarea></textarea>\r\n<pre></pre>";
-        output = "<script>var x=\"hello\"</script>"
-                + "<style>#foo{color:red}</style>"
+        output = "<script>var x=\"hello\"</script> "
+                + "<style>#foo{color:red}</style> "
                 + "<div><div><div>"
                 + "<div><div><div>"
                 + "<textarea disabled>     this is a textarea </textarea>"
