@@ -24,6 +24,7 @@ import cz.vutbr.web.css.CSSException;
 import cz.vutbr.web.css.StyleSheet;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -56,6 +57,33 @@ import org.jsoup.nodes.MinifyVisitor;
 import org.mozilla.javascript.EvaluatorException;
 
 public class MiniWeb {
+
+    /**
+     * Runs MiniWeb on the given HTML files.
+     *
+     * @param args
+     */
+    public static void main(String[] args) {
+        if (args.length == 0) {
+            // TODO: print usage
+            System.out.println("MiniWeb needs HTML files as arguments to work.");
+            return;
+        }
+
+        List<Path> htmlFiles = new ArrayList<>();
+
+        for (String arg : args) {
+            htmlFiles.add(Paths.get(arg));
+        }
+
+        try {
+            minify(htmlFiles, false);
+        } catch (FileNotFoundException ex) {
+            System.err.println("An error occurred while accessing the files: " + ex);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
 
     /**
      * Minifies the given HTML files and all referenced local CSS and JS files,
