@@ -50,7 +50,7 @@ public class ClassRenamer implements NodeVisitor {
             if (e.hasAttr("class")) {
                 e.classNames(
                         e.classNames().stream()
-                        .map(s -> newNames.get(s))
+                        .map(s -> newNames.getOrDefault(s, s))
                         .collect(Collectors.toSet())
                 );
             }

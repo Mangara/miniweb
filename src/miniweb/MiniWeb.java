@@ -31,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -143,16 +144,34 @@ public class MiniWeb {
     }
 
     private static void minify(Map<Path, Document> htmlFiles, Iterable<Path> cssFiles, Iterable<Path> jsFiles, Map<Path, Path> targets) throws IOException {
-        removeUnreferencedClasses(htmlFiles);
+        Settings settings = findAndParseSettings(htmlFiles.keySet());
 
-        Map<String, String> compressedClassNames = compressClassnames(htmlFiles, cssFiles);
+        removeUnreferencedClasses(htmlFiles, settings);
+
+        Map<String, String> compressedClassNames = compressClassnames(htmlFiles, cssFiles, settings);
 
         writeCompressedHTMLFiles(htmlFiles, compressedClassNames, targets);
         writeCompressedCSSFiles(cssFiles, compressedClassNames, targets);
         writeCompressedJSFiles(jsFiles, compressedClassNames, targets);
     }
 
-    private static void removeUnreferencedClasses(Map<Path, Document> htmlFiles) throws IOException {
+    private static Settings findAndParseSettings(Set<Path> htmlFiles) throws IOException {
+        for (Path htmlFile : htmlFiles) {
+            Path settingsFile = htmlFile.getParent().resolve("miniweb.properties");
+
+            if (Files.exists(settingsFile)) {
+                return Settings.parse(settingsFile);
+            }
+        }
+
+        return new Settings();
+    }
+
+    private static void removeUnreferencedClasses(Map<Path, Document> htmlFiles, Settings settings) throws IOException {
+        if (!settings.isRemoveUnusedClasses()) {
+            return;
+        }
+
         // Remove HTML class attributes that are not referenced by the CSS
         for (Entry<Path, Document> htmlFile : htmlFiles.entrySet()) {
             try {
@@ -167,24 +186,31 @@ public class MiniWeb {
                 Map<Element, Set<String>> referencedByClassFromCSS = ReferencedElementsFinder.getReferencedElements(doc, styles);
 
                 // For each HTML element, remove all class attributes that are not referenced from the CSS
-                ClassCleaner.removeUnreferencedClasses(doc, referencedByClassFromCSS);
+                ClassCleaner.removeUnreferencedClasses(doc, referencedByClassFromCSS, settings.getDontRemove());
             } catch (CSSException ex) {
                 throw new IOException(ex);
             }
         }
     }
 
-    private static Map<String, String> compressClassnames(Map<Path, Document> htmlFiles, Iterable<Path> cssFiles) throws IOException {
+    private static Map<String, String> compressClassnames(Map<Path, Document> htmlFiles, Iterable<Path> cssFiles, Settings settings) throws IOException {
+        if (!settings.isMungeClassNames()) {
+            return Collections.emptyMap();
+        }
+
         // Count how often each class occurs in the combined HTML files
         Map<String, Integer> htmlClassOccurrences = new HashMap<>();
         getAllCSSClasses(htmlFiles, cssFiles).forEach(c -> htmlClassOccurrences.put(c, 0));
         htmlFiles.forEach((path, doc) -> ClassCounter.countClasses(htmlClassOccurrences, doc));
 
         // Optimally compress the classnames, based on their frequencies in the HTML
-        return ClassnameCompressor.compressClassNames(htmlClassOccurrences);
+        return ClassnameCompressor.compressClassNames(htmlClassOccurrences, settings.getDontMunge());
     }
 
     private static Set<String> getAllCSSClasses(Map<Path, Document> htmlFiles, Iterable<Path> cssFiles) throws IOException {
+        Set<Path> unreferencedCSSFiles = new HashSet<>();
+        cssFiles.forEach(unreferencedCSSFiles::add);
+
         List<StyleSheet> styles = new ArrayList<>();
 
         for (Entry<Path, Document> htmlFile : htmlFiles.entrySet()) {
@@ -194,7 +220,19 @@ public class MiniWeb {
 
                 // Find all inline and referenced stylesheets
                 List<Pair<Path, StyleSheet>> stylesheets = StylesheetExtractor.getStylesheets(doc, location.getParent(), location);
-                stylesheets.stream().map(p -> p.getValue()).forEach(styles::add);
+
+                for (Pair<Path, StyleSheet> stylesheet : stylesheets) {
+                    styles.add(stylesheet.getValue());
+                    unreferencedCSSFiles.remove(stylesheet.getKey());
+                }
+            } catch (CSSException ex) {
+                throw new IOException(ex);
+            }
+        }
+
+        for (Path cssFile : unreferencedCSSFiles) {
+            try {
+                styles.add(StylesheetExtractor.parseFile(cssFile));
             } catch (CSSException ex) {
                 throw new IOException(ex);
             }
@@ -242,7 +280,7 @@ public class MiniWeb {
             CssClassRenamer.renameCssClasses(compressedClassNames, stylesheet);
 
             Files.createDirectories(targets.get(cssFile).getParent());
-            
+
             try (BufferedWriter out = Files.newBufferedWriter(targets.get(cssFile))) {
                 for (String aImport : imports) {
                     out.write(aImport);
@@ -267,7 +305,7 @@ public class MiniWeb {
             }
 
             Files.createDirectories(targets.get(jsFile).getParent());
-            
+
             try (BufferedWriter out = Files.newBufferedWriter(targets.get(jsFile))) {
                 try {
                     JavaScriptCompressor compressor = new JavaScriptCompressor(new StringReader(fileContents.toString()), new BasicErrorReporter(jsFile.toString()));
