@@ -15,6 +15,7 @@
  */
 package miniweb.html;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import org.jsoup.nodes.Document;
@@ -26,13 +27,15 @@ import org.jsoup.select.NodeVisitor;
 public class ClassCleaner implements NodeVisitor {
 
     private final Map<Element, Set<String>> referencedByClass;
+    private final Set<String> dontRemove;
 
-    public static void removeUnreferencedClasses(Document doc, Map<Element, Set<String>> referencedByClass) {
-        new NodeTraversor(new ClassCleaner(referencedByClass)).traverse(doc);
+    public static void removeUnreferencedClasses(Document doc, Map<Element, Set<String>> referencedByClass, Set<String> dontRemove) {
+        new NodeTraversor(new ClassCleaner(referencedByClass, dontRemove)).traverse(doc);
     }
 
-    private ClassCleaner(Map<Element, Set<String>> referencedByClass) {
+    private ClassCleaner(Map<Element, Set<String>> referencedByClass, Set<String> dontRemove) {
         this.referencedByClass = referencedByClass;
+        this.dontRemove = dontRemove;
     }
 
     @Override
@@ -41,9 +44,11 @@ public class ClassCleaner implements NodeVisitor {
             Element e = (Element) node;
 
             // Fix classes
-            Set<String> classes = referencedByClass.get(e);
+            Set<String> classes = e.classNames();
+            classes.retainAll(dontRemove);
+            classes.addAll(referencedByClass.getOrDefault(e, Collections.emptySet()));
 
-            if (classes == null) {
+            if (classes.isEmpty()) {
                 e.removeAttr("class");
             } else {
                 e.classNames(classes);

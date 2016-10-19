@@ -29,11 +29,11 @@ public class CssClassRenamer extends RuleSetVisitor {
     public static void renameCssClasses(Map<String, String> newNames, StyleSheet stylesheet) {
         (new CssClassRenamer(newNames)).processStyleSheets(Collections.singletonList(stylesheet));
     }
-    
+
     private CssClassRenamer(Map<String, String> newNames) {
         this.newNames = newNames;
     }
-    
+
     @Override
     void processRuleSet(RuleSet ruleSet) {
         for (CombinedSelector selectorList : ruleSet.getSelectors()) {
@@ -43,19 +43,11 @@ public class CssClassRenamer extends RuleSetVisitor {
                         Selector.ElementClass classSelector = (Selector.ElementClass) part;
 
                         String name = classSelector.getClassName();
-                        String newName = newNames.get(name);
-
-                        if (newName == null) {
-                            if (newNames.values().contains(name)) {
-                                System.err.println("The following classname occurs only in stylesheets (not in the HTML) and conflicts with one of the compressed names:" + name);
-                            }
-                        } else {
-                            classSelector.setClassName(newNames.get(classSelector.getClassName()));
-                        }
+                        classSelector.setClassName(newNames.getOrDefault(name, name));
                     }
                 }
             }
         }
     }
-    
+
 }
