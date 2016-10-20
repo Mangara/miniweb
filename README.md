@@ -38,7 +38,7 @@ As a library:
 ### Contribution guidelines ###
 
 * [Bug reports](https://bitbucket.org/Mangara/miniweb/issues?status=new&status=open) and pull requests are welcome!
-* By submitting a pull request, you assert that you own the rights to any code you contribute and grant me an irrevocable license to publish this code under the current license of this project.
+* By submitting a pull request, you assert that you own the rights to any code you contribute and grant me an irrevocable right to publish this code under the current license of this project.
 
 ### License ###
 
