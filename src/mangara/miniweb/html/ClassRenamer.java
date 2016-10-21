@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package miniweb.html;
+package mangara.miniweb.html;
 
 import cz.vutbr.web.css.CSSException;
 import cz.vutbr.web.css.StyleSheet;
 import java.util.Map;
 import java.util.stream.Collectors;
-import miniweb.css.CSSPrinter;
-import miniweb.css.CssClassRenamer;
-import miniweb.css.StylesheetExtractor;
+import mangara.miniweb.css.CSSPrinter;
+import mangara.miniweb.css.CssClassRenamer;
+import mangara.miniweb.css.StylesheetExtractor;
 import org.jsoup.nodes.DataNode;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

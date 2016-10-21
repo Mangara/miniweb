@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import miniweb.js.BasicErrorReporter;
+import mangara.miniweb.js.BasicErrorReporter;
 import org.jsoup.select.NodeTraversor;
 import org.jsoup.select.NodeVisitor;
 import org.mozilla.javascript.EvaluatorException;
