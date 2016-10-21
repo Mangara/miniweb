@@ -15,6 +15,8 @@
  */
 package miniweb;
 
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.ParameterException;
 import com.yahoo.platform.yui.compressor.CssCompressor;
 import com.yahoo.platform.yui.compressor.JavaScriptCompressor;
 import miniweb.html.ClassRenamer;
@@ -58,31 +60,68 @@ import org.mozilla.javascript.EvaluatorException;
 
 public class MiniWeb {
 
+    public static final int MAJOR_VERSION = 1;
+    public static final int MINOR_VERSION = 0;
+
     /**
-     * Runs MiniWeb on the given HTML files.
+     * Runs MiniWeb with command-line parameters.
      *
      * @param args
      */
     public static void main(String[] args) {
-        if (args.length == 0) {
-            // TODO: print usage
-            System.out.println("MiniWeb needs HTML files as arguments to work.");
+        CommandLineArguments arguments = new CommandLineArguments();
+        JCommander jc;
+
+        try {
+            jc = new JCommander(arguments, args);
+        } catch (ParameterException ex) {
+            System.err.println("Incorrect parameters: " + ex.getMessage());
             return;
         }
 
-        List<Path> htmlFiles = new ArrayList<>();
-
-        for (String arg : args) {
-            htmlFiles.add(Paths.get(arg));
+        if (arguments.isHelp()) {
+            jc.setProgramName("java -jar MiniWeb.jar");
+            jc.usage();
+            return;
+        } else if (arguments.isVersion()) {
+            printVersionInfo();
+            return;
         }
 
+        List<Path> htmlFiles = arguments.getHtmlFiles().stream()
+                .map(f -> Paths.get(f))
+                .collect(Collectors.toList());
+
+        Settings settings = new Settings();
+        settings.setRemoveUnusedClasses(!arguments.isDontRemove());
+        settings.setMungeClassNames(!arguments.isDontMunge());
+        
         try {
-            minify(htmlFiles, false);
+            if (arguments.getOutputdir() != null || arguments.getInputdir() != null) {
+                if (arguments.getOutputdir() != null && arguments.getInputdir() != null) {
+                    Path inputDir = Paths.get(arguments.getInputdir());
+                    Path outputDir = Paths.get(arguments.getOutputdir());
+
+                    minify(htmlFiles, inputDir, outputDir, settings);
+                } else {
+                    System.err.println("Options inputdir and outputdir can only be used in combination.");
+                }
+            } else {
+                minify(htmlFiles, arguments.isReplace(), settings);
+            }
         } catch (FileNotFoundException ex) {
             System.err.println("An error occurred while accessing the files: " + ex);
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+    }
+
+    private static void printVersionInfo() {
+        System.out.printf("MiniWeb %d.%d%n"
+                + "Copyright (c) 2016 Sander Verdonschot%n"
+                + "License Apache v2%n"
+                + "This is free software. You are free to change and redistribute it.%n",
+                MAJOR_VERSION, MINOR_VERSION);
     }
 
     /**
@@ -96,9 +135,13 @@ public class MiniWeb {
      * @throws java.io.IOException
      */
     public static void minify(Iterable<Path> htmlFiles, boolean replaceFiles) throws IOException {
+        minify(htmlFiles, replaceFiles, new Settings());
+    }
+    
+    private static void minify(Iterable<Path> htmlFiles, boolean replaceFiles, Settings settings) throws IOException {
         Map<Path, Document> docs = parseAll(htmlFiles);
         Pair<Set<Path>, Set<Path>> externalFiles = findReferencedLocalCssAndJsFiles(docs);
-        minify(docs, externalFiles.getKey(), externalFiles.getValue(), getTargets(htmlFiles, externalFiles.getKey(), externalFiles.getValue(), replaceFiles));
+        minify(docs, externalFiles.getKey(), externalFiles.getValue(), getTargets(htmlFiles, externalFiles.getKey(), externalFiles.getValue(), replaceFiles), settings);
     }
 
     /**
@@ -116,9 +159,13 @@ public class MiniWeb {
      * @throws java.io.IOException
      */
     public static void minify(Iterable<Path> htmlFiles, Path baseDir, Path outputDir) throws IOException {
+        minify(htmlFiles, baseDir, outputDir, new Settings());
+    }
+    
+    private static void minify(Iterable<Path> htmlFiles, Path baseDir, Path outputDir, Settings settings) throws IOException {
         Map<Path, Document> docs = parseAll(htmlFiles);
         Pair<Set<Path>, Set<Path>> externalFiles = findReferencedLocalCssAndJsFiles(docs);
-        minify(docs, externalFiles.getKey(), externalFiles.getValue(), getTargets(htmlFiles, externalFiles.getKey(), externalFiles.getValue(), baseDir, outputDir));
+        minify(docs, externalFiles.getKey(), externalFiles.getValue(), getTargets(htmlFiles, externalFiles.getKey(), externalFiles.getValue(), baseDir, outputDir), settings);
     }
 
     /**
@@ -168,11 +215,11 @@ public class MiniWeb {
      */
     public static void minify(Iterable<Path> htmlFiles, Iterable<Path> cssFiles, Iterable<Path> jsFiles, Map<Path, Path> targets) throws IOException {
         Map<Path, Document> docs = parseAll(htmlFiles);
-        minify(docs, cssFiles, jsFiles, targets);
+        minify(docs, cssFiles, jsFiles, targets, new Settings());
     }
 
-    private static void minify(Map<Path, Document> htmlFiles, Iterable<Path> cssFiles, Iterable<Path> jsFiles, Map<Path, Path> targets) throws IOException {
-        Settings settings = findAndParseSettings(htmlFiles.keySet());
+    private static void minify(Map<Path, Document> htmlFiles, Iterable<Path> cssFiles, Iterable<Path> jsFiles, Map<Path, Path> targets, Settings settings) throws IOException {
+        findAndUpdateSettings(htmlFiles.keySet(), settings);
 
         removeUnreferencedClasses(htmlFiles, settings);
 
@@ -183,16 +230,25 @@ public class MiniWeb {
         writeCompressedJSFiles(jsFiles, compressedClassNames, targets);
     }
 
-    private static Settings findAndParseSettings(Set<Path> htmlFiles) throws IOException {
+    private static void findAndUpdateSettings(Set<Path> htmlFiles, Settings settings) throws IOException {
+        Settings parsedSettings = null;
+
         for (Path htmlFile : htmlFiles) {
             Path settingsFile = htmlFile.getParent().resolve("miniweb.properties");
 
             if (Files.exists(settingsFile)) {
-                return Settings.parse(settingsFile);
+                parsedSettings = Settings.parse(settingsFile);
+                break;
             }
         }
 
-        return new Settings();
+        if (parsedSettings != null) {
+            settings.setRemoveUnusedClasses(settings.isRemoveUnusedClasses() && parsedSettings.isRemoveUnusedClasses());
+            settings.setDontRemove(parsedSettings.getDontRemove());
+
+            settings.setMungeClassNames(settings.isMungeClassNames() && parsedSettings.isMungeClassNames());
+            settings.setDontMunge(parsedSettings.getDontMunge());
+        }
     }
 
     private static void removeUnreferencedClasses(Map<Path, Document> htmlFiles, Settings settings) throws IOException {
