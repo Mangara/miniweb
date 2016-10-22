@@ -28,7 +28,7 @@ public class CommandLineArguments {
     private boolean version = false;
 
     // Files
-    @Parameter(description = "HTML files", required = true)
+    @Parameter(description = "HTML files")
     private List<String> htmlFiles = new ArrayList<>();
 
     // Options
