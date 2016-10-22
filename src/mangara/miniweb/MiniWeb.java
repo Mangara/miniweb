@@ -17,46 +17,20 @@ package mangara.miniweb;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
-import com.yahoo.platform.yui.compressor.CssCompressor;
-import com.yahoo.platform.yui.compressor.JavaScriptCompressor;
-import mangara.miniweb.html.ClassRenamer;
-import mangara.miniweb.html.ClassCounter;
-import mangara.miniweb.html.ClassCleaner;
-import cz.vutbr.web.css.CSSException;
-import cz.vutbr.web.css.StyleSheet;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javafx.util.Pair;
-import mangara.miniweb.css.CSSPrinter;
-import mangara.miniweb.css.ClassFinder;
-import mangara.miniweb.css.CssClassRenamer;
-import mangara.miniweb.css.ReferencedElementsFinder;
-import mangara.miniweb.css.StylesheetExtractor;
-import mangara.miniweb.js.BasicErrorReporter;
-import mangara.miniweb.js.JSClassRenamer;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.nodes.MinifyVisitor;
-import org.mozilla.javascript.EvaluatorException;
 
 public class MiniWeb {
 
