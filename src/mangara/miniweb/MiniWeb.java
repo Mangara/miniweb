@@ -79,7 +79,7 @@ public class MiniWeb {
             return;
         }
 
-        if (arguments.isHelp()) {
+        if (arguments.isHelp() || arguments.getHtmlFiles().isEmpty()) {
             jc.setProgramName("java -jar MiniWeb.jar");
             jc.usage();
             return;
