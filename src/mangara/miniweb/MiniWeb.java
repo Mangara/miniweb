@@ -63,7 +63,7 @@ public class MiniWeb {
         }
 
         List<Path> htmlFiles = arguments.getHtmlFiles().stream()
-                .map(f -> Paths.get(f))
+                .map(f -> Paths.get(f).toAbsolutePath())
                 .collect(Collectors.toList());
 
         Settings settings = new Settings();
@@ -73,8 +73,8 @@ public class MiniWeb {
         try {
             if (arguments.getOutputdir() != null || arguments.getInputdir() != null) {
                 if (arguments.getOutputdir() != null && arguments.getInputdir() != null) {
-                    Path inputDir = Paths.get(arguments.getInputdir());
-                    Path outputDir = Paths.get(arguments.getOutputdir());
+                    Path inputDir = Paths.get(arguments.getInputdir()).toAbsolutePath();
+                    Path outputDir = Paths.get(arguments.getOutputdir()).toAbsolutePath();
 
                     minify(htmlFiles, inputDir, outputDir, settings);
                 } else {
@@ -115,7 +115,7 @@ public class MiniWeb {
     private static void minify(Iterable<Path> htmlFiles, boolean replaceFiles, Settings settings) throws IOException {
         Map<Path, Document> docs = parseAll(htmlFiles);
         Pair<Set<Path>, Set<Path>> externalFiles = findReferencedLocalCssAndJsFiles(docs);
-        Minifier.minify(docs, externalFiles.getKey(), externalFiles.getValue(), MiniWeb.getTargets(htmlFiles, externalFiles.getKey(), externalFiles.getValue(), replaceFiles), settings);
+        Minifier.minify(docs, externalFiles.getKey(), externalFiles.getValue(), MiniWeb.getTargets(docs.keySet(), externalFiles.getKey(), externalFiles.getValue(), replaceFiles), settings);
     }
 
     /**
@@ -139,7 +139,7 @@ public class MiniWeb {
     private static void minify(Iterable<Path> htmlFiles, Path baseDir, Path outputDir, Settings settings) throws IOException {
         Map<Path, Document> docs = parseAll(htmlFiles);
         Pair<Set<Path>, Set<Path>> externalFiles = findReferencedLocalCssAndJsFiles(docs);
-        Minifier.minify(docs, externalFiles.getKey(), externalFiles.getValue(), MiniWeb.getTargets(htmlFiles, externalFiles.getKey(), externalFiles.getValue(), baseDir, outputDir), settings);
+        Minifier.minify(docs, externalFiles.getKey(), externalFiles.getValue(), MiniWeb.getTargets(docs.keySet(), externalFiles.getKey(), externalFiles.getValue(), baseDir.toAbsolutePath(), outputDir.toAbsolutePath()), settings);
     }
 
     /**
@@ -189,14 +189,37 @@ public class MiniWeb {
      */
     public static void minify(Iterable<Path> htmlFiles, Iterable<Path> cssFiles, Iterable<Path> jsFiles, Map<Path, Path> targets) throws IOException {
         Map<Path, Document> docs = parseAll(htmlFiles);
-        Minifier.minify(docs, cssFiles, jsFiles, targets, new Settings());
+        
+        Set<Path> absoluteCSSFiles = new HashSet<>();
+        Set<Path> absoluteJSFiles = new HashSet<>();
+        Map<Path, Path> absoluteTargets = new HashMap<>(targets.size());
+        
+        for (Path htmlFile : htmlFiles) {
+            absoluteTargets.put(htmlFile.toAbsolutePath(), targets.get(htmlFile).toAbsolutePath());
+        }
+        
+        for (Path cssFile : cssFiles) {
+            Path absolute = cssFile.toAbsolutePath();
+            
+            absoluteCSSFiles.add(absolute);
+            absoluteTargets.put(absolute, targets.get(cssFile).toAbsolutePath());
+        }
+        
+        for (Path jsFile : jsFiles) {
+            Path absolute = jsFile.toAbsolutePath();
+            
+            absoluteJSFiles.add(absolute);
+            absoluteTargets.put(absolute, targets.get(jsFile).toAbsolutePath());
+        }
+        
+        Minifier.minify(docs, absoluteCSSFiles, absoluteJSFiles, absoluteTargets, new Settings());
     }
 
     private static Map<Path, Document> parseAll(Iterable<Path> htmlFiles) throws IOException {
         Map<Path, Document> parsed = new HashMap<>();
 
         for (Path htmlFile : htmlFiles) {
-            parsed.put(htmlFile, Jsoup.parse(htmlFile.toFile(), "UTF-8"));
+            parsed.put(htmlFile.toAbsolutePath(), Jsoup.parse(htmlFile.toFile(), "UTF-8"));
         }
 
         return parsed;
