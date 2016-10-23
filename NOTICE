@@ -1,0 +1,12 @@
+MiniWeb Copyright Notices 
+=======================
+
+   Copyright 2016 Sander Verdonschot <sander.verdonschot at gmail.com>
+
+   MiniWeb uses JCommander (http://jcommander.org/) to parse command-line arguments.
+
+   
+JCommander Copyright Notices 
+============================
+
+   Copyright 2010 Cedric Beust <cedric@beust.com>

@@ -25,7 +25,7 @@
 
         <echo message="Packaging ${application.title} into a single JAR at ${store.jar}"/>
 
-        <delete dir="${store.dir}"/>
+        <delete dir="${store.dir}"/> 
         <mkdir dir="${store.dir}"/>
 
         <jar destfile="${store.dir}/temp_final.jar" filesetmanifest="skip">
@@ -39,7 +39,8 @@
 
         <zip destfile="${store.jar}">
             <zipfileset src="${store.dir}/temp_final.jar"
-            excludes="META-INF/*.SF, META-INF/*.DSA, META-INF/*.RSA"/>
+            excludes="META-INF/*.SF, META-INF/*.DSA, META-INF/*.RSA, META-INF/*.txt"/>
+            <zipfileset dir="." prefix="META-INF" includes="LICENSE, NOTICE, CHANGELOG.md"/>
         </zip>
 
         <delete file="${store.dir}/temp_final.jar"/>
