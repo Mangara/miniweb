@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Test {
+public class TestManual {
 
     private static final String testFolder;
     private static final List<String> testFiles;
