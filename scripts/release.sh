@@ -118,7 +118,7 @@ if [ $opt_final ]
 then
     # Commit these changes
     echo -n "Committing changes... "
-    hg add "$ZIP_FILE"
+    hg add "$RELEASE_FILE"
     hg commit -m "Updated release zip."
 
 
