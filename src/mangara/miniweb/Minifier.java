@@ -26,6 +26,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -163,6 +164,7 @@ public class Minifier {
             Path location = htmlFile.getKey();
             Path target = targets.get(location);
 
+            updateTargetPaths(htmlFile, targets);
             ClassRenamer.renameHtmlClasses(doc, compressedClassNames);
 
             String html = MinifyVisitor.minify(doc);
@@ -177,24 +179,24 @@ public class Minifier {
     private static void writeCompressedCSSFiles(Iterable<Path> cssFiles, Map<String, String> compressedClassNames, Map<Path, Path> targets) throws IOException {
         for (Path cssFile : cssFiles) {
             List<String> imports = collectImportStatements(cssFile);
-            
+
             StyleSheet stylesheet;
-            
+
             try {
                 stylesheet = StylesheetExtractor.parseFile(cssFile);
             } catch (CSSException ex) {
                 System.err.println("Exception while parsing CSS file " + cssFile + ": " + ex.getMessage());
                 continue;
             }
-            
+
             CssClassRenamer.renameCssClasses(compressedClassNames, stylesheet);
-            
+
             Files.createDirectories(targets.get(cssFile).getParent());
             try (final BufferedWriter out = Files.newBufferedWriter(targets.get(cssFile))) {
                 for (String aImport : imports) {
                     out.write(aImport);
                 }
-                
+
                 String css = CSSPrinter.toString(stylesheet);
                 CssCompressor compressor = new CssCompressor(new StringReader(css));
                 compressor.compress(out, -1);
@@ -204,31 +206,31 @@ public class Minifier {
 
     private static List<String> collectImportStatements(Path cssFile) throws IOException {
         List<String> imports = new ArrayList<>();
-        
+
         try (final BufferedReader in = Files.newBufferedReader(cssFile)) {
             for (String line = in.readLine(); line != null; line = in.readLine()) {
                 Matcher match = importPattern.matcher(line);
-                
+
                 while (match.find()) {
                     imports.add(match.group());
                 }
             }
         }
-        
+
         return imports;
     }
 
     private static void writeCompressedJSFiles(Iterable<Path> jsFiles, Map<String, String> compressedClassNames, Map<Path, Path> targets) throws IOException {
         for (Path jsFile : jsFiles) {
             StringBuilder fileContents = new StringBuilder();
-            
+
             try (final BufferedReader in = Files.newBufferedReader(jsFile)) {
                 for (String line = in.readLine(); line != null; line = in.readLine()) {
                     fileContents.append(line);
                     fileContents.append('\n');
                 }
             }
-            
+
             Files.createDirectories(targets.get(jsFile).getParent());
             try (final BufferedWriter out = Files.newBufferedWriter(targets.get(jsFile))) {
                 try {
@@ -240,16 +242,40 @@ public class Minifier {
                             false, //preserveAllSemiColons
                             false //disableOptimizations
                     );
-                    
+
                     out.write(JSClassRenamer.renameHTMLClasses(writer.toString(), compressedClassNames, jsFile.toString()));
                 } catch (EvaluatorException ex) {
                     System.err.println("Exception trying to parse " + jsFile + ": " + ex.getMessage());
                     System.err.println("Copying JavaScript uncompressed.");
-                    
+
                     out.write(fileContents.toString());
                 }
             }
         }
+    }
+
+    private static void updateTargetPaths(Map.Entry<Path, Document> htmlFile, Map<Path, Path> targets) {
+        // Make sure that the minified html file points to the proper minified resources
+        Path baseDir = htmlFile.getKey().getParent();
+        Document doc = htmlFile.getValue();
+
+        doc.select("link[rel=stylesheet]").stream()
+                .filter(e -> !e.attr("href").startsWith("http"))
+                .forEach(e -> {
+                    Path relativePath = Paths.get(e.attr("href"));
+                    Path absolute = baseDir.resolve(relativePath).toAbsolutePath();
+                    Path newRelative = targets.get(htmlFile.getKey()).getParent().relativize(targets.get(absolute));
+                    e.attr("href", newRelative.toString());
+                });
+
+        doc.select("script[src]").stream()
+                .filter(e -> !e.attr("src").startsWith("http"))
+                .forEach(e -> {
+                    Path relativePath = Paths.get(e.attr("src"));
+                    Path absolute = baseDir.resolve(relativePath).toAbsolutePath();
+                    Path newRelative = targets.get(htmlFile.getKey()).getParent().relativize(targets.get(absolute));
+                    e.attr("src", newRelative.toString());
+                });
     }
 
 }
