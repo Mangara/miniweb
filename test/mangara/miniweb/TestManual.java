@@ -32,7 +32,8 @@ public class TestManual {
     static {
         //testFolder = "CG-Publy"; testFiles = Arrays.asList("CG-Lab.html");
         //testFolder = "PersonalWebsite"; testFiles = Arrays.asList("index.html", "misc.html", "oldaddress.html", "publications.html", "teaching.html");
-        testFolder = "ColorZebra"; testFiles = Arrays.asList("html/index.html");
+        //testFolder = "ColorZebra"; testFiles = Arrays.asList("html/index.html");
+        testFolder = "CCCG"; testFiles = Arrays.asList("index.html", "papers.html");
     }
 
     private static final Path inputDir = Paths.get("testInputs/" + testFolder);
@@ -43,7 +44,9 @@ public class TestManual {
      * @throws java.io.IOException
      */
     public static void main(String[] args) throws IOException {
-        clearFolder(outputDir);
+        if (Files.exists(outputDir)) {
+            clearFolder(outputDir);
+        }
 
         List<Path> inputs = new ArrayList<>();
 

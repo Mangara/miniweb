@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html> 
+    <head>
+        <title>Accepted Papers</title>
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" type="text/css" href="main.css">
+        <noscript>
+            <style>
+                body {
+                    background-image: url("images/background-min.png");
+                }
+            </style>
+        </noscript>
+
+        <style>
+            #paper-list {
+                padding-left: 1em;
+                list-style: disc;
+            }
+            #paper-list>li {
+                margin: 1em 0;
+            }
+            .title {
+                display: block;
+                font-style: italic;
+                cursor: pointer;
+            }
+            .abstract {
+                background: rgba(220,220,220,0.4);
+                border-radius: 0.25em;
+                padding: 0.25em 0.5em;
+                margin-top: 1em;
+                display: none;
+            }
+            .abstract>p:first-child {
+                margin-top: 0;
+            }
+        </style>
+        
+        <script>
+            // Toggles abstract. Input: .abstract
+            function toggleAbstract(abstract) {
+                abstract.slideToggle(500);
+
+                // Render the math in here, if necessary
+                if (abstract.hasClass("tex2jax_ignore")) {
+                    abstract.removeClass("tex2jax_ignore");
+                    MathJax.Hub.Queue(["Typeset", MathJax.Hub, abstract.get(0)]);
+                }
+            }
+
+            window.addEventListener('DOMContentLoaded', function() {
+                (function($) {
+                    $(document).ready(function() {
+                        // Add click-behaviour to toggle elements
+                        $('.title').click(function () {
+                            toggleAbstract($(this).parent().children('.abstract'));
+                        });
+                    });
+                })(jQuery);
+            });
+        </script>
+
+        <!-- External libraries -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js" defer></script>
+        <script src="main.js" defer></script>
+        <script type="text/javascript" async
+            src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_CHTML">
+        </script>
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({
+                tex2jax: {
+                    inlineMath: [['$','$'], ['\\(','\\)']],
+                    processEscapes: true
+                }
+            });
+        </script>
+    </head>
+    <body>
+        <header class="float">
+            <div id="dlcont">
+                <span id="days">July 26-28</span>, <span id="year">2017</span><br>
+                <span id="university">Carleton University</span><br>
+                <span id="city">Ottawa, Ontario</span>
+            </div>
+            <h1><a href="index.html">CCCG 2017</a></h1>
+            <span id="subtitle">29th Canadian Conference on Computational Geometry</span>
+        </header>
+
+        <nav class="float">
+            <ul>
+                <li><a href="index.html#program">Main Page</a>
+            </ul>
+        </nav>
+
+        <section class="float" id="papers">
+            <h2>Accepted Papers</h2>
+
+            <p>Click on the title of a paper to see its abstract.</p>
+            
+            <ul id="paper-list">
+                <li> <span class="title">On the Shortest Separating Cycle</span> <span class="authors"><a href="http://www.cs.uwm.edu/faculty/ad/">Adrian Dumitrescu</a>.</span> <div class="abstract tex2jax_ignore"><p>According to a result of Arkin et al. (2016), given $n$ point pairs in the plane, 
+                there exists a simple polygonal cycle that separates the two points in each pair 
+                to different sides; moreover, a $O(\sqrt{n})$-factor approximation 
+                with respect to the minimum length can be computed in polynomial time. 
+                Here we extend the problem to geometric hypergraphs, 
+                and obtain the following characterization of feasibility. 
+                Given a geometric hypergraph on points in the plane with hyperedges of size at least $2$, 
+                there exists a simple polygonal cycle that separates each hyperedge if and only if the 
+                hypergraph is $2$-colorable.</p>
+
+                <p>We extend the $O(\sqrt{n})$-factor approximation in the length measure as follows: 
+                Given a geometric graph $G=(V,E)$, a separating cycle (if it exists) can be computed 
+                in $O(m+n)$ time, where $|V|=n$, $|E|=m$. 
+                Moreover, a $O(\sqrt{n})$-approximation of the shortest separating cycle can be found 
+                in polynomial time. 
+                Given a geometric graph $G=(V,E)$ in $\mathbb{R}^3$, a separating polyhedron (if it exists) 
+                can be found in $O(m+n)$ time, where $|V|=n$, $|E|=m$. 
+                Moreover, a $O(n^{2/3})$-approximation of a separating polyhedron of minimum perimeter 
+                can be found in polynomial time.</p></div>
+                
+                <li> <span class="title">Bottleneck Bichromatic Full Steiner Trees</span> <span class="authors"><span><a href="http://www.sce.ac.il/wp/abuaa1/">A. Karim Abu-Affash</a>, Sujoy Bhore, <a href="http://www.cs.bgu.ac.il/~carmip/">Paz Carmi</a> and Dibyayan Chakraborty</span>.</span>  <div class="abstract tex2jax_ignore"><p>Given two sets of points in the plane, Q of n (terminal) points and S of m (Steiner) points, where each of Q and S contains bichromatic points (red and blue points), a full bichromatic Steiner tree is a Steiner tree in which all points of Q are leaves 
+                and each edge of the tree is bichromatic (i.e., connects a red and a blue point). 
+                In the bottleneck bichromatic full Steiner tree (BBFST) problem, the goal is to compute a bichromatic full Steiner tree T, such that the length of the longest edge in T is minimized. In k-BBFST problem, the goal is to find a bichromatic full Steiner tree T with at most $k\le m$ Steiner points from S, such that the length of the longest edge in T is minimized. 
+                In this paper, we present an $O((n+m)\log^2 m)$ time algorithm that solves the BBFST problem. Moreover, we show that k-BBFST problem is NP-hard and we give a polynomial-time 9-approximation algorithm for the problem.</p></div>
+                
+                <li> <span class="title">Upward order-preserving 8-grid drawings of binary trees</span> <span class="authors"><a href="http://www.cs.uwaterloo.ca/~biedl">Therese Biedl</a>.</span>  <div class="abstract tex2jax_ignore"><p>This paper concerns upward order-preserving straight-line drawings of binary trees with the additional constraint that all edges must be routed along edges of the 
+                8-grid (i.e., horizontal, vertical, diagonal) or some subset thereof. We give an algorithm that creates such drawings of width $O(\log^2 n)$, while the previous best result were drawings of width $O(n^{0.48})$. If only some of the grid-lines are allowed to be used, then the algorithm gives (with minor modifications) the same upper 
+                bounds for the {/,|,\}-grid and the {|,\,—}-grid. On the other hand, in the {/,\,— }-grid sometimes $\Omega(\sqrt{n/\log n})$ width is required.</p></div>
+                
+                <li> <span class="title">Rep-cubes: Unfolding and Dissection of Cubes</span> <span class="authors"><span>Dawei Xu, Takashi Horiyama and Ryuhei Uehara</span>.</span>  <div class="abstract tex2jax_ignore"><p>Last year, a new notion of rep-cube was proposed. A rep-cube is a polyomino that is a net of a cube, and it can be divided into some polyominoes such that each of them can be folded to a cube. This notion was inspired by the notions of polyomino and rep-tile, which were introduced by Solomon W. Golomb. It is proved that there are infinitely many distinct rep-cubes. In this paper, we investigate this new notion and obtain three new results. First, we prove that there does not exist a regular rep-cube of order 3, which solves an open question proposed in the paper. Next, we enumerate all regular rep-cubes of order 2 and 4. For example, there are 33 rep-cubes of order 2; that is, there are 33 dodecominoes that can fold to a cube of size √2 ×√2 ×√2 and each of them can be divided into two nets of unit cube. Similarly, there are 7185 rep-cubes of order 4. 
+                Lastly, we focus on pythagorean triples that consist of three positive integers (a, b, c) with a² + b² = c². For each of these triples, we can consider a rep-cube problem that asks whether a net of a cube of size c×c×c can be divided into two nets of two cubes of size a × a × a and b × b × b. We give a partial answer to this natural open question by dividing into more than two pieces. For any given pythagorean triple (a, b, c), we construct five polyominoes that form a net of a cube of size c×c×c and two nets of two cubes of size a×a×a and b×b×b.</p></div>
+                
+                <li> <span class="title">A General Algorithm for the Maximum Span of Fixed-Angle Chains</span> <span class="authors"><span>David Goering and Ronald Gentle</span>.</span>  <div class="abstract tex2jax_ignore"><p>Fixed angle chains have been used to model protein backbones and other molecular structures. Benbernou and O'Rourke proved several structural theorems for finding the maximum 3D span of fixed-angle chains: the largest distance achievable between the two endpoints. They used their results to develop an algorithm which can find the maximum span of chains with all angles equal to 90 degrees in quadratic time. We use their most general structural theorem to develop a new algorithm that computes the maximum span for any fixed-angle chain and the configuration in which this is achieved. The construction is purely geometric in nature, meaning that it consists of only straight-edge and compass constructions together with some list-keeping. It can be implemented with or without the use of a coordinate system. The algorithm has complexity $O(n^2)$ for any chains with equal fixed angles but arbitrary link lengths (alpha-chains). We do not claim that it runs in polynomial time for all chains but discuss why it will do so for those likely to be used in any modeling application.</p></div>
+                
+                <li> <span class="title">On Guarding Orthogonal Polygons with Bounded Treewidth</span> <span class="authors"><span><a href="http://www.cs.uwaterloo.ca/~biedl">Therese Biedl</a> and <a href="http://www.cs.uwaterloo.ca/~smehrabi">Saeed Mehrabi</a></span>.</span>  <div class="abstract tex2jax_ignore"><p>There exist many variants of guarding an orthogonal polygon in an orthogonal fashion: sometimes a guard can see an entire rectangle, or along a staircase, or along a orthogonal path with at most $k$ bends. In this paper, we study all these guarding models in the special case of orthogonal polygons that have bounded treewidth in some sense. Exploiting algorithms for graphs of bounded treewidth, we show that the problem of finding the minimum number of guards in these models becomes linear-time solvable in polygons of bounded treewidth. </p></div>
+                
+                <li> <span class="title">Sharing a pizza: bisecting masses with two cuts</span> <span class="authors"><span><a href="http://cg.scs.carleton.ca/~lfbarba/">Luis Barba</a> and Patrick Schnider</span>.</span>  <div class="abstract tex2jax_ignore"><p>Assume you have a pizza consisting of four ingredients (e.g. bread, tomatoes, cheese and olives) that you want to share with your friend. You want to do this fairly, meaning that you and your friend should get the same amount of each ingredient. How many times do you need to cut the pizza so that this is possible? We will show that two straight cuts always suffice. More formally, we will show the following extension of the well-known Ham-Sandwich theorem: Given four mass distributions in the plane, they can be simultaneously bisected with two lines. That is, there exist two oriented lines with the following property: let $R^+_1$ be the region of the plane that lies to the positive side of both lines and let $R^+_2$ be the region of the plane that lies to the negative side of both lines. Then $R^+=R^+_1\cup R^+_2$ contains exactly half of each mass distribution. Additionally, we prove that five mass distributions in $\mathbb{R}^3$ can be simultaneously bisected by two planes.</p></div>
+                
+                <li> <span class="title">Discrete Surveillance Tours in Polygonal Domains</span> <span class="authors"><span><a href="http://www.i1.informatik.uni-bonn.de/doku.php?id=staff:elmarlangetepe">Elmar Langetepe</a>, <a href="http://forskning.mah.se/en/id/tsbeni">Bengt J. Nilsson</a> and Eli Packer</span>.</span>  <div class="abstract tex2jax_ignore"><p>The shortest watchman route of a polygon is the shortest closed tour that sees all points of an environment. A reasonable extension of this concept is to require that the tour minimizes the hiding time of the points in the environment, i.e., the maximum time during which any points is not seen by the agent following the tour at unit speed. We call such tours <em>surveillance routes</em>. It is known that the shortest watchman route is a 2-approximation for the best surveillance route in any simple polygon and any metric and that computing the optimum weighted discrete version of the surveillance route in a simple polygon is NP-hard, even for two weight values.</p>
+
+                <p>We show a linear time $3/2$-approximation algorithm for the optimum surveillance tour problem in rectilinear polygons using the $L_1$ metric. In addition, we present a $w_{\max}^{\frac{O(1)}{\sqrt{\log w_{\max}}}}$-approximation algorithm for the optimum weighted discrete surveillance route in a simple polygon with weight values in the range $[1,w_{\max}]$. We observe that the above complexity function grows asymptotically slower than any function $O(\sqrt[k]{w_{\max}})$, for any constant $k$.</p></div>
+                
+                <li> <span class="title">Balanced $k$-Center Clustering When $k$ Is A Constant</span> <span class="authors"><a href="http://www.cse.msu.edu/~huding/">Hu Ding</a>.</span>  <div class="abstract tex2jax_ignore"><p>The problem of constrained $k$-center clustering has attracted significant attention in the past decades. In this paper, we study balanced $k$-center cluster where the size of each cluster is constrained by the given lower and upper bounds. The problem is motivated by the applications in processing and analyzing large-scale data in high dimension. We provide a simple nearly linear time $4$-approximation algorithm when the number of clusters $k$ is assumed to be a constant. Comparing with existing method, our algorithm improves the approximation ratio and significantly reduces the time complexity. Moreover, our result can be easily extended to any metric space. </p></div>
+                
+                <li> <span class="title">Angle-monotone Paths in Non-obtuse Triangulations</span> <span class="authors"><span><a href="https://cs.uwaterloo.ca/~alubiw/Site/Anna_Lubiw.html">Anna Lubiw</a> and <a href="http://cs.smith.edu/~jorourke/">Joseph O'Rourke</a></span>.</span>  <div class="abstract tex2jax_ignore"><p>We reprove a 
+                result of Dehkordi, Frati, and Gudmundsson: 
+                every two vertices in a non-obtuse triangulation of a point set 
+                are connected by an angle-monotone path&mdash;an xy-monotone path 
+                in an appropriately rotated coordinate system. We show that this result cannot be 
+                extended to angle-monotone spanning trees, but can be extended to 
+                boundary-rooted spanning forests. The latter leads to 
+                a conjectural edge-unfolding of sufficiently shallow polyhedral convex caps.</p></div>
+                
+                <li> <span class="title">Packing Boundary-Anchored Rectangles</span> <span class="authors"><span><a href="http://www.cs.uwaterloo.ca/~biedl">Therese Biedl</a>, Ahmad Biniaz, Anil Maheshwari and Saeed Mehrabi</span>.</span>  <div class="abstract tex2jax_ignore"><p>In this paper, we study the <em>boundary-anchored rectangle packing</em> problem in which we are given a set $P$ of points on the boundary of an axis-aligned square $Q$. The goal is to find a set of disjoint axis-aligned rectangles in $Q$ such that each rectangle is anchored at some point in $P$, each point in $P$ is used to anchor at most one rectangle, and the total area of the rectangles is maximized. We show how to solve this problem in linear-time in the number of points of $P$, provided that the points of $P$ are given in sorted order along the boundary of $Q$. The solvability of the general version of this problem, in which the points of $P$ can also lie in the interior of $Q$, in polynomial-time, is still open.</p></div>
+                
+                <li> <span class="title">Beacon Coverage in Orthogonal Polyhedra</span> <span class="authors"><span>José Luis Álvarez-Rebollar, Israel Aldana-Galván, Juan Carlos Catana-Salazar, Jesús Nestaly Marín-Nevárez, Erick Solís-Villarreal, <a href="http://www.matem.unam.mx/urrutia/">Jorge Urrutia</a> and <a href="http://turing.iimas.unam.mx/~velarde/">Carlos Bruno Velarde</a></span>.</span>  <div class="abstract tex2jax_ignore"><p>We consider a variant of the Art Galllery Problem in orthogonal polygons and orthogonal polyhedra using beacons as guards. A beacon is a device that attracts objects toward itself within a given domain. A beacon $b$ covers a point if when a beacon attracts it, it reaches $b$. In this paper, we prove that there exist orthogonal polyhedra that cannot be covered even if we place a beacon at each of its vertices. We also give another example for covering the exterior of an orthogonal polyhedra. 
+                We also study the beacon coverage problem in orthogonal polyhedra, by extending the notion of vertex beacons to edge beacons. We prove that $e/12$ edge beacons 
+                are always sufficecient while $e/21$ edge beacons are sometimes necessary to cover any orthogonal polyhedron. We also prove that $e/6$ edge beacons are always sufficient to cover both the interior and the exterior of any orthogonal polyhedra. </p></div>
+                
+                <li> <span class="title">Snipperclips</span> <span class="authors"><span>Erik Demaine, <a href="http://www.dais.is.tohoku.ac.jp/~mati/">Matias Korman</a>, <a href="http://www.dais.is.tohoku.ac.jp/~andre/">André van Renssen</a> and <a href="http://www.dais.is.tohoku.ac.jp/~marcel/">Marcel Roeloffzen</a></span>.</span>  <div class="abstract tex2jax_ignore"><p>We study <em>Snipperclips</em>, a computer puzzle game whose objective is to create a target shape with two tools. The tools start as constant-complexity shapes, and each tool can snip (i.e., subtract its current shape from) the other tool. We study the computational problem of, given a target shape represented by a polygonal domain of $n$ vertices, is it possible to create it as one of the tools' shape via a sequence of snip operations? If so, how many snip operations are required? We show that a polynomial number of snips suffice for two different variants of the problem.</p></div>
+                
+                <li> <span class="title">Planarity Preserving Augmentation of Topological and Geometric Plane Graphs to Meet Parity Constraints</span> <span class="authors"><span>Israel Aldana Galván, José Luis Álvarez Rebollar, <a href="http://xochitl.matem.unam.mx/~catana">Juan Carlos Catana-Salazar</a>, Erick Solís Villarreal, Jorge Urrutia and Carlos Bruno Velarde Valázquez</span>.</span>  <div class="abstract tex2jax_ignore"><p>We introduce the augmentation problem to meet parity constraints in topological and geometric plane graphs. We show a family of topological plane graphs such that any augmentation leaves at least $2n/5$ vertices without meeting their parity constraints, and a family of geometric plane trees such that any augmentation leaves at least $n/10$ vertices without meeting their parity constraints. We prove that the problem of adding a minimum number of edges to plane geometric graphs is NP-Complete. When the input graph is a topological tree finding a minimum set of edges that needed to be added to meet a parity constrain is solvable in $O(n)$ time and $O(1)$ space. We also establish a lower bound of $11n/15$ on the number of necessary edges to augment a topological graph when the graph is augmentable, and a lower bound of $6n/11$ on the number of necessary edges to augment a geometric tree when the tree is also augmentable.</p></div>
+                
+                <li> <span class="title">On Compatible Triangulations with a Minimum Number of Steiner Points</span> <span class="authors"><span><a href="http://www.cs.uwaterloo.ca/~alubiw/">Anna Lubiw</a> and <a href="https://cs.uwaterloo.ca/~dmondal/">Debajyoti Mondal</a></span>.</span>  <div class="abstract tex2jax_ignore"><p>Two polygons are compatible if they have the same clockwise cyclic ordering of vertices. The definition extends to polygonal regions (polygons with holes) and to triangulations - for every face, the clockwise cyclic order of vertices on the boundary must be the same. It is known that every pair of compatible $n$-vertex polygonal regions can be extended to compatible triangulations by adding $O(n^2)$ Steiner points. Furthermore, $\Omega(n^2)$ Steiner points are sometimes necessary, even for a pair of polygons. Compatible triangulations provide piecewise linear homeomorphisms and are also a crucial first step in morphing planar graph drawings, aka "2D shape animation". An intriguing open question, first posed by Aronov, Seidel, and Souvaine in 1993, is to decide if two compatible polygons have compatible triangulations with at most $k$ Steiner points. In this paper we prove the problem to be NP-hard for polygons with holes. The question remains open for simple polygons.</p></div>
+                
+                <li> <span class="title">Nonoverlapping Grid-aligned Rectangle Placement for High Value Areas</span> <span class="authors"><span>Stephen Rowe, Christopher Valicka, <a href="http://www.cs.sandia.gov/~samitch">Scott Mitchell</a> and Simon Zou</span>.</span>  <div class="abstract tex2jax_ignore"><p>We consider heuristic and optimal solutions to a discrete geometric bin packing problem that arises in a resource allocation problem. An imaging sensor is assigned to collect data over a large area, but some subregions are more valuable than others. To capture these high-value regions with higher fidelity, we can assign some number of non-overlapping rectangular subsets, called “subfootprints.” 
+                The sensor image is partitioned into squares called “chips”, and each chip is further partitioned into pixels. Pixels may have different values. Subfootprints are restricted to rectangular collections of chips, but we are free to choose different rectangle heights, widths, and areas. We seek the optimal arrangement over the family of possible rectangle shapes and sizes.</p>
+
+                <p>We provide a mixed-integer linear program optimization formulation, as well as a greedy heuristic, to solve this problem. For the meta-problem, we have some freedom to align the chip boundaries to different pixels. However, it is too expensive to solve the optimization formulation for each alignment.
+                However, we show that the greedy heuristic can inform which pixel alignments are worth solving the optimization over. We use a variant of $k$-means clustering to group greedy solutions by their transport shape-similarity. For each cluster, we run the optimization problem over the greedy layout with the highest value. In practice this efficiently explores the geometric configuration space,
+                and produces solutions close to the global optimum. We show a contrived example using surveillance of the Mississippi River. Our software is available as open-source in the Github repository “GeoPlace.”</p></div>
+                
+                <li> <span class="title">Exploring Increasing-Chord Paths and Trees</span> <span class="authors"><span>Yeganeh Bahoo, <a href="http://www.cs.umanitoba.ca/~durocher">Stephane Durocher</a>, Sahar Mehrpour and <a href="https://cs.uwaterloo.ca/~dmondal/">Debajyoti Mondal</a></span>.</span>  <div class="abstract tex2jax_ignore"><p>A straight-line drawing Γ of a graph G = (V,E) is a drawing of G in the Euclidean plane, where every vertex in G is mapped to a distinct point, and every edge in G is mapped to a straight line segment between their endpoints. A path P in Γ is called increasing-chord if for every four points (not necessarily vertices) a, b, c, d on P in this order, the Euclidean distance between b, c is at most the Euclidean distance between a, d. A spanning tree T rooted at some vertex r in Γ is called increasing chord if T contains an increasing-chord path from r to every vertex in T. We prove that given a vertex r in a straight-line drawing Γ, it is NP-complete to decide whether Γ contains an increasing-chord spanning tree rooted at r, which answers a question posed by Mastakas and Symvonis. We also shed light on the problem of finding an increasing-chord path between a pair of vertices in Γ, but the computational complexity question remains open.</p></div>
+                
+                <li> <span class="title">Computing 3SAT on a Fold-and-Cut Machine</span> <span class="authors"><span><a href="http://www.drancom.com">Byoungkwon An</a>, <a href="http://www.erikdemaine.org">Erik Demaine</a>, <a href="http://www.martindemaine.org">Martin Demaine</a> and <a href="http://jasonku.mit.edu">Jason Ku</a></span>.</span>  <div class="abstract tex2jax_ignore"><p>This paper introduces a computational model called a <em>fold-and-cut machine</em>
+                which allows as operations simple folds and unfolds, straight-line cuts, and
+                inspection for a “through-hole” (hole through all the layers of paper).
+                We show that a (deterministic) fold-and-cut machine can decide a 3SAT instance
+                with $n$ variables and $m$ clauses using $O(nm+m^2)$ operations
+                (with just one cut and inspection), showing that
+                the machine is at least as powerful as a nondeterministic Turing machine.</p></div>
+                
+                <li> <span class="title">Interference Minimization in k-Connected Wireless Networks</span> <span class="authors"><span><a href="http://www.cs.umanitoba.ca/~durocher">Stephane Durocher</a> and Sahar Mehrpour</span>.</span>  <div class="abstract tex2jax_ignore"><p>Given a set of positions for wireless nodes, the <em>$k$-connected interference minimization</em> problem seeks to assign a transmission radius to each node such that the resulting network is $k$-connected and the maximum interference is minimized. We show there exist sets of $n$ points on the line for which any $k$-connected network has maximum interference $\Omega(\sqrt{kn})$. We present polynomial-time algorithms that assign transmission radii to any given set of $n$ nodes to produce a $k$-connected network with maximum interference $O(\sqrt{kn})$ in one dimension and $O(\min \{ k\sqrt{n}, k\log\lambda \})$ in two dimensions, where $\lambda$ denotes the ratio of the longest to shortest distances between any pair of nodes.</p></div>
+                
+                <li> <span class="title">On the minimum edge size for 2-colorability and the realizability of hypergraphs by axis-parallel rectangles</span> <span class="authors"><a href="http://sites.google.com/site/nirman/">Nirman Kumar</a>.</span>  <div class="abstract tex2jax_ignore"><p>Given a hypergraph $\hypergraph=(\vertA,\edgesA)$ what is the minimum integer $\rcn{\hypergraph}$ such that the sub-hypergraph with edges of size at least $\rcn{\hypergraph}$ are $2$-colorable? We consider the computational problem of finding the smallest such integer for a given hypergraph, and show that it is NP-hard to approximate it to within $\log m$ where $m=\cardin{\edgesA}$. For most geometric hypergraphs, i.e., those defined on a set of $n$ points by intersecting it with some shapes, it is well known that there is a coloring with $2$ colors ‘red’ and ‘blue’ such that any hyperedge containing $c \log n$ points, for some constant $c$, is bi-chromatic, i.e., contains points of both colors. We observe that indeed, for several such hypergraph families, this is the best possible &ndash; i.e., there are some $n$ points where there will always be a hyperedge with $\Omega(\log n)$ points that is mono-chromatic. These results follow from results on the indecomposability of coverings. We also show that a well known hypergraph, used in the literature on indecomposable coverings <em>cannot</em> be realized by axis-parallel rectangles in the plane. This problem was mentioned in a paper of Pach. et. al. on indecomposable coverings.</p></div>
+                
+                <li> <span class="title">Power domination on triangular grids</span> <span class="authors"><span>Prosenjit Bose, Claire Pennarun and <a href="http://cglab.ca/~sander/">Sander Verdonschot</a></span>.</span>  <div class="abstract tex2jax_ignore"><p>The concept of <em>power domination</em> emerged from the problem of monitoring electrical systems. Given a graph $G$ and a set $S \subseteq V(G)$, a vertex $v$ is said to be <em>monitored</em> if either $v$ is a neighbor of $S$, or there is a vertex $u \in N(v)$ such that $v$ is the only non-monitored neighbor of $u$. The <em>power domination number</em> of a graph is then minimum size of a set $S$ such that this process monitors every vertex of the graph.
+                We here show that the power domination number of a triangular grid $T_k$ with hexagonal-shape border of length $k-1$ is exactly $\big\lceil \dfrac{k}{3} \big\rceil$.</p></div>
+                
+                <li> <span class="title">Data Structures for Frechet Queries in Trajectory Data</span> <span class="authors"><span><a href="https://www.win.tue.nl/~mdberg/">Mark de Berg</a>, <a href="https://www.win.tue.nl/~amehrabi/">Ali D. Mehrabi</a> and <a href="https://www.win.tue.nl/~tophelde/">Tim Ophelders</a></span>.</span>  <div class="abstract tex2jax_ignore"><p>Let T be a trajectory in the plane, represented as a polyline
+                with $n$ edges. We show how to preprocess T into a data structure such that for
+                any horizontal query segment Q in the plane and a subtrajectory between two vertices of T, one can quickly determine the Frechet distance between
+                Q and that subtrajectory. We provide data structures for these queries that need $O(n^2\log^2 n)$ preprocessing time, $O(n^2\log^2 n)$ space, and $O(\log^2 n)$ query time. If we are interested only in the Frechet distance between the complete trajectory T and a horizontal query segment Q, we can answer these queries in $O(\log^2 n)$ time using only $O(n^2)$ space.</p></div>
+                
+                <li> <span class="title">Minimum Enclosing Circle Problem with Base Point</span> <span class="authors"><span>Binay Bhattacharya and Lily Li</span>.</span>  <div class="abstract tex2jax_ignore"><p>This article presents a linear time algorithm to solve a variant of the minimum enclosing circle (MEC) problem. The inputs are a point set $S$ of size $n$, and a point $b$ in the plane called the free point. Our goal is to locate a circle center $o∗$ such that the maximum distance of all points in $S$ to $o∗$ divided by the distance from $o∗$ to $b$ is minimized. The original investigation by Qiu et al. found an $O(n \log n)$ algorithm using the furthest point Voronoi diagram of the point set $S$. Our approach is based on Meggido’s $O(n)$ algorithm for solving the standard problem minimum enclosing circle. We extend our technique to solve in linear time similar variants of the MEC problem where the free point is replaced with other geometric objects such as a free line, a free line segment, and a set of free points.</p></div>
+                
+                <li> <span class="title">Discretized Approaches to Schematization</span> <span class="authors"><span>Maarten Löffler and Wouter Meulemans</span>.</span>  <div class="abstract tex2jax_ignore"><p>For both the Fréchet distance and the symmetric difference, we show that finding the simple polygon $S$ restricted to a grid that best resembles a simple polygon $P$ is NP-complete, even if: (1) we require that $S$ and $P$ have equal area; (2) we require turns to occur in a specified sequence for the Fréchet distance; (3) we permit $S$ to have holes for the symmetric difference.</p></div>
+                
+                <li> <span class="title">Covering Points: Minimizing the Maximum Depth</span> <span class="authors"><span><a href="http://www.isical.ac.in/~nandysc">Subhas Nandy</a>, <a href="https://sites.google.com/site/panditsupantha/">Supantha Pandit</a> and Sasanka Roy</span>.</span>  <div class="abstract tex2jax_ignore"><p>We study a variation of the geometric set cover problem. Let $P$ be a set of points and $T$ be a set of objects in the plane. We find a cover $T'\subseteq T$ such that each point is covered by $T'$ and the depth of $T'$ is minimum. By <em>depth</em> of a cover $T'$, we mean the maximum number of objects in $T'$ which contain a point in $P$. We prove this problem to be NP-complete in $I\!\!R^2$ where the objects are unit squares or unit disks. More precisely, we show that it is NP-complete to decide whether this problem has a cover of depth 1. We present an $O(n\log n)$ time algorithm for the problem where the points are on a real line and objects are unweighted intervals. For weighted intervals, this problem can be solved in 
+                $O(n^2\log n)$ time.</p></div>
+                
+                <li> <span class="title">Monochromatic Matching in Bicolored Point Set</span> <span class="authors"><span><a href="http://www.sce.ac.il/wp/abuaa1/">A. Karim Abu-Affash</a>, <a href="http://www.cs.bgu.ac.il/~carmip/">Paz Carmi</a> and Sujoy Bhore</span>.</span>  <div class="abstract tex2jax_ignore"><p>Motivated by networks interplay, we consider the monochromatic matching problem in bicolored point set, where the goal is to compute two bottleneck plane matchings of the red and the blue points separately, such that number of crossings between their edges is minimized. That is, given a bicolored set $P$ of $n$ red and $m$ blue points in the plane, where $n$ and $m$ are even, the goal is to compute a plane matching $M_R$ of the red points and a plane matching $M_B$ of the blue points that minimize the number of crossing between $M_R$ and $M_B$ as well as the longest edge in $M_R \cup M_B$.</p>
+
+                <p>In this paper, we give asymptotically tight bound on the number of crossings between $M_R$ and $M_B$ when the points of $P$ are in convex position. Moreover, we present an algorithm that computes bottleneck plane matchings $M_R$ and $M_B$, such that there are no crossings between $M_R$ and $M_B$, if such matchings exist. 
+                For points in general position, we present a polynomial-time approximation algorithm that computes two plane matchings with linear number of crossings between them.</p></div>
+                
+                <li> <span class="title">Common Development of Prisms, Anti-Prisms, Tetrahedra, and Wedges</span> <span class="authors"><span>Amartya Shankha Biswas and <a href="http://erikdemaine.org/">Erik Demaine</a></span>.</span>  <div class="abstract tex2jax_ignore"><p>We investigate the problem of finding common developments of multiple polyhedra.
+                We construct an uncountably infinite family of unfoldings which can be folded in to twelve distinct convex solids.
+                This seems to be the first studied uncountable family of common developments.
+                An additional useful property of our development is its ability to tile the plane.</p></div>
+                
+                <li> <span class="title">2D Closest Pair Problem: A Closer Look</span> <span class="authors"><span>Ovidiu Daescu and Ka Yaw Teo</span>.</span>  <div class="abstract tex2jax_ignore"><p>A closer look is taken at the well-known divide-and-conquer algorithm for finding the closest pair of a set of points in the plane under the Euclidean distance. An argument is made that it is sufficient, and sometimes necessary, to check only the next three points following the current point associated with the $y$-sorted array in the combine phase of the algorithm.</p></div>
+                
+                <li> <span class="title">On the Planar Spherical Depth and Lens Depth</span> <span class="authors"><span>Rasoul Shahsavarifar and David Bremner</span>.</span>  <div class="abstract tex2jax_ignore"><p>For a distribution function $F$ on $\mathbb{R}^d$ and a point $q\in \mathbb{R}^d$, the <em>spherical depth</em> $\SphD(q;F)$ (<em>lens depth</em> $\LD(q;F)$) is defined to be the probability that a point $q$ is contained inside a random closed hyperball (hyperlens) obtained from a pair of points from $F$. The spherical depth $\SphD(q;S)$ (<em>lens depth</em> $\LD(q;S)$) is also defined for an arbitrary data set $S\subseteq \mathbb{R}^d$ and $q\in \mathbb{R}^d$. This definition is based on counting all of the closed hyperballs (hyperlenses), obtained from pairs of points in $S$, that contain $q$. The straightforward algorithm for computing the spherical depth (lens depth) in dimension $d$ takes $O(dn^2)$. The main result of this paper is an optimal algorithm for computing the bivariate spherical depth. The algorithm takes $O(n \log n)$ time. By reducing the problem of \textit{Element Uniqueness}, we prove that computing the spherical depth (lens depth) requires $\Omega(n \log n)$ time. Some geometric properties of spherical depth (lens depth) are also investigated in this paper. These properties indicate that <em>simplicial depth</em> ($\SD$) is linearly bounded by spherical depth and lens depth (in particular, $\LD\geq \SphD\geq \frac{2}{3}SD$). To illustrate these relationships, some experimental results are provided. In these experiments on random point sets, the bounds of $\SphD\geq 2\SD$ and $\LD \geq 1.2\SphD$ are achieved.</p></div>
+                
+                <li> <span class="title">Range Assignment of Base-Stations Maximizing Coverage Area without Interference</span> <span class="authors"><span><a href="https://sites.google.com/site/acharyyankush/">Ankush Acharyya</a>, <a href="http://drona.csa.iisc.ernet.in/~minati/">Minati De</a> and <a href="http://www.isical.ac.in/~nandysc/">Subhas C. Nandy</a></span>.</span>  <div class="abstract tex2jax_ignore"><p>This note is a study on the problem of maximizing the sum of area of non-overlapping disks 
+                centered at a set of given points in $I\!\!R^2$. If the points of $P$ are placed on 
+                a straight-line, then the problem is solvable in polynomial time. Eppstein [CCCG, pages 260&ndash;265, 2016] proposed an 
+                $O(n^\frac{3}{2})$ time algorithm, for maximizing the sum of radii of non-overlapping balls or disks 
+                when the points are arbitrarily placed on a plane. We show that the solution to
+                this problem gives a $2$-approximation solution for the area maximization problem by 
+                non-overlapping disks or balls. We also present simulation results. Finally, we propose a PTAS for our problem.</p></div>
+                
+                <li> <span class="title">The most-likely skyline problem for stochastic points</span> <span class="authors"><span>Akash Agrawal, Yuan Li, Jie Xue and <a href="http://www.cs.umn.edu/~janardan">Ravi Janardan</a></span>.</span>  <div class="abstract tex2jax_ignore"><p>For a set $O$ of $n$ points in $\mathbb{R}^d$, a skyline is a subset of points where no point is dominated by any other point of $O$. Suppose that each point $o_i$ in $O$ has an associated probability of existence $p_i$ in $(0,1]$. The problem of computing the skyline with the maximum probability of occurrence is considered. It is shown that in $\mathbb{R}^d$, $d \geq 3$, the problem is NP-hard and that the desired skyline cannot even be well-approximated in polynomial-time unless P=NP. In $\mathbb{R}^2$, an optimal $O(n \log n)$-time and $O(n)$-space algorithm is given.</p></div>
+                
+                <li> <span class="title">Guarding Monotone Polygons with Half-Guards</span> <span class="authors"><span><a href="http://cs.utsa.edu/~gibson">Matt Gibson</a>, <a href="http://www.uwosh.edu/faculty_staff/krohne">Erik Krohn</a> and Matthew Rayford</span>.</span>  <div class="abstract tex2jax_ignore"><p>We consider a variant of the art gallery problem where all guards are limited to seeing to the right inside a monotone polygon. We provide a polynomial-time 4-approximation algorithm for a version of the problem where we wish to point guard the vertices of the polygon. We then extend this algorithm and provide a $O(1)$-approximation to point guard the boundary of the polygon and ultimately the entire polygon.</p></div>
+                
+                <li> <span class="title">Nearest-Neighbor Search Under Uncertainty</span> <span class="authors"><span>Boris Aronov, John Iacono and Khadijeh Sheikhan</span>.</span>  <div class="abstract tex2jax_ignore"><p>We study the problem of Nearest-Neighbor Searching under locational uncertainty. Here, an uncertain query or site consists of a set of points in the plane, and their distance is defined as distance between the two farthest points within them. In $L_\infty$ metric, we present an algorithm with $O(n\log^2n+s)$ preprocessing time, $O(n\log n)$ space, and $O(\log^2n+k)$ query time, where $s$ is the total number of site points, $n$ is the number of sites, and $k$ is the size of the query. We also propose a $\sqrt{2}$-approximation algorithm for the $L_2$ version of the problem.</p></div>
+                
+                <li> <span class="title">Shattering an Embedded Triangulation by Voronoi Faces</span> <span class="authors"><span><a href="http://cs.umd.edu/~akader/">Ahmed Abdelkader</a>, <a href="http://www.cs.utexas.edu/~bajaj/cvc/index.shtml">Chandrajit Bajaj</a>, <a href="http://msebeida.net">Mohamed Ebeida</a> and <a href="http://www.cs.sandia.gov/~samitch">Scott Mitchell</a></span>.</span>  <div class="abstract tex2jax_ignore"><p>We show how to place Voronoi seeds such that a given triangulation is the union of some unweighted Voronoi faces. The input is a 2D triangulation embedded in 3D, and we generate a 3D Voronoi diagram. The seeds are co-spherical around each vertex, co-circular around each edge, and paired across each triangle. The Voronoi faces common to the seeds of such arrangements yield a mesh conforming to the input triangulation. If the input contains sharp edge-edge, edge-triangle, or triangle-triangle angles, then additional seeds are necessary, analogous to refinement into nonobtuse triangles. Finally, we propose local optimizations that reduce the number of seeds and the number of output facets.</p></div>
+                
+                <li> <span class="title">Dominating Set of Rectangles Intersecting an Inclined Line</span> <span class="authors"><a href="https://sites.google.com/site/panditsupantha/">Supantha Pandit</a>.</span>  <div class="abstract tex2jax_ignore"><p>We study the minimum dominating set problem using axis-parallel rectangles and unit squares on the plane. These geometric objects are constrained to be intersected by a line which makes an angle with the $x$-axis. For axis-parallel rectangles, we prove that this problem is NP-complete. When the objects are axis-parallel unit square, we give a polynomial time algorithm. For unit squares which touches the inclined line at a single point from either side of the inclined line, we give an $O(n\log n)$ time algorithm.</p></div>
+                
+                <li> <span class="title">Supporting Ruled Polygons</span> <span class="authors"><span>Nicholas Cavanna, <a href="https://people.eecs.berkeley.edu/~khoury/">Marc Khoury</a> and <a href="http://donsheehy.net/">Donald Sheehy</a></span>.</span>  <div class="abstract tex2jax_ignore"><p>We explore several problems related to ruled polygons. Given a ruling of a polygon $P$, we consider the Reeb graph of $P$ induced by the ruling. We define the Reeb complexity of $P$, which roughly equates to the minimum number of points necessary to support $P$. We give asymptotically tight bounds on the Reeb complexity that are also tight up to a small additive constant. When restricted to the set of parallel rulings, we show that the Reeb complexity can be computed in polynomial time.</p></div>
+                
+                <li> <span class="title">Optimal Orientation of Symmetric Directional Antennas</span> <span class="authors"><span>Amirmahdi Ahmadinejad, Fatemeh Baharifard, Khadijeh Sheikhan and <a href="http://sharif.edu/~zarrabi/">Hamid Zarrabi-Zadeh</a></span>.</span>  <div class="abstract tex2jax_ignore"><p>In this paper‎, ‎we study the problem of optimal orientation of directional antennas in the symmetric model of communication‎. ‎We propose an optimal algorithm to find the minimum radius and the orientation of antennas‎, ‎when antennas are placed on a set $P$ of points on a line‎, ‎and each antenna has angle less than $\pi$‎. We show that the connected graph induced by this optimal orientation is a 7-hop spanner‎ with respect to the unit disk graph of $P$‎. ‎Moreover‎, ‎we present a deterministic local routing algorithm that is guaranteed to find a path between any pair of antennas in the communication graph whose number of edges is at most 7 times the number of edges between that pair in the unit disk graph‎.</p></div>
+                
+                <li> <span class="title">A problem on track runners</span> <span class="authors"><span><a href="http://www.cs.uwm.edu/faculty/ad/">Adrian Dumitrescu</a> and <a href="http://csabatoth.org/">Csaba Toth</a></span>.</span>  <div class="abstract tex2jax_ignore"><p>Consider the circle $C$ of length 1 and a circular arc $A$ of length $\ell < 1$. 
+                It is shown that there exists $k=k(\ell) \in \mathbb{N}$, and a schedule for $k$ runners along the circle with $k$ distinct but constant positive speeds so that at any time $t \geq 0$, at least one of the $k$ runners is <em>not</em> in $A$.</p></div>
+                
+                <li> <span class="title">Visibility Testing and Counting for Uncertain Segments</span> <span class="authors"><span>Mohammad Ali Abam, Sharareh Alipour, Mohammad Ghodsi and Mohammad Mahdian</span>.</span>  <div class="abstract tex2jax_ignore"><p>We study two well-known planar visibility problems, namely visibility testing and visibility counting, in a model where there is uncertainty about the input data. The standard versions of these problems are defined as follows: we are given a set $S$ of $n$ segments in $\mathbb{R}^2$, and we would like to preprocess $S$ so that we can quickly answer queries of the form: is the given query segment $s \in S$ visible from the given query point $q \in \mathbb{R}^2$ (for visibility testing) and how many segments in $S$ are visible from the given query point $q \in \mathbb{R}^2$ (for visibility counting).</p>
+
+                <p>In our model of uncertainty, each segment may or may not exist, and if it does, it is located in one of finitely many possible locations, given by a discrete probability distribution. In this setting, the probabilistic visibility testing problem (PVTP, for short) is to compute the probability that a given segment $s \in S$ is visible from a given query point $q$ and the probabilistic visibility counting problem (PVCP, for short) is to compute the expected number of segments in $S$ that are visible from a query point $q$. 
+                We first show that PVTP is $\#P$-complete. In the special case where uncertainty is only about whether segments exist and not about their location, we show that the problem is solvable in $O(n\log n)$ time. Using this, together with a few old tricks, we can show that one can preprocess $S$ in $O(n^5\log n)$ time into a data structure of size $O(n^4)$ so that PVTP queries can be answered in $O(\log n)$ time. Our algorithm for PVTP combined with linearity of expectation gives an $O(n^2\log n)$ time algorithm for PVCP. We also give a faster 2-approximation algorithm for this problem. </p></div>
+            </ul>
+        </section>
+    </body>
+</html>
