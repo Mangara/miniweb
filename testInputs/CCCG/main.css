@@ -1,0 +1,241 @@
+@import url(https://fonts.googleapis.com/css?family=Montserrat|Lora|Lora:700);
+
+body {
+    font-family: Lora, serif;
+    font-size: 112.5%; /* 18px if the browser default is 16px */
+    line-height: 140%;
+    margin: 0;
+    background-attachment: fixed;
+}
+
+header {
+    display: block;
+    margin: 1em 4em 0 4em;
+}
+
+header.float {
+    padding-top: 0;
+}
+
+h1 {
+    margin: 0;
+    font-family: Montserrat;
+    font-size: 3em;
+    line-height: 1.5em;
+    color: #dc3c39;
+}
+
+h1>a:visited {
+    color: #dc3c39;
+}
+
+h1>a:hover {
+    text-decoration: none;   
+}
+
+h2 {
+    font-family: Montserrat;
+    margin-top: 0;
+    color: #dc3c39;
+}
+
+h3 {
+    font-family: Montserrat;
+    color: #333;
+    font-size: 1em;
+}
+
+#subtitle {
+    font-family: Montserrat;
+    font-size: 1.5em;
+    color: #333;
+}
+
+#dlcont {
+    float: right;
+    margin-top: 0.67em;
+    font-family: Montserrat;
+    font-size: 1.5em;
+    line-height: 1.1em;
+    color: #333;
+}
+
+#university {
+    color: #dc3c39;
+}
+
+.float {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 0.5em;
+    border: 1px solid #aaa;
+    max-width: 45em;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+nav {
+	display: block;
+	margin: 0.5em 4em;
+	font-family: Montserrat;
+}
+
+nav.float {
+	padding-top: 0;
+    padding-bottom: 0;
+}
+
+nav>ul {
+	margin: 0;
+	padding: 0;
+	text-align: center;
+}
+
+nav li {
+	display: inline-block;
+	padding: 0 1em;
+}
+
+a {
+	color: #dc3c39;
+	text-decoration: none;
+}
+
+a:visited {
+	color: #900000;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+section {
+    display: block;
+    margin: 2em 4em;
+}
+
+ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+p {
+    margin-bottom: 0;
+}
+
+td {
+    padding: 0;
+}
+
+td+td {
+    padding-left: 1em;
+}
+
+td.center {
+    text-align: center;
+}
+
+th {
+    text-align: left;
+    font-weight: normal;
+    font-style: italic;
+}
+
+th.spaced {
+    padding: 0 1em;
+}
+
+#news>ul {
+    margin-bottom: 0;
+}
+
+#travel>iframe {
+    margin-top: 1em;
+}
+
+#sponsorlist {
+    text-align: center;
+}
+
+.sponsor {
+    margin: 1em;
+    height: 8em;
+}
+
+.sponsor.wide {
+    height: 4em;
+}
+
+@media all and (max-width: 60em) {
+    .float {
+        margin-left: 4em;
+        margin-right: 4em;
+    }
+}
+
+@media all and (max-width: 50em) {
+    body {
+        font-size: 100%;
+    }
+    
+    .float {
+        margin-left: 2em;
+        margin-right: 2em;
+    }
+    
+    section {
+        margin: 1em;
+    }
+    
+    header {
+        margin: 1em 2em 0 2em;
+    }
+    
+    nav {
+        margin: 0.5em;
+    }
+}
+
+@media all and (max-width: 40em) {
+    body {
+        font-size: 90%;
+    }
+    
+    .float {
+        margin-left: 0.5em;
+        margin-right: 0.5em;
+    }
+    
+    section {
+        margin: 0.5em;
+    }
+    
+    header {
+        margin: 0.5em;
+    }
+    
+    header.float {
+        padding: 0 0.5em;
+    }
+    
+    nav {
+        margin: 0.5em;
+    }
+    
+    #dlcont {
+        margin-top: 0.5em;
+    }
+    
+    #city, #subtitle {
+        display: none;
+    }
+}
+
+@media all and (max-width: 31em) {
+    #dlcont {
+        float: none;
+    }
+    
+    header {
+        text-align: center;
+    }
+}
