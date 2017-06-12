@@ -23,7 +23,7 @@ public class JSClassRenamer {
 
     private static final Pattern classNamePattern = Pattern.compile("\\.-?[_a-zA-Z]+[_a-zA-Z0-9-]*");
 
-    public static String renameHTMLClasses(String js, Map<String, String> compressedClassNames, String jsFileName) {
+    public static String renameHTMLClasses(String js, Map<String, String> compressedClassNames) {
         boolean[] inStringLiteral = buildStringLiteralArray(js);
 
         StringBuffer result = new StringBuffer(js.length());

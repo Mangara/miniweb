@@ -243,7 +243,7 @@ public class Minifier {
                             false //disableOptimizations
                     );
 
-                    out.write(JSClassRenamer.renameHTMLClasses(writer.toString(), compressedClassNames, jsFile.toString()));
+                    out.write(JSClassRenamer.renameHTMLClasses(writer.toString(), compressedClassNames));
                 } catch (EvaluatorException ex) {
                     System.err.println("Exception trying to parse " + jsFile + ": " + ex.getMessage());
                     System.err.println("Copying JavaScript uncompressed.");
