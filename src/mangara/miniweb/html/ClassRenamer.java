@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import mangara.miniweb.css.CSSPrinter;
 import mangara.miniweb.css.CssClassRenamer;
 import mangara.miniweb.css.StylesheetExtractor;
+import mangara.miniweb.js.JSClassRenamer;
 import org.jsoup.nodes.DataNode;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -50,8 +51,8 @@ public class ClassRenamer implements NodeVisitor {
             if (e.hasAttr("class")) {
                 e.classNames(
                         e.classNames().stream()
-                        .map(s -> newNames.getOrDefault(s, s))
-                        .collect(Collectors.toSet())
+                                .map(s -> newNames.getOrDefault(s, s))
+                                .collect(Collectors.toSet())
                 );
             }
         } else if (node instanceof DataNode
@@ -65,6 +66,11 @@ public class ClassRenamer implements NodeVisitor {
             } catch (CSSException ex) {
                 throw new InternalError(ex);
             }
+        } else if (node instanceof DataNode
+                && node.parent() instanceof Element
+                && "script".equals(((Element) node.parent()).tagName())) { // Inline JS
+            DataNode dataNode = (DataNode) node;
+            dataNode.setWholeData(JSClassRenamer.renameHTMLClasses(dataNode.getWholeData(), newNames));
         }
     }
 
