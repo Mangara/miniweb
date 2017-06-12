@@ -39,9 +39,9 @@ public class MinifyVisitor implements NodeVisitor {
     private int lastTextWhitespacePos = -1;
     private final static Set<String> DISPLAYED_INLINE_ELEMENTS
             = new HashSet<>(Arrays.asList("img", "textarea", "input", "select",
-                            "button", "object", "q", "iframe", "keygen", 
-                            "progress", "meter"
-                    ));
+                    "button", "object", "q", "iframe", "keygen",
+                    "progress", "meter"
+            ));
 
     public static String minify(Document doc) {
         StringBuilder minified = new StringBuilder();
@@ -66,7 +66,7 @@ public class MinifyVisitor implements NodeVisitor {
         if (node instanceof Comment) {
             // Print nothing
         } else if (node instanceof DataNode) {
-            String data = ((DataNode) node).getWholeData();
+            String data = ((DataNode) node).getWholeData().trim();
             boolean handled = false;
 
             // Compress inline CSS or JS
@@ -76,14 +76,17 @@ public class MinifyVisitor implements NodeVisitor {
                 if (parent.tagName().equals("style")) { // CSS
                     try {
                         // Remove obsolete HTML comments
-                        if (data.trim().startsWith("<!--") && data.trim().endsWith("-->")) {
-                            data = data.trim().substring("<!--".length(), data.length() - "-->".length());
+                        if (data.startsWith("<!--") && data.endsWith("-->")) {
+                            data = data.substring("<!--".length(), data.length() - "-->".length()).trim();
                         }
-                        
-                        CssCompressor compressor = new CssCompressor(new StringReader(data));
-                        StringWriter writer = new StringWriter(data.length());
-                        compressor.compress(writer, -1);
-                        sb.append(writer.getBuffer());
+
+                        if (!data.isEmpty()) {
+                            CssCompressor compressor = new CssCompressor(new StringReader(data));
+                            StringWriter writer = new StringWriter(data.length());
+                            compressor.compress(writer, -1);
+                            sb.append(writer.getBuffer());
+                        }
+
                         handled = true;
                     } catch (IOException ex) {
                         // This should never happen - it is from the compressor reading the input, which is a StringReader.
@@ -92,28 +95,31 @@ public class MinifyVisitor implements NodeVisitor {
                 } else if (parent.tagName().equals("script") && (parent.attr("type").isEmpty() || parent.attr("type").contains("javascript") || parent.attr("type").contains("ecmascript"))) { // JS
                     try {
                         // Remove obsolete HTML comments
-                        if (data.trim().startsWith("<!--") && data.trim().endsWith("-->")) {
-                            data = data.trim().substring("<!--".length(), data.length() - "-->".length());
-                        }
-                        
-                        JavaScriptCompressor compressor = new JavaScriptCompressor(new StringReader(data), new BasicErrorReporter("Embedded <script> tag"));
-                        StringWriter writer = new StringWriter(data.length());
-
-                        compressor.compress(writer,
-                                -1, //linebreakpos
-                                true, //munge
-                                false, //verbose
-                                false, //preserveAllSemiColons
-                                false //disableOptimizations
-                        );
-
-                        String compressedJS = writer.getBuffer().toString();
-
-                        if (compressedJS.endsWith(";")) {
-                            compressedJS = compressedJS.substring(0, compressedJS.length() - 1);
+                        if (data.startsWith("<!--") && data.endsWith("-->")) {
+                            data = data.substring("<!--".length(), data.length() - "-->".length()).trim();
                         }
 
-                        sb.append(compressedJS);
+                        if (!data.isEmpty()) {
+                            JavaScriptCompressor compressor = new JavaScriptCompressor(new StringReader(data), new BasicErrorReporter("Embedded <script> tag"));
+                            StringWriter writer = new StringWriter(data.length());
+
+                            compressor.compress(writer,
+                                    -1, //linebreakpos
+                                    true, //munge
+                                    false, //verbose
+                                    false, //preserveAllSemiColons
+                                    false //disableOptimizations
+                            );
+
+                            String compressedJS = writer.getBuffer().toString();
+
+                            if (compressedJS.endsWith(";")) {
+                                compressedJS = compressedJS.substring(0, compressedJS.length() - 1);
+                            }
+
+                            sb.append(compressedJS);
+                        }
+
                         handled = true;
                     } catch (IOException ex) {
                         // This should never happen - it is from the compressor reading the input, which is a StringReader.
@@ -125,7 +131,7 @@ public class MinifyVisitor implements NodeVisitor {
             }
 
             if (!handled) {
-                sb.append(data.trim());
+                sb.append(data);
             }
         } else if (node instanceof DocumentType) {
             // No special printing necessary
@@ -143,7 +149,7 @@ public class MinifyVisitor implements NodeVisitor {
             }
 
             sb.append(">");
-            
+
             if (e.tag().isBlock() && !e.tagName().equals("s")) { // <s> is misclassified by JSoup as block
                 textEndsWithWhitespace = true;
                 lastTextWhitespacePos = -1;
