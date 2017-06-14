@@ -139,7 +139,7 @@ public class MiniWeb {
     private static void minify(Iterable<Path> htmlFiles, Path baseDir, Path outputDir, Settings settings) throws IOException {
         Map<Path, Document> docs = parseAll(htmlFiles);
         Pair<Set<Path>, Set<Path>> externalFiles = findReferencedLocalCssAndJsFiles(docs);
-        Minifier.minify(docs, externalFiles.getKey(), externalFiles.getValue(), MiniWeb.getTargets(docs.keySet(), externalFiles.getKey(), externalFiles.getValue(), baseDir.toAbsolutePath(), outputDir.toAbsolutePath()), settings);
+        Minifier.minify(docs, externalFiles.getKey(), externalFiles.getValue(), getTargets(docs.keySet(), externalFiles.getKey(), externalFiles.getValue(), baseDir.toAbsolutePath(), outputDir.toAbsolutePath()), settings);
     }
 
     /**
