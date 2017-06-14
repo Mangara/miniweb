@@ -256,6 +256,12 @@ var Delaunay;
     module.exports = Delaunay;
 })();
 
+var seed = 114;
+function myRandom() {
+    var x = Math.sin(seed++) * 10000;
+    return x - Math.floor(x);
+}
+
 $( document ).ready(function() {
     var side = 300, n = 60;
     
@@ -275,8 +281,8 @@ $( document ).ready(function() {
           i, a, b, x, y;
           
         for(i = 0; i < n; i++) {
-            x = Math.random();
-            y = Math.random();
+            x = myRandom();
+            y = myRandom();
           
             // Create 9 copies, in a 3x3 grid
             for (a = 0; a < 3; a++) {
