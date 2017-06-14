@@ -55,7 +55,7 @@ import org.mozilla.javascript.EvaluatorException;
 
 public class Minifier {
 
-    private static final Pattern importPattern = Pattern.compile("@import [^;]+;");
+    private static final Pattern IMPORT_PATTERN = Pattern.compile("@import [^;]+;");
 
     static void minify(Map<Path, Document> htmlFiles, Iterable<Path> cssFiles, Iterable<Path> jsFiles, Map<Path, Path> targets, Settings settings) throws IOException {
         findAndUpdateSettings(htmlFiles.keySet(), settings);
@@ -69,30 +69,27 @@ public class Minifier {
         writeCompressedJSFiles(jsFiles, compressedClassNames, targets);
     }
 
-    private static void findAndUpdateSettings(Set<Path> htmlFiles, Settings settings) throws IOException {
-        Settings parsedSettings = null;
-
+    private static void findAndUpdateSettings(Set<Path> htmlFiles, Settings settings) {
         for (Path htmlFile : htmlFiles) {
             Path settingsFile = htmlFile.getParent().resolve("miniweb.properties");
 
             if (Files.exists(settingsFile)) {
-                parsedSettings = Settings.parse(settingsFile);
-                break;
+                Settings parsedSettings = Settings.parse(settingsFile);
+
+                if (parsedSettings != null) {
+                    settings.setRemoveUnusedClasses(settings.isRemoveUnusedClasses() && parsedSettings.isRemoveUnusedClasses());
+
+                    Set<String> dontRemove = settings.getDontRemove();
+                    dontRemove.addAll(parsedSettings.getDontRemove());
+                    settings.setDontRemove(dontRemove);
+
+                    settings.setMungeClassNames(settings.isMungeClassNames() && parsedSettings.isMungeClassNames());
+
+                    Set<String> dontMunge = settings.getDontMunge();
+                    dontMunge.addAll(parsedSettings.getDontMunge());
+                    settings.setDontMunge(dontMunge);
+                }
             }
-        }
-
-        if (parsedSettings != null) {
-            settings.setRemoveUnusedClasses(settings.isRemoveUnusedClasses() && parsedSettings.isRemoveUnusedClasses());
-            
-            Set<String> dontRemove = settings.getDontRemove();
-            dontRemove.addAll(parsedSettings.getDontRemove());
-            settings.setDontRemove(dontRemove);
-
-            settings.setMungeClassNames(settings.isMungeClassNames() && parsedSettings.isMungeClassNames());
-            
-            Set<String> dontMunge = settings.getDontMunge();
-            dontMunge.addAll(parsedSettings.getDontMunge());
-            settings.setDontMunge(dontMunge);
         }
     }
 
@@ -215,7 +212,7 @@ public class Minifier {
 
         try (final BufferedReader in = Files.newBufferedReader(cssFile)) {
             for (String line = in.readLine(); line != null; line = in.readLine()) {
-                Matcher match = importPattern.matcher(line);
+                Matcher match = IMPORT_PATTERN.matcher(line);
 
                 while (match.find()) {
                     imports.add(match.group());
