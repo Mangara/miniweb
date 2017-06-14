@@ -42,7 +42,7 @@ public class Settings {
     }
 
     public Set<String> getDontRemove() {
-        return dontRemove;
+        return new LinkedHashSet<>(dontRemove);
     }
 
     public void setDontRemove(Collection<? extends String> dontRemove) {
@@ -59,7 +59,7 @@ public class Settings {
     }
 
     public Set<String> getDontMunge() {
-        return dontMunge;
+        return new LinkedHashSet<>(dontMunge);
     }
 
     public void setDontMunge(Collection<? extends String> dontMunge) {
@@ -87,11 +87,11 @@ public class Settings {
 
         // remove
         settings.setRemoveUnusedClasses(Boolean.parseBoolean(props.getProperty("removeUnusedClasses", Boolean.toString(settings.removeUnusedClasses))));
-        settings.setDontRemove(Arrays.asList(props.getProperty("dontRemove", "").split("\\s*")));
+        settings.setDontRemove(Arrays.asList(props.getProperty("dontRemove", "").split("\\s+")));
 
         // munge
         settings.setMungeClassNames(Boolean.parseBoolean(props.getProperty("mungeClassNames", Boolean.toString(settings.mungeClassNames))));
-        settings.setDontMunge(Arrays.asList(props.getProperty("dontMunge", "").split("\\s*")));
+        settings.setDontMunge(Arrays.asList(props.getProperty("dontMunge", "").split("\\s+")));
 
         return settings;
     }
