@@ -67,22 +67,32 @@ public class Settings {
         this.dontMunge.addAll(dontMunge);
     }
 
-    public static Settings parse(Path settingsFile) throws IOException {
+    /**
+     * Attempts to parse the given settings file. Returns null in case of an
+     * error.
+     *
+     * @param settingsFile
+     * @return
+     */
+    public static Settings parse(Path settingsFile) {
         Settings settings = new Settings();
         Properties props = new Properties();
 
         try (BufferedReader in = Files.newBufferedReader(settingsFile)) {
             props.load(in);
+        } catch (IOException ex) {
+            System.err.println("Could not parse settings file at \"" + settingsFile + "\": " + ex.getLocalizedMessage());
+            return null;
         }
 
         // remove
         settings.setRemoveUnusedClasses(Boolean.parseBoolean(props.getProperty("removeUnusedClasses", Boolean.toString(settings.removeUnusedClasses))));
         settings.setDontRemove(Arrays.asList(props.getProperty("dontRemove", "").split("\\s*")));
-        
+
         // munge
         settings.setMungeClassNames(Boolean.parseBoolean(props.getProperty("mungeClassNames", Boolean.toString(settings.mungeClassNames))));
         settings.setDontMunge(Arrays.asList(props.getProperty("dontMunge", "").split("\\s*")));
-        
+
         return settings;
     }
 
