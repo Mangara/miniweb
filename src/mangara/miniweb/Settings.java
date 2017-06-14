@@ -28,10 +28,10 @@ import java.util.Set;
 public class Settings {
 
     private boolean removeUnusedClasses = true;
-    private Set<String> dontRemove = new LinkedHashSet<>();
+    private final Set<String> dontRemove = new LinkedHashSet<>();
 
     private boolean mungeClassNames = true;
-    private Set<String> dontMunge = new LinkedHashSet<>();
+    private final Set<String> dontMunge = new LinkedHashSet<>();
 
     public boolean isRemoveUnusedClasses() {
         return removeUnusedClasses;
@@ -77,11 +77,11 @@ public class Settings {
 
         // remove
         settings.setRemoveUnusedClasses(Boolean.parseBoolean(props.getProperty("removeUnusedClasses", Boolean.toString(settings.removeUnusedClasses))));
-        settings.setDontRemove(Arrays.asList(props.getProperty("dontRemove", "").split(",\\s*")));
+        settings.setDontRemove(Arrays.asList(props.getProperty("dontRemove", "").split("\\s*")));
         
         // munge
         settings.setMungeClassNames(Boolean.parseBoolean(props.getProperty("mungeClassNames", Boolean.toString(settings.mungeClassNames))));
-        settings.setDontMunge(Arrays.asList(props.getProperty("dontMunge", "").split("\\s*,\\s*")));
+        settings.setDontMunge(Arrays.asList(props.getProperty("dontMunge", "").split("\\s*")));
         
         return settings;
     }
