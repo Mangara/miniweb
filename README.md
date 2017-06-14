@@ -22,10 +22,10 @@ As a library:
 * If you need to exclude specific class names from deletion or munging, add a file called `miniweb.properties` in a directory that contains one of your HTML files, and give it the following text:
 
         removeUnusedClasses = [true or false]
-        dontRemove = [a comma-separated list of class names]
+        dontRemove = [a space-separated list of class names]
 
         mungeClassNames = [true or false]
-        dontMunge = [a comma-separated list of class names]
+        dontMunge = [a space-separated list of class names]
 
     For example, the following prevents the class names `selected` and `test` from being shortened and prevents `test` from being removed:
 
@@ -33,7 +33,7 @@ As a library:
         dontRemove = test
 
         mungeClassNames = true
-        dontMunge = test, selected
+        dontMunge = test selected
 
 ### Contribution guidelines ###
 
@@ -42,7 +42,7 @@ As a library:
 
 ### License ###
 
-MiniWeb is © 2016 [Sander Verdonschot](http://cglab.ca/~sander/) and is released under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+MiniWeb is © 2016-2017 [Sander Verdonschot](http://cglab.ca/~sander/) and is released under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
 MiniWeb includes distributable versions of the following libraries and their dependencies:
 
