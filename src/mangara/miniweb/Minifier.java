@@ -83,10 +83,16 @@ public class Minifier {
 
         if (parsedSettings != null) {
             settings.setRemoveUnusedClasses(settings.isRemoveUnusedClasses() && parsedSettings.isRemoveUnusedClasses());
-            settings.setDontRemove(parsedSettings.getDontRemove());
+            
+            Set<String> dontRemove = settings.getDontRemove();
+            dontRemove.addAll(parsedSettings.getDontRemove());
+            settings.setDontRemove(dontRemove);
 
             settings.setMungeClassNames(settings.isMungeClassNames() && parsedSettings.isMungeClassNames());
-            settings.setDontMunge(parsedSettings.getDontMunge());
+            
+            Set<String> dontMunge = settings.getDontMunge();
+            dontMunge.addAll(parsedSettings.getDontMunge());
+            settings.setDontMunge(dontMunge);
         }
     }
 
