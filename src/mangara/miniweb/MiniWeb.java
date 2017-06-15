@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Sander Verdonschot <sander.verdonschot at gmail.com>.
+ * Copyright 2016-2017 Sander Verdonschot <sander.verdonschot at gmail.com>.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ import org.jsoup.nodes.Document;
 public class MiniWeb {
 
     public static final int MAJOR_VERSION = 1;
-    public static final int MINOR_VERSION = 0;
+    public static final int MINOR_VERSION = 1;
 
     /**
      * Runs MiniWeb with command-line parameters.
