@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Sander Verdonschot <sander.verdonschot at gmail.com>.
+ * Copyright 2016-2017 Sander Verdonschot <sander.verdonschot at gmail.com>.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import cz.vutbr.web.css.CSSFactory;
 import cz.vutbr.web.css.MediaSpecNone;
 import cz.vutbr.web.css.NetworkProcessor;
 import cz.vutbr.web.css.StyleSheet;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -74,30 +75,52 @@ public class StylesheetExtractor {
         }
     };
 
-    public static StyleSheet parseString(String css) throws CSSException {
+    public static StyleSheet parseString(String css) {
         try {
             return CSSFactory.parseString(css, null, emptyNetworkProcessor);
         } catch (IOException ex) {
             // Should never happen
             throw new InternalError(ex);
+        } catch (CSSException ex) {
+            System.err.printf("Error while parsing inline CSS fragment \"%s\":%n%s", css, ex.getLocalizedMessage());
         }
+        
+        return null;
     }
 
-    public static StyleSheet parseFile(Path cssFile) throws IOException, CSSException {
-        return CSSFactory.parse(cssFile.toUri().toURL(), localNetworkProcessor, "UTF-8");
+    public static StyleSheet parseFile(Path cssFile) throws IOException {
+        try {
+            return CSSFactory.parse(cssFile.toUri().toURL(), localNetworkProcessor, "UTF-8");
+        } catch (FileNotFoundException ex) {
+            System.err.printf("External style sheet \"%s\" not found.%n", cssFile.toString());
+        } catch (CSSException ex) {
+            System.err.printf("Error while parsing external style sheet \"%s\":%n%s", cssFile.toString(), ex.getLocalizedMessage());
+        }
+        
+        return null;
     }
 
-    public static List<Pair<Path, StyleSheet>> getStylesheets(Document doc, Path inputDir, Path input) throws CSSException, IOException {
+    public static List<Pair<Path, StyleSheet>> getStylesheets(Document doc, Path inputDir, Path input) throws IOException {
         List<Pair<Path, StyleSheet>> stylesheets = new ArrayList<>();
 
         // Process inline style blocks
         for (String css : getInlineStyleBlocks(doc)) {
-            stylesheets.add(new Pair<>(null, CSSFactory.parseString(css, input.toUri().toURL(), localNetworkProcessor)));
+            try {
+                stylesheets.add(new Pair<>(null, CSSFactory.parseString(css, input.toUri().toURL(), localNetworkProcessor)));
+            } catch (CSSException ex) {
+                System.err.printf("Error while parsing inline CSS fragment \"%s\" in \"%s\":%n%s", css, input.toString(), ex.getLocalizedMessage());
+            }
         }
 
         // Process external stylesheets
         for (Path cssFile : getExternalStyleSheets(doc)) {
-            stylesheets.add(new Pair<>(cssFile, CSSFactory.parse(inputDir.resolve(cssFile).toUri().toURL(), localNetworkProcessor, "UTF-8")));
+            try {
+                stylesheets.add(new Pair<>(cssFile, CSSFactory.parse(inputDir.resolve(cssFile).toUri().toURL(), localNetworkProcessor, "UTF-8")));
+            } catch (FileNotFoundException ex) {
+                System.err.printf("External style sheet \"%s\" (referenced by \"%s\") not found.%n", cssFile.toString(), input.toString());
+            } catch (CSSException ex) {
+                System.err.printf("Error while parsing external style sheet \"%s\":%n%s", cssFile.toString(), ex.getLocalizedMessage());
+            }
         }
 
         return stylesheets;

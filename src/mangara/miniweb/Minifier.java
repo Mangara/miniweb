@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Sander Verdonschot <sander.verdonschot at gmail.com>.
+ * Copyright 2016-2017 Sander Verdonschot <sander.verdonschot at gmail.com>.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,15 @@ package mangara.miniweb;
 
 import com.yahoo.platform.yui.compressor.CssCompressor;
 import com.yahoo.platform.yui.compressor.JavaScriptCompressor;
-import cz.vutbr.web.css.CSSException;
 import cz.vutbr.web.css.StyleSheet;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -99,18 +100,14 @@ public class Minifier {
         }
 
         for (Map.Entry<Path, Document> htmlFile : htmlFiles.entrySet()) {
-            try {
-                Document doc = htmlFile.getValue();
-                Path location = htmlFile.getKey();
+            Document doc = htmlFile.getValue();
+            Path location = htmlFile.getKey();
 
-                List<Pair<Path, StyleSheet>> stylesheets = StylesheetExtractor.getStylesheets(doc, location.getParent(), location);
-                List<StyleSheet> styles = stylesheets.stream().map((Pair<Path, StyleSheet> p) -> p.getValue()).collect(Collectors.toList());
+            List<Pair<Path, StyleSheet>> stylesheets = StylesheetExtractor.getStylesheets(doc, location.getParent(), location);
+            List<StyleSheet> styles = stylesheets.stream().map((Pair<Path, StyleSheet> p) -> p.getValue()).collect(Collectors.toList());
 
-                Map<Element, Set<String>> referencedByClassFromCSS = ReferencedElementsFinder.getReferencedElements(doc, styles);
-                ClassCleaner.removeUnreferencedClasses(doc, referencedByClassFromCSS, settings.getDontRemove());
-            } catch (CSSException ex) {
-                throw new IOException(ex);
-            }
+            Map<Element, Set<String>> referencedByClassFromCSS = ReferencedElementsFinder.getReferencedElements(doc, styles);
+            ClassCleaner.removeUnreferencedClasses(doc, referencedByClassFromCSS, settings.getDontRemove());
         }
     }
 
@@ -134,27 +131,23 @@ public class Minifier {
         List<StyleSheet> styles = new ArrayList<>();
 
         for (Map.Entry<Path, Document> htmlFile : htmlFiles.entrySet()) {
-            try {
-                Document doc = htmlFile.getValue();
-                Path location = htmlFile.getKey();
+            Document doc = htmlFile.getValue();
+            Path location = htmlFile.getKey();
 
-                // Find all inline and referenced stylesheets
-                List<Pair<Path, StyleSheet>> stylesheets = StylesheetExtractor.getStylesheets(doc, location.getParent(), location);
+            // Find all inline and referenced stylesheets
+            List<Pair<Path, StyleSheet>> stylesheets = StylesheetExtractor.getStylesheets(doc, location.getParent(), location);
 
-                for (Pair<Path, StyleSheet> stylesheet : stylesheets) {
-                    styles.add(stylesheet.getValue());
-                    unreferencedCSSFiles.remove(stylesheet.getKey());
-                }
-            } catch (CSSException ex) {
-                throw new IOException(ex);
+            for (Pair<Path, StyleSheet> stylesheet : stylesheets) {
+                styles.add(stylesheet.getValue());
+                unreferencedCSSFiles.remove(stylesheet.getKey());
             }
         }
 
         for (Path cssFile : unreferencedCSSFiles) {
-            try {
-                styles.add(StylesheetExtractor.parseFile(cssFile));
-            } catch (CSSException ex) {
-                throw new IOException(ex);
+            StyleSheet style = StylesheetExtractor.parseFile(cssFile);
+
+            if (style != null) {
+                styles.add(style);
             }
         }
 
@@ -181,17 +174,14 @@ public class Minifier {
 
     private static void writeCompressedCSSFiles(Iterable<Path> cssFiles, Map<String, String> compressedClassNames, Map<Path, Path> targets) throws IOException {
         for (Path cssFile : cssFiles) {
-            List<String> imports = collectImportStatements(cssFile);
-
-            StyleSheet stylesheet;
-
-            try {
-                stylesheet = StylesheetExtractor.parseFile(cssFile);
-            } catch (CSSException ex) {
-                System.err.println("Exception while parsing CSS file " + cssFile + ": " + ex.getMessage());
+            StyleSheet stylesheet = StylesheetExtractor.parseFile(cssFile);
+            
+            if (stylesheet == null) {
                 continue;
             }
-
+            
+            List<String> imports = collectImportStatements(cssFile);
+            
             CssClassRenamer.renameCssClasses(compressedClassNames, stylesheet);
 
             Files.createDirectories(targets.get(cssFile).getParent());
@@ -232,6 +222,9 @@ public class Minifier {
                     fileContents.append(line);
                     fileContents.append('\n');
                 }
+            } catch (NoSuchFileException|FileNotFoundException ex) {
+                System.err.printf("External JS file \"%s\" not found.%n", jsFile.toString());
+                continue;
             }
 
             Files.createDirectories(targets.get(jsFile).getParent());
