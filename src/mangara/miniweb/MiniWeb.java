@@ -35,7 +35,7 @@ import org.jsoup.nodes.Document;
 public class MiniWeb {
 
     public static final int MAJOR_VERSION = 1;
-    public static final int MINOR_VERSION = 1;
+    public static final int MINOR_VERSION = 2;
 
     /**
      * Runs MiniWeb with command-line parameters.
