@@ -156,12 +156,4 @@ public class PhantomJSIntegrationTest {
         
         ImageIO.write(out, "png", diff.toFile());
     }
-    
-    public static void main(String[] args) {
-        Path p = Paths.get("testInputs/CCCG/index.html");
-        
-        String s = p.toString().replaceAll("\\\\", "-");
-        
-        System.out.println(s);
-    }
 }
