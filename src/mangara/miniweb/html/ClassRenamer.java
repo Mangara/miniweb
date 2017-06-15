@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Sander Verdonschot <sander.verdonschot at gmail.com>.
+ * Copyright 2016-2017 Sander Verdonschot <sander.verdonschot at gmail.com>.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package mangara.miniweb.html;
 
-import cz.vutbr.web.css.CSSException;
 import cz.vutbr.web.css.StyleSheet;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -58,13 +57,12 @@ public class ClassRenamer implements NodeVisitor {
         } else if (node instanceof DataNode
                 && node.parent() instanceof Element
                 && "style".equals(((Element) node.parent()).tagName())) { // Inline CSS
-            try {
-                DataNode dataNode = (DataNode) node;
-                StyleSheet style = StylesheetExtractor.parseString(dataNode.getWholeData());
+            DataNode dataNode = (DataNode) node;
+            StyleSheet style = StylesheetExtractor.parseString(dataNode.getWholeData());
+
+            if (style != null) {
                 CssClassRenamer.renameCssClasses(newNames, style);
                 dataNode.setWholeData(CSSPrinter.toString(style));
-            } catch (CSSException ex) {
-                throw new InternalError(ex);
             }
         } else if (node instanceof DataNode
                 && node.parent() instanceof Element
