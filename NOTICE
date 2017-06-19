@@ -1,7 +1,7 @@
 MiniWeb Copyright Notices 
 =======================
 
-   Copyright 2016 Sander Verdonschot <sander.verdonschot at gmail.com>
+   Copyright 2016-2017 Sander Verdonschot <sander.verdonschot at gmail.com>
 
    MiniWeb uses JCommander (http://jcommander.org/) to parse command-line arguments.
    MiniWeb uses jsoup (https://jsoup.org/) to parse HTML files.
