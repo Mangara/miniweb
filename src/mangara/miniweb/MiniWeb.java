@@ -21,6 +21,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -36,6 +37,8 @@ public class MiniWeb {
 
     public static final int MAJOR_VERSION = 1;
     public static final int MINOR_VERSION = 0;
+
+    private static Settings defaultSettings = new Settings();
 
     /**
      * Runs MiniWeb with command-line parameters.
@@ -99,6 +102,44 @@ public class MiniWeb {
     }
 
     /**
+     * Toggles the removing of classes in the HTML file that do not have
+     * associated rules in any of the CSS files.
+     *
+     * @param removeUnusedClasses
+     */
+    public static void setRemoveUnusedClasses(boolean removeUnusedClasses) {
+        defaultSettings.setRemoveUnusedClasses(removeUnusedClasses);
+    }
+
+    /**
+     * Sets the list of class names that won't be removed from the HTML file,
+     * even if they are not used in any CSS rules.
+     *
+     * @param dontRemove
+     */
+    public void setDontRemove(Collection<? extends String> dontRemove) {
+        defaultSettings.setDontRemove(dontRemove);
+    }
+
+    /**
+     * Toggles the shortening of class names across all relevant files.
+     *
+     * @param mungeClassNames
+     */
+    public void setMungeClassNames(boolean mungeClassNames) {
+        defaultSettings.setMungeClassNames(mungeClassNames);
+    }
+
+    /**
+     * Sets the list of class names that won't be shortened.
+     *
+     * @param dontMunge
+     */
+    public void setDontMunge(Collection<? extends String> dontMunge) {
+        defaultSettings.setDontMunge(dontMunge);
+    }
+
+    /**
      * Minifies the given HTML files and all referenced local CSS and JS files,
      * then replaces the input files with the minified versions (if replaceFiles
      * is true), or writes the minified files to the same location, adding
@@ -109,7 +150,7 @@ public class MiniWeb {
      * @throws java.io.IOException
      */
     public static void minify(Iterable<Path> htmlFiles, boolean replaceFiles) throws IOException {
-        minify(htmlFiles, replaceFiles, new Settings());
+        minify(htmlFiles, replaceFiles, defaultSettings);
     }
 
     private static void minify(Iterable<Path> htmlFiles, boolean replaceFiles, Settings settings) throws IOException {
@@ -133,7 +174,7 @@ public class MiniWeb {
      * @throws java.io.IOException
      */
     public static void minify(Iterable<Path> htmlFiles, Path baseDir, Path outputDir) throws IOException {
-        minify(htmlFiles, baseDir, outputDir, new Settings());
+        minify(htmlFiles, baseDir, outputDir, defaultSettings);
     }
 
     private static void minify(Iterable<Path> htmlFiles, Path baseDir, Path outputDir, Settings settings) throws IOException {
@@ -189,30 +230,30 @@ public class MiniWeb {
      */
     public static void minify(Iterable<Path> htmlFiles, Iterable<Path> cssFiles, Iterable<Path> jsFiles, Map<Path, Path> targets) throws IOException {
         Map<Path, Document> docs = parseAll(htmlFiles);
-        
+
         Set<Path> absoluteCSSFiles = new HashSet<>();
         Set<Path> absoluteJSFiles = new HashSet<>();
         Map<Path, Path> absoluteTargets = new HashMap<>(targets.size());
-        
+
         for (Path htmlFile : htmlFiles) {
             absoluteTargets.put(htmlFile.toAbsolutePath(), targets.get(htmlFile).toAbsolutePath());
         }
-        
+
         for (Path cssFile : cssFiles) {
             Path absolute = cssFile.toAbsolutePath();
-            
+
             absoluteCSSFiles.add(absolute);
             absoluteTargets.put(absolute, targets.get(cssFile).toAbsolutePath());
         }
-        
+
         for (Path jsFile : jsFiles) {
             Path absolute = jsFile.toAbsolutePath();
-            
+
             absoluteJSFiles.add(absolute);
             absoluteTargets.put(absolute, targets.get(jsFile).toAbsolutePath());
         }
-        
-        Minifier.minify(docs, absoluteCSSFiles, absoluteJSFiles, absoluteTargets, new Settings());
+
+        Minifier.minify(docs, absoluteCSSFiles, absoluteJSFiles, absoluteTargets, defaultSettings);
     }
 
     private static Map<Path, Document> parseAll(Iterable<Path> htmlFiles) throws IOException {
