@@ -117,7 +117,7 @@ public class MiniWeb {
      *
      * @param dontRemove
      */
-    public void setDontRemove(Collection<? extends String> dontRemove) {
+    public static void setDontRemove(Collection<? extends String> dontRemove) {
         defaultSettings.setDontRemove(dontRemove);
     }
 
@@ -126,7 +126,7 @@ public class MiniWeb {
      *
      * @param mungeClassNames
      */
-    public void setMungeClassNames(boolean mungeClassNames) {
+    public static void setMungeClassNames(boolean mungeClassNames) {
         defaultSettings.setMungeClassNames(mungeClassNames);
     }
 
@@ -135,7 +135,7 @@ public class MiniWeb {
      *
      * @param dontMunge
      */
-    public void setDontMunge(Collection<? extends String> dontMunge) {
+    public static void setDontMunge(Collection<? extends String> dontMunge) {
         defaultSettings.setDontMunge(dontMunge);
     }
 
