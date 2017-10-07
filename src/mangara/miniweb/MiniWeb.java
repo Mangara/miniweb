@@ -38,7 +38,7 @@ public class MiniWeb {
     public static final int MAJOR_VERSION = 1;
     public static final int MINOR_VERSION = 2;
 
-    private static Settings defaultSettings = new Settings();
+    private static final Settings defaultSettings = new Settings();
 
     /**
      * Runs MiniWeb with command-line parameters.
