@@ -119,6 +119,7 @@ then
     # Commit these changes
     echo -n "Committing changes... "
     hg add "$RELEASE_FILE"
+    hg remove --after
     hg commit -m "Updated release zip."
 
 
