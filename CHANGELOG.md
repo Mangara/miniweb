@@ -1,6 +1,11 @@
 # MiniWeb - Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.2] - 2017-10-07
+
+### Added
+- The MiniWeb settings can now be configured from source code.
+
 ## [1.1] - 2017-06-14
 
 ### Added
