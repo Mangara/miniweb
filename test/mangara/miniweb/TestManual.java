@@ -33,7 +33,8 @@ public class TestManual {
         //testFolder = "CG-Publy"; testFiles = Arrays.asList("CG-Lab.html");
         //testFolder = "PersonalWebsite"; testFiles = Arrays.asList("index.html", "misc.html", "oldaddress.html", "publications.html", "teaching.html");
         //testFolder = "ColorZebra"; testFiles = Arrays.asList("html/index.html");
-        testFolder = "CCCG"; testFiles = Arrays.asList("index.html", "papers.html");
+        testFolder = "ColorZebraEditor"; testFiles = Arrays.asList("index.html");
+        //testFolder = "CCCG"; testFiles = Arrays.asList("index.html", "papers.html");
     }
 
     private static final Path inputDir = Paths.get("testInputs/" + testFolder);

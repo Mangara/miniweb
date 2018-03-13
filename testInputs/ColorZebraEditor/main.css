@@ -1,0 +1,487 @@
+@import url(https://fonts.googleapis.com/css?family=Montserrat|Poly);
+
+body {
+    font-family: Poly;
+    font-size: 112.5%; /* 18px if the browser default is 16px */
+    line-height: 140%;
+    margin: 0;
+}
+
+header {
+    display: block;
+    height: 5em;
+    margin: 0 4em;
+}
+
+h1 {
+    display: inline;
+    margin: 0;
+    font-family: Montserrat;
+    font-size: 2.4em;
+    line-height: 2.1em;
+    color: #222;
+}
+
+h2 {
+    font-family: Montserrat;
+    color: #222;
+    margin: 0;
+}
+
+.subtitle {
+    font-family: Poly;
+    font-style: italic;
+    font-size: 1.2em;
+}
+
+section {
+    display: block;
+}
+
+canvas {
+    width: 100%;
+    border: 1px solid #333;
+    border-width: 1px 0px; /* Turn off left and right borders */
+}
+
+#preview-container {
+    height: 10em;
+    position: sticky;
+    top: 0;
+    padding-top: 0.5em;
+    margin-top: -0.5em;
+    background: white;
+    z-index: 1; /* Above regular elements */
+}
+
+#export {
+    position: sticky;
+    top: 10.5em;
+    background: white;
+    height: 4em;
+    padding-top: 0.5em;
+    margin-top: 1.5em;
+    z-index: 1; /* Above regular elements */
+}
+
+#fixednum-preview-container {
+    height: 4em;
+}
+
+#controls-wrapper {
+    position: relative;
+    top: -4em;
+    margin-bottom: -4em;
+    line-height: 2.5em;
+    padding: 0.75em;
+    text-align: center;
+}
+
+.controls {
+    display: inline-block;
+    padding: 0 0.8em;
+    margin-right: 2em;
+    font-family: Montserrat;
+    color: #222;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 5px;
+}
+
+button, a[download] {
+    cursor: pointer;
+    border: 1px solid #a6a6a6;
+    border-radius: 3px;
+    padding: 0.15em 0.4em;
+    font-family: Montserrat;
+    font-size: 0.85em;
+    color: #222;
+    background: rgba(245,245,245,1);
+    background: -moz-linear-gradient(top, rgba(245,245,245,1) 0%, rgba(221,221,221,1) 100%);
+    background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(245,245,245,1)), color-stop(100%, rgba(221,221,221,1)));
+    background: -webkit-linear-gradient(top, rgba(245,245,245,1) 0%, rgba(221,221,221,1) 100%);
+    background: -o-linear-gradient(top, rgba(245,245,245,1) 0%, rgba(221,221,221,1) 100%);
+    background: -ms-linear-gradient(top, rgba(245,245,245,1) 0%, rgba(221,221,221,1) 100%);
+    background: linear-gradient(to bottom, rgba(245,245,245,1) 0%, rgba(221,221,221,1) 100%);
+    -ms-filter: "progid:DXImageTransform.Microsoft.gradient( startColorstr=#f5f5f5, endColorstr=#dddddd, GradientType=0 );"
+}
+
+button:hover, a[download]:hover {
+    border: 1px solid #666;
+}
+
+button:active, a[download]:active {
+    background: rgba(221,221,221,1);
+    background: -moz-linear-gradient(top, rgba(221,221,221,1) 0%, rgba(245,245,245,1) 100%);
+    background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(221,221,221,1)), color-stop(100%, rgba(245,245,245,1)));
+    background: -webkit-linear-gradient(top, rgba(221,221,221,1) 0%, rgba(245,245,245,1) 100%);
+    background: -o-linear-gradient(top, rgba(221,221,221,1) 0%, rgba(245,245,245,1) 100%);
+    background: -ms-linear-gradient(top, rgba(221,221,221,1) 0%, rgba(245,245,245,1) 100%);
+    background: linear-gradient(to bottom, rgba(221,221,221,1) 0%, rgba(245,245,245,1) 100%);
+    -ms-filter: "progid:DXImageTransform.Microsoft.gradient( startColorstr=#dddddd, endColorstr=#f5f5f5, GradientType=0 );"
+}
+
+button:disabled, a[download]:disabled {
+    color: #aaa;
+    border: 1px solid #ddd;
+}
+
+a[download] {
+    text-decoration: none;
+}
+
+input, select, textarea {
+    padding: 0.1em;
+    font-family: Montserrat;
+    font-size: 0.85em;
+    color: #222;
+    text-align: right;
+    background: white;
+    border: 1px solid #eee;
+    border-radius: 3px;
+}
+
+input {
+    font-size: 0.95em;
+    text-align: right;
+}
+
+#numcolors {
+    width: 3.5em;
+}
+
+#colormaps {
+    margin: 1em 0;
+    padding: 1em;
+    text-align: center;
+}
+
+#colormaps>button {
+    width: 20%;
+    height: 4.5em;
+    border: 1px solid #eee;
+    border-radius: 0.3em;
+    margin: 1em 1.5%;
+    vertical-align: text-bottom;
+    background-size: 100% 1px;
+    background-repeat: repeat-y;
+    -webkit-transition: height 40ms linear, margin 40ms linear;
+    -moz-transition: height 40ms linear, margin 40ms linear;
+    -o-transition: height 40ms linear, margin 40ms linear;
+    transition: height 40ms linear, margin 40ms linear;
+}
+
+#colormaps>button:hover, #colormaps>button:focus {
+    height: 5em;
+    margin: 0.75em 1.5%;
+}
+
+#colormaps>.selected {
+    height: 5em;
+    margin: 0.75em 1.5%;
+    border: 1px solid #333;
+}
+
+#colormaps>.inverted {
+    transform: scaleX(-1);
+}
+
+#settings-container {
+    padding: 0.5em 4em;
+    border: 1px solid #333;
+    border-width: 1px 0px;
+    overflow: hidden;
+}
+
+#settings {
+    /* display: none; */
+}
+
+#settings-toggle {
+    cursor: pointer;
+}
+
+.control {
+    margin: 1em 4em;
+    float: left;
+}
+
+.control-point {
+    cursor: pointer;
+    text-align: center;
+    line-height: 100%;
+    width: 15em;
+    margin: 0.3em 0.5em;
+    padding: 0.5em 1em;
+    border-radius: 5px;
+    border: 1px solid #eee;
+    -webkit-transition: width 40ms linear, margin 40ms linear;
+    -moz-transition: width 40ms linear, margin 40ms linear;
+    -o-transition: width 40ms linear, margin 40ms linear;
+    transition: width 40ms linear, margin 40ms linear;
+}
+
+.control-point:hover, .selected {
+    border: 1px solid #333;
+    width: 16em;
+    margin: 0.3em 0;
+}
+
+.control-point > input[type="number"] {
+    width: 3.5em;
+    margin: 0 0.25em;
+}
+
+/* Make Firefox's number inputs work like Chrome's */
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+input[type="number"]:hover,
+input[type="number"]:focus {
+    -moz-appearance: number-input;
+}
+
+#lightness-container {
+    margin: 0.75em 0;
+}
+
+#lightness {
+    width: 15em;
+}
+
+#ab-container {
+    position: relative;
+}
+
+#abBackground {
+    width: 14em;
+    height: 14em;
+    position: absolute;
+    left: 0.25em;
+    border: none;
+    border-radius: 3px;
+    z-index: -1;
+}
+
+#abControl {
+    cursor: pointer;
+    width: 14em;
+    height: 14em;
+    position: absolute;
+    left: 0.25em;
+    border: 1px solid #eeeeee;
+    border-radius: 3px;
+}
+
+/* Slider stylings, based on styling from http://danielstern.ca/range.css/ */
+input[type=range].slider {
+  -webkit-appearance: none;
+  width: 100%;
+  margin: 0;
+  border: 0px solid black;
+}
+input[type=range].slider::-webkit-slider-runnable-track {
+  cursor: pointer;
+  width: 100%;
+  height: 2em;
+  background: linear-gradient(to right, black 0.5em, white 14.5em);
+  border: 1px solid #eeeeee;
+  border-radius: 3px;
+}
+input[type=range].slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  cursor: pointer;
+  height: 2.65em;
+  width: 0;
+  margin-top: -0.4em;
+  border: 0.5em solid #222;
+  border-left: 0.5em solid transparent;
+  border-right: 0.5em solid transparent;
+}
+input[type=range].slider::-moz-range-track {
+  cursor: pointer;
+  width: 100%;
+  height: 2em;
+  background: linear-gradient(to right, black 0.5em, white 14.5em);
+  border: 1px solid #eeeeee;
+  border-radius: 3px;
+}
+input[type=range].slider::-moz-range-thumb {
+  cursor: pointer;
+  height: 2em;
+  width: 0;
+  margin-top: -0.5em;
+  border: 0.5em solid #222;
+  border-left: 0.5em solid transparent;
+  border-right: 0.5em solid transparent;
+  border-radius: 0;
+  background: transparent;
+}
+input[type=range].slider::-ms-track {
+  cursor: pointer;
+  width: 100%;
+  height: 2em;
+  background: linear-gradient(to right, black 0.5em, white 14.5em);
+  border: 1px solid #eeeeee;
+  border-radius: 3px;
+}
+input[type=range].slider::-ms-thumb {
+  cursor: pointer;
+  margin: 0;
+  height: 1.8em;
+  width: 0px;
+  border: 0.5em solid #222;
+  border-left: 0.5em solid transparent;
+  border-right: 0.5em solid transparent;
+}
+
+#acknowledgments {
+    margin-top: 2em;
+    font-size: 0.75em;
+    line-height: 140%;
+    color: #222;
+    text-align: center;
+}
+
+#acknowledgments a {
+    color: #444;
+}
+
+.ack-column {
+    float: left;
+    width: 42%;
+    margin-left: 5%;
+}
+
+.ack-column>p>em {
+    font-weight: bold;
+    font-style: normal;
+}
+
+.social {
+    height: 2em;
+    margin-left: 1em;
+    vertical-align: middle;
+}
+
+@media all and (max-width: 64em) {
+    body {
+        font-size: 100%;
+    }
+    
+    #subtitle-part-2 {
+        display: none;
+    }
+    
+    #fixednum-preview-container {
+        margin-top: 1.5em;
+    }
+    
+    #colormaps {
+        height: 20em;
+        position: relative;
+    }
+    
+    #colormaps>button {
+        position: absolute;
+        width: 40%;
+    }
+
+    #Glow, #Sunrise {
+        top: 0em;
+    }
+    
+    #Fern, #Lake {
+        top: 6.5em;
+    }
+    
+    #Sky, #Twilight {
+        top: 13em;
+    }
+    
+    #Dawn, #Water {
+        top: 19.5em;
+    }
+    
+    #Glow, #Fern, #Sky, #Water {
+        left: 6%;
+    }
+    
+    #Sunrise, #Lake, #Twilight, #Dawn {
+        left: 52.5%;
+    }
+}
+
+@media all and (max-width: 42em) {
+    body {
+        font-size: 90%;
+    }
+    
+    header {
+        margin: 0;
+        text-align: center;
+    }
+    
+    .subtitle {
+        display: none;
+    }
+    
+    #fixednum-preview-container {
+        height: 6em;
+    }
+    
+    #controls-wrapper {
+        position: relative;
+        top: -6em;
+        margin-bottom: -6em;
+        line-height: 2.45em;
+        padding: 0.5em;
+        text-align: center;
+    }
+
+    .controls {
+        display: block;
+        width: 18em;
+        margin: 0 auto;
+    }
+    
+    #num-controls {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+    
+    #dl-controls {
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+    }
+    
+    .ack-column {
+        float: none;
+        width: 50%;
+        margin: 0 auto;
+    }
+    
+    .ack-column+.ack-column {
+        margin-top: 2em;
+    }
+}
+
+/* Material design icon styles */
+/* Rules for sizing the icon. */
+.material-icons.md-18 { font-size: 18px; }
+.material-icons.md-24 { font-size: 24px; }
+.material-icons.md-36 { font-size: 36px; }
+.material-icons.md-48 { font-size: 48px; }
+
+/* Rules for using icons as black on a light background. */
+.material-icons.md-dark { color: rgba(0, 0, 0, 0.54); }
+.material-icons.md-dark.md-inactive { color: rgba(0, 0, 0, 0.26); }
+
+/* Rules for using icons as white on a dark background. */
+.material-icons.md-light { color: rgba(255, 255, 255, 1); }
+.material-icons.md-light.md-inactive { color: rgba(255, 255, 255, 0.3); }
+
+/* Fix for improper baseline */
+.material-icons {
+  vertical-align: middle !important;
+  transform: translateY(-.1em);
+}
