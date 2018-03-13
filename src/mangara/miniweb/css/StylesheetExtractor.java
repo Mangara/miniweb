@@ -134,7 +134,9 @@ public class StylesheetExtractor {
 
     private static List<Path> getExternalStyleSheets(Document doc) {
         return doc.select("link[rel=stylesheet]").stream()
-                .map(e -> Paths.get(e.attr("href")))
+                .map(e -> e.attr("href"))
+                .filter(url -> !url.contains("://")) // Only process relative urls
+                .map(url -> Paths.get(url))
                 .collect(Collectors.toList());
     }
 }

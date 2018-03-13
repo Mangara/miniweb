@@ -1,6 +1,11 @@
 # MiniWeb - Change Log
 All notable changes to this project will be documented in this file.
 
+## [1.3] - ????
+
+### Fixed
+- A crash when trying to process external CSS files given as a full URL on Windows. These are now always skipped.
+
 ## [1.2] - 2017-10-07
 
 ### Added
