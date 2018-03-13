@@ -175,13 +175,13 @@ public class Minifier {
     private static void writeCompressedCSSFiles(Iterable<Path> cssFiles, Map<String, String> compressedClassNames, Map<Path, Path> targets) throws IOException {
         for (Path cssFile : cssFiles) {
             StyleSheet stylesheet = StylesheetExtractor.parseFile(cssFile);
-            
+
             if (stylesheet == null) {
                 continue;
             }
-            
+
             List<String> imports = collectImportStatements(cssFile);
-            
+
             CssClassRenamer.renameCssClasses(compressedClassNames, stylesheet);
 
             Files.createDirectories(targets.get(cssFile).getParent());
@@ -222,7 +222,7 @@ public class Minifier {
                     fileContents.append(line);
                     fileContents.append('\n');
                 }
-            } catch (NoSuchFileException|FileNotFoundException ex) {
+            } catch (NoSuchFileException | FileNotFoundException ex) {
                 System.err.printf("External JS file \"%s\" not found.%n", jsFile.toString());
                 continue;
             }
